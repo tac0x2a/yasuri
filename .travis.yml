@@ -1,0 +1,9 @@
+language: ruby
+rvm:
+  - 2.2.0
+script:
+  - ruby --version
+  - rspec spec
+addons:
+  code_climate:
+    repo_token: 0dc78d33107a7f11f257c0218ac1a37e0073005bb9734f2fd61d0f7e803fc151
