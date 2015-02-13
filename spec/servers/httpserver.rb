@@ -9,7 +9,8 @@ server = Glint::Server.new do |port|
   http = WEBrick::HTTPServer.new({
     DocumentRoot: 'spec/htdocs',
     BindAddress:  '127.0.0.1',
-    Port:         port
+    Port:         port,
+    AccessLog: []
   })
 
   trap(:INT)  { http.shutdown }
