@@ -6,15 +6,33 @@ require_relative 'spec_helper'
 
 require_relative '../lib/swim/swim'
 
-describe 'ContentNode' do
+describe 'Swim' do
   include_context 'httpserver'
+
   before do
     @agent = Mechanize.new
     @uri = uri
   end
 
+  describe '::Trigger' do
+
+    it 'return true if modified.' do
+      cond    = Swim::Cond::Modify("Last Modify - 2015/02/14")
+      trigger = Swim::Trigger.new(@uri, '/html/body/p[2]', cond)
+      actual = Swim.trigger(trigger, @agent)
+      expect(actual).to be_falsey
+    end
+
+    it 'return true if modified.' do
+      cond    = Swim::Cond::Modify("Last Modify - 2015/02/15")
+      trigger = Swim::Trigger.new(@uri, '/html/body/p[2]', cond)
+      actual = Swim.trigger(trigger, @agent)
+      expect(actual).to be_truthy
+    end
+  end
+
   describe '::ContentNode' do
-    before { @node = Swim::ContentNode.new('/html/body/p', "title") }
+    before { @node = Swim::ContentNode.new('/html/body/p[1]', "title") }
 
     it 'scrape content text <p>Hello,Swim</p>' do
       page = @agent.get(@uri)
