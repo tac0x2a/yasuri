@@ -15,7 +15,6 @@ describe 'Swim' do
   end
 
   describe '::Trigger' do
-
     it 'return true if modified.' do
       cond    = Swim::Cond::Modify("Last Modify - 2015/02/14")
       trigger = Swim::Trigger.new(@uri, '/html/body/p[2]', cond)
@@ -25,6 +24,33 @@ describe 'Swim' do
 
     it 'return true if modified.' do
       cond    = Swim::Cond::Modify("Last Modify - 2015/02/15")
+      trigger = Swim::Trigger.new(@uri, '/html/body/p[2]', cond)
+      actual = Swim.trigger(trigger, @agent)
+      expect(actual).to be_truthy
+    end
+  end
+
+  describe '::Cond' do
+    it 'return true if content is newer then condition.' do
+      cond    = Swim::Cond::NewerThen( Time.parse("2014/02/15") )
+      trigger = Swim::Trigger.new(@uri, '/html/body/p[2]', cond)
+      actual = Swim.trigger(trigger, @agent)
+      expect(actual).to be_truthy
+    end
+    it 'return false if content is newer then condition.' do
+      cond    = Swim::Cond::NewerThen( Time.parse("2016/02/15") )
+      trigger = Swim::Trigger.new(@uri, '/html/body/p[2]', cond)
+      actual = Swim.trigger(trigger, @agent)
+      expect(actual).to be_falsey
+    end
+    it 'return true if content is older then condition.' do
+      cond    = Swim::Cond::OlderThen( Time.parse("2014/02/15") )
+      trigger = Swim::Trigger.new(@uri, '/html/body/p[2]', cond)
+      actual = Swim.trigger(trigger, @agent)
+      expect(actual).to be_falsey
+    end
+    it 'return false if content is newer then condition.' do
+      cond    = Swim::Cond::OlderThen( Time.parse("2016/02/15") )
       trigger = Swim::Trigger.new(@uri, '/html/body/p[2]', cond)
       actual = Swim.trigger(trigger, @agent)
       expect(actual).to be_truthy
