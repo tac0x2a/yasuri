@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
 
 # Author::    TAC (tac@tac42.net)
@@ -51,7 +50,7 @@ module Swim
     end
 
     def inject(agent, page)
-      raise "Not implemented method."
+      fail "#{Kernel.__method__} is not implemented."
     end
   end
 

@@ -57,6 +57,13 @@ describe 'Swim' do
     end
   end
 
+  describe '::Node' do
+    before { @node = Swim::Node.new('//a', 'sample')}
+    it 'fail not implemented method' do
+      expect{ @node.inject(@agent,@uri) }.to raise_error
+    end
+  end
+
   describe '::ContentNode' do
     before { @node = Swim::ContentNode.new('/html/body/p[1]', "title") }
 
