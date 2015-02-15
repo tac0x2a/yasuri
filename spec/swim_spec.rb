@@ -12,6 +12,7 @@ describe 'Swim' do
   before do
     @agent = Mechanize.new
     @uri = uri
+    @index_page = @agent.get(@uri)
   end
 
   describe '::Trigger' do
@@ -73,21 +74,18 @@ describe 'Swim' do
     before { @node = Swim::ContentNode.new('/html/body/p[1]', "title") }
 
     it 'scrape content text <p>Hello,Swim</p>' do
-      page = @agent.get(@uri)
-      actual = @node.inject(@agent, page)
+      actual = @node.inject(@agent, @index_page)
       expect(actual).to eq "Hello,Swim"
     end
   end
 
   describe '::LinksNode' do
-    before { @root_page = @agent.get(@uri) }
-
     it 'scrape links' do
       root_node = Swim::LinksNode.new('/html/body/a', "root", [
         Swim::ContentNode.new('/html/body/p', "content"),
       ])
 
-      actual = root_node.inject(@agent, @root_page)
+      actual = root_node.inject(@agent, @index_page)
       expected = [
         {"content" => "Child 01 page."},
         {"content" => "Child 02 page."},
@@ -103,9 +101,8 @@ describe 'Swim' do
         generated = content_node '/html/body/p[1]', "title"
         original  = Swim::ContentNode.new('/html/body/p[1]', "title")
 
-        page = @agent.get(@uri)
-        expected = original.inject(@agent, page)
-        actual   = generated.inject(@agent, page)
+        expected = original.inject(@agent, @index_page)
+        actual   = generated.inject(@agent, @index_page)
 
         expect(actual).to match expected
       end
