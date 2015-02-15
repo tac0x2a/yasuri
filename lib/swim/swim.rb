@@ -80,6 +80,11 @@ module Swim
 end
 
 # alias for DSL
-def content_node(xpath, name, children = [])
-  Swim::ContentNode.new(xpath, name, children = [])
+def method_missing(name, *args)
+  if name =~ /^content_node_(.+)$/
+    xpath, children = *args
+    return Swim::ContentNode.new(xpath, $1, children)
+  end
+
+  super(name, args)
 end

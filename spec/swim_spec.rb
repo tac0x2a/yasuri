@@ -97,8 +97,8 @@ describe 'Swim' do
 
   describe 'DSL' do
     describe 'content_node' do
-      it "return single ContentNode" do
-        generated = content_node '/html/body/p[1]', "title"
+      it "return single ContentNode title" do
+        generated = content_node_title '/html/body/p[1]'
         original  = Swim::ContentNode.new('/html/body/p[1]', "title")
 
         expected = original.inject(@agent, @index_page)
