@@ -96,4 +96,19 @@ describe 'Swim' do
       expect(actual).to match expected
     end
   end
+
+  describe 'DSL' do
+    describe 'content_node' do
+      it "return single ContentNode" do
+        generated = content_node '/html/body/p[1]', "title"
+        original  = Swim::ContentNode.new('/html/body/p[1]', "title")
+
+        page = @agent.get(@uri)
+        expected = original.inject(@agent, page)
+        actual   = generated.inject(@agent, page)
+
+        expect(actual).to match expected
+      end
+    end
+  end
 end

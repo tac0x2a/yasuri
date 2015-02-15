@@ -52,6 +52,7 @@ module Swim
     def inject(agent, page)
       fail "#{Kernel.__method__} is not implemented."
     end
+
   end
 
   class ContentNode < Node
@@ -76,4 +77,9 @@ module Swim
       end # each named child node
     end
   end
+end
+
+# alias for DSL
+def content_node(xpath, name, children = [])
+  Swim::ContentNode.new(xpath, name, children = [])
 end
