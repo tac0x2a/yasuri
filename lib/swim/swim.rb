@@ -52,6 +52,7 @@ module Swim
     def inject(agent, page)
       fail "#{Kernel.__method__} is not implemented."
     end
+
   end
 
   class ContentNode < Node
@@ -63,7 +64,7 @@ module Swim
 
   class LinksNode < Node
     def inject(agent, page)
-      links = page.search(@xpath) # links expected
+      links = page.search(@xpath) || [] # links expected
       links.map do |link|
         link_button = Mechanize::Page::Link.new(link, agent, page)
         child_page = link_button.click
@@ -76,4 +77,45 @@ module Swim
       end # each named child node
     end
   end
+
+  class LinkNodeGenerator
+    def gen_recursive(&block)
+      @nodes = []
+      instance_eval(&block)
+      @nodes
+    end
+
+    def method_missing(name, *args, &block)
+      case name
+      when /^text_(.+)$/
+        xpath, children = *args
+        @nodes << Swim::ContentNode.new(xpath, $1, children)
+        return
+
+      when /^links_(.+)$/
+        xpath, children = *args
+        children = Swim::LinkNodeGenerator.new.gen_recursive(&block) if block_given?
+        @nodes << Swim::LinksNode.new(xpath, $1, children || [])
+        return
+      end
+
+      raise "Undefined Node Name '#{name}'"
+    end
+  end
+end
+
+# alias for DSL
+def method_missing(name, *args, &block)
+  case name
+  when /^text_(.+)$/
+    xpath, children = *args
+    return Swim::ContentNode.new(xpath, $1, children)
+
+  when /^links_(.+)$/
+    xpath, children = *args
+    children = Swim::LinkNodeGenerator.new.gen_recursive(&block) if block_given?
+    return Swim::LinksNode.new(xpath, $1, children || [])
+  end
+
+  super(name, args)
 end

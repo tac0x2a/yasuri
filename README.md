@@ -7,12 +7,12 @@ swim is easy scraping library by xpath.
 
 ### Example
 
-```
-# Node tree
-root_node = Swim::LinksNode.new('//*[@id="menu"]/ul/li/a', "root", [
-              Swim::ContentNode.new('//*[@id="contents"]/h2', "title"),
-              Swim::ContentNode.new('//*[@id="contents"]/p[1]', "content"),
-            ])
+```ruby
+# Node tree definition by DSL
+root = generated = links_root '//*[@id="menu"]/ul/li/a' do
+         text_title '//*[@id="contents"]/h2'
+         text_content '//*[@id="contents"]/p[1]'
+       end
 
 agent = Mechanize.new
 root_page = agent.get("http://some.scraping.page.net/")
