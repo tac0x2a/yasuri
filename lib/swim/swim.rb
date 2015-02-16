@@ -85,13 +85,21 @@ module Swim
       @nodes
     end
 
-    def method_missing(name, *args)
+    def method_missing(name, *args, &block)
       case name
       when /^content_node_(.+)$/
         xpath, children = *args
         @nodes << Swim::ContentNode.new(xpath, $1, children)
+        return
+
+      when /^link_node_(.+)$/
+        xpath, children = *args
+        children = Swim::LinkNodeGenerator.new.gen_recursive(&block) if block_given?
+        @nodes << Swim::LinksNode.new(xpath, $1, children || [])
+        return
       end
-      super(name, args)
+
+      raise "Undefined Node Name '#{name}'"
     end
   end
 end

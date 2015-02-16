@@ -147,5 +147,26 @@ describe 'Swim' do
 
       expect(actual).to match expected
     end
+
+    it 'return recursive links node' do
+      generated = link_node_root '/html/body/a' do
+        content_node_content '/html/body/p'
+        link_node_sub_link '/html/body/ul/li/a' do
+          content_node_sub_page_title '/html/head/title'
+        end
+      end
+
+      original = Swim::LinksNode.new('/html/body/a', "root", [
+        Swim::ContentNode.new('/html/body/p', "content"),
+        Swim::LinksNode.new('/html/body/ul/li/a', "sub_link", [
+          Swim::ContentNode.new('/html/head/title', "sub_page_title"),
+        ]),
+      ])
+
+      expected = original.inject(@agent, @index_page)
+      actual   = generated.inject(@agent, @index_page)
+
+      expect(actual).to match expected
+    end
   end
 end
