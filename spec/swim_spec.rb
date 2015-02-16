@@ -94,6 +94,26 @@ describe 'Swim' do
       ]
       expect(actual).to match expected
     end
+
+    it 'scrape links, recursive' do
+      root_node = Swim::LinksNode.new('/html/body/a', "root", [
+        Swim::ContentNode.new('/html/body/p', "content"),
+        Swim::LinksNode.new('/html/body/ul/li/a', "sub_link", [
+          Swim::ContentNode.new('/html/head/title', "sub_page_title"),
+        ]),
+      ])
+      actual = root_node.inject(@agent, @index_page)
+      expected = [
+        {"content"  => "Child 01 page.",
+         "sub_link" => [{"sub_page_title" => "Child 01 SubPage Test"},
+                        {"sub_page_title" => "Child 02 SubPage Test"}],},
+        {"content" => "Child 02 page.",
+         "sub_link" => [],},
+        {"content" => "Child 03 page.",
+         "sub_link" => [{"sub_page_title" => "Child 03 SubPage Test"}],},
+      ]
+      expect(actual).to match expected
+    end
   end
 
   describe 'DSL' do
@@ -128,5 +148,4 @@ describe 'Swim' do
       expect(actual).to match expected
     end
   end
-
 end
