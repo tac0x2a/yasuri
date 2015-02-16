@@ -64,7 +64,7 @@ module Swim
 
   class LinksNode < Node
     def inject(agent, page)
-      links = page.search(@xpath) # links expected
+      links = page.search(@xpath) || [] # links expected
       links.map do |link|
         link_button = Mechanize::Page::Link.new(link, agent, page)
         child_page = link_button.click
@@ -81,9 +81,14 @@ end
 
 # alias for DSL
 def method_missing(name, *args)
-  if name =~ /^content_node_(.+)$/
+  case name
+  when /^content_node_(.+)$/
     xpath, children = *args
     return Swim::ContentNode.new(xpath, $1, children)
+
+  when /^link_node_(.+)$/
+    xpath, children = *args
+    return Swim::LinksNode.new(xpath, $1, children || [])
   end
 
   super(name, args)

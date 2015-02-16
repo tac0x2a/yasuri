@@ -15,6 +15,7 @@ describe 'Swim' do
     @index_page = @agent.get(@uri)
   end
 
+
   describe '::Trigger' do
     it 'return true if modified.' do
       cond    = Swim::Cond::Modify("Last Modify - 2015/02/14")
@@ -96,16 +97,23 @@ describe 'Swim' do
   end
 
   describe 'DSL' do
-    describe 'content_node' do
-      it "return single ContentNode title" do
-        generated = content_node_title '/html/body/p[1]'
-        original  = Swim::ContentNode.new('/html/body/p[1]', "title")
+    it "return single ContentNode title" do
+      generated = content_node_title '/html/body/p[1]'
+      original  = Swim::ContentNode.new('/html/body/p[1]', "title")
+      expected = original.inject(@agent, @index_page)
+      actual   = generated.inject(@agent, @index_page)
 
-        expected = original.inject(@agent, @index_page)
-        actual   = generated.inject(@agent, @index_page)
+      expect(actual).to match expected
+    end
 
-        expect(actual).to match expected
-      end
+    it 'return single LinkNode title' do
+      generated = link_node_title     '/html/body/a'
+      original  = Swim::LinksNode.new('/html/body/a', "title")
+      expected = original.inject(@agent, @index_page)
+      actual   = generated.inject(@agent, @index_page)
+
+      expect(actual).to match expected
     end
   end
+
 end
