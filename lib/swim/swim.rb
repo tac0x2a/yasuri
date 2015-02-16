@@ -77,10 +77,27 @@ module Swim
       end # each named child node
     end
   end
+
+  class LinkNodeGenerator
+    def gen_recursive(&block)
+      @nodes = []
+      instance_eval(&block)
+      @nodes
+    end
+
+    def method_missing(name, *args)
+      case name
+      when /^content_node_(.+)$/
+        xpath, children = *args
+        @nodes << Swim::ContentNode.new(xpath, $1, children)
+      end
+      super(name, args)
+    end
+  end
 end
 
 # alias for DSL
-def method_missing(name, *args)
+def method_missing(name, *args, &block)
   case name
   when /^content_node_(.+)$/
     xpath, children = *args
@@ -88,6 +105,7 @@ def method_missing(name, *args)
 
   when /^link_node_(.+)$/
     xpath, children = *args
+    children = Swim::LinkNodeGenerator.new.gen_recursive(&block) if block_given?
     return Swim::LinksNode.new(xpath, $1, children || [])
   end
 

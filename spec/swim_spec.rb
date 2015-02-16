@@ -114,6 +114,19 @@ describe 'Swim' do
 
       expect(actual).to match expected
     end
+    it 'return nested contents under link' do
+      generated = link_node_title '/html/body/a' do
+                     content_node_name '/html/body/p'
+                  end
+      original = Swim::LinksNode.new('/html/body/a', "root", [
+        Swim::ContentNode.new('/html/body/p', "name"),
+      ])
+
+      expected = original.inject(@agent, @index_page)
+      actual   = generated.inject(@agent, @index_page)
+
+      expect(actual).to match expected
+    end
   end
 
 end
