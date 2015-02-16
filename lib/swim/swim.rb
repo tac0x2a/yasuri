@@ -87,12 +87,12 @@ module Swim
 
     def method_missing(name, *args, &block)
       case name
-      when /^content_node_(.+)$/
+      when /^text_(.+)$/
         xpath, children = *args
         @nodes << Swim::ContentNode.new(xpath, $1, children)
         return
 
-      when /^link_node_(.+)$/
+      when /^links_(.+)$/
         xpath, children = *args
         children = Swim::LinkNodeGenerator.new.gen_recursive(&block) if block_given?
         @nodes << Swim::LinksNode.new(xpath, $1, children || [])
@@ -107,11 +107,11 @@ end
 # alias for DSL
 def method_missing(name, *args, &block)
   case name
-  when /^content_node_(.+)$/
+  when /^text_(.+)$/
     xpath, children = *args
     return Swim::ContentNode.new(xpath, $1, children)
 
-  when /^link_node_(.+)$/
+  when /^links_(.+)$/
     xpath, children = *args
     children = Swim::LinkNodeGenerator.new.gen_recursive(&block) if block_given?
     return Swim::LinksNode.new(xpath, $1, children || [])
