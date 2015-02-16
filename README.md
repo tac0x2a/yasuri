@@ -7,7 +7,7 @@ swim is easy scraping library by xpath.
 
 ### Example
 
-```
+```ruby
 # Node tree definition by DSL
 root = generated = links_root '//*[@id="menu"]/ul/li/a' do
          text_title '//*[@id="contents"]/h2'
