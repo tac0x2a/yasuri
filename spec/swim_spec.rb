@@ -117,22 +117,23 @@ describe 'Swim' do
   end
 
   describe 'DSL' do
+
+    def compare_generated_vs_original(generated, original)
+      expected = original.inject(@agent, @index_page)
+      actual   = generated.inject(@agent, @index_page)
+      expect(actual).to match expected
+    end
+
     it "return single ContentNode title" do
       generated = text_title '/html/body/p[1]'
       original  = Swim::ContentNode.new('/html/body/p[1]', "title")
-      expected = original.inject(@agent, @index_page)
-      actual   = generated.inject(@agent, @index_page)
-
-      expect(actual).to match expected
+      compare_generated_vs_original(generated, original)
     end
 
     it 'return single LinkNode title' do
       generated = links_title     '/html/body/a'
       original  = Swim::LinksNode.new('/html/body/a', "title")
-      expected = original.inject(@agent, @index_page)
-      actual   = generated.inject(@agent, @index_page)
-
-      expect(actual).to match expected
+      compare_generated_vs_original(generated, original)
     end
     it 'return nested contents under link' do
       generated = links_title '/html/body/a' do
@@ -141,11 +142,7 @@ describe 'Swim' do
       original = Swim::LinksNode.new('/html/body/a', "root", [
         Swim::ContentNode.new('/html/body/p', "name"),
       ])
-
-      expected = original.inject(@agent, @index_page)
-      actual   = generated.inject(@agent, @index_page)
-
-      expect(actual).to match expected
+      compare_generated_vs_original(generated, original)
     end
 
     it 'return recursive links node' do
@@ -162,11 +159,7 @@ describe 'Swim' do
           Swim::ContentNode.new('/html/head/title', "sub_page_title"),
         ]),
       ])
-
-      expected = original.inject(@agent, @index_page)
-      actual   = generated.inject(@agent, @index_page)
-
-      expect(actual).to match expected
+      compare_generated_vs_original(generated, original)
     end
   end
 end
