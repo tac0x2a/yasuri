@@ -64,6 +64,16 @@ describe 'Swim' do
     end
   end # of ::Cond
 
+
+  ########
+  # Node #
+  ########
+  def compare_generated_vs_original(generated, original, page = @index_page)
+    expected = original.inject(@agent, page)
+    actual   = generated.inject(@agent, page)
+    expect(actual).to match expected
+  end
+
   describe '::Node' do
     before { @node = Swim::Node.new('//a', 'sample')}
     it 'fail not implemented method' do
@@ -77,6 +87,86 @@ describe 'Swim' do
     it 'scrape content text <p>Hello,Swim</p>' do
       actual = @node.inject(@agent, @index_page)
       expect(actual).to eq "Hello,Swim"
+    end
+
+    it "can be defined by DSL, return single ContentNode title" do
+      generated = text_title '/html/body/p[1]'
+      original  = Swim::ContentNode.new('/html/body/p[1]', "title")
+      compare_generated_vs_original(generated, original)
+    end
+  end
+
+  describe '::StructNode' do
+    before do
+      @page = @agent.get(@uri + "/structual_text.html")
+      @table_1996 = [
+        { "title"    => "The Perfect Insider",
+          "pub_date" => "1996/4/5" },
+        { "title"    => "Doctors in Isolated Room",
+          "pub_date" => "1996/7/5" },
+        { "title"    => "Mathematical Goodbye",
+          "pub_date" => "1996/9/5" },
+      ]
+      @table_1997 = [
+        { "title"    => "Jack the Poetical Private",
+          "pub_date" => "1997/1/5" },
+        { "title"    => "Who Inside",
+          "pub_date" => "1997/4/5" },
+        { "title"    => "Illusion Acts Like Magic",
+          "pub_date" => "1997/10/5" },
+      ]
+      @table_1998 = [
+        { "title"    => "Replaceable Summer",
+          "pub_date" => "1998/1/7" },
+        { "title"    => "Switch Back",
+          "pub_date" => "1998/4/5" },
+        { "title"    => "Numerical Models",
+          "pub_date" => "1998/7/5" },
+        { "title"    => "The Perfect Outsider",
+          "pub_date" => "1998/10/5" },
+      ]
+      @all_tables = [
+        {"table" => @table_1996},
+        {"table" => @table_1997},
+        {"table" => @table_1998},
+      ]
+    end
+    it 'scrape single table contents' do
+      node = Swim::StructNode.new('/html/body/table[1]/tr', "table", [
+        Swim::ContentNode.new('./td[1]', "title"),
+        Swim::ContentNode.new('./td[2]', "pub_date"),
+      ])
+      expected = @table_1996
+      actual = node.inject(@agent, @page)
+      expect(actual).to match expected
+    end
+
+    it 'scrape all tables' do
+      node = Swim::StructNode.new('/html/body/table', "tables", [
+        Swim::StructNode.new('./tr', "table", [
+          Swim::ContentNode.new('./td[1]', "title"),
+          Swim::ContentNode.new('./td[2]', "pub_date"),
+        ])
+      ])
+      expected = @all_tables
+      actual = node.inject(@agent, @page)
+      expect(actual).to match expected
+    end
+
+    it 'can be defined by DSL, scrape all tables' do
+      generated = struct_tables '/html/body/table' do
+        struct_table './tr' do
+          text_title    './td[1]'
+          text_pub_date './td[2]'
+        end
+      end
+      original = Swim::StructNode.new('/html/body/table', "tables", [
+        Swim::StructNode.new('./tr', "table", [
+          Swim::ContentNode.new('./td[1]', "title"),
+          Swim::ContentNode.new('./td[2]', "pub_date"),
+        ])
+      ])
+      compare_generated_vs_original(generated, original)
     end
   end
 
@@ -114,49 +204,12 @@ describe 'Swim' do
       ]
       expect(actual).to match expected
     end
-
-    describe '::PaginateNode' do
-      before do
-        @uri += "/pagination/page01.html"
-        @page = @agent.get(@uri)
-      end
-
-      it "scrape each paginated pages" do
-        root_node = Swim::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
-          Swim::ContentNode.new('/html/body/p', "content"),
-        ])
-        actual = root_node.inject(@agent, @page)
-        expected = [
-          {"content" => "PaginationTest01"},
-          {"content" => "PaginationTest02"},
-          {"content" => "PaginationTest03"},
-          {"content" => "PaginationTest04"},
-        ]
-        expect(actual).to match expected
-      end
-    end
-  end
-
-  describe 'DSL' do
-
-    def compare_generated_vs_original(generated, original, page = @index_page)
-      expected = original.inject(@agent, page)
-      actual   = generated.inject(@agent, page)
-      expect(actual).to match expected
-    end
-
-    it "return single ContentNode title" do
-      generated = text_title '/html/body/p[1]'
-      original  = Swim::ContentNode.new('/html/body/p[1]', "title")
-      compare_generated_vs_original(generated, original)
-    end
-
-    it 'return single LinkNode title' do
+    it 'can be defined by DSL, return single LinkNode title' do
       generated = links_title     '/html/body/a'
       original  = Swim::LinksNode.new('/html/body/a', "title")
       compare_generated_vs_original(generated, original)
     end
-    it 'return nested contents under link' do
+    it 'can be defined by DSL, return nested contents under link' do
       generated = links_title '/html/body/a' do
                      text_name '/html/body/p'
                   end
@@ -166,7 +219,7 @@ describe 'Swim' do
       compare_generated_vs_original(generated, original)
     end
 
-    it 'return recursive links node' do
+    it 'can be defined by DSL, return recursive links node' do
       generated = links_root '/html/body/a' do
         text_content '/html/body/p'
         links_sub_link '/html/body/ul/li/a' do
@@ -182,17 +235,37 @@ describe 'Swim' do
       ])
       compare_generated_vs_original(generated, original)
     end
+  end
 
-    it 'return single PaginateNode content' do
+  describe '::PaginateNode' do
+    before do
+      @uri += "/pagination/page01.html"
+      @page = @agent.get(@uri)
+    end
+
+    it "scrape each paginated pages" do
+      root_node = Swim::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
+        Swim::ContentNode.new('/html/body/p', "content"),
+      ])
+      actual = root_node.inject(@agent, @page)
+      expected = [
+        {"content" => "PaginationTest01"},
+        {"content" => "PaginationTest02"},
+        {"content" => "PaginationTest03"},
+        {"content" => "PaginationTest04"},
+      ]
+      expect(actual).to match expected
+    end
+
+    it 'can be defined by DSL, return single PaginateNode content' do
       generated = pages_next "/html/body/nav/span/a[@class='next']" do
         text_content '/html/body/p'
       end
       original = Swim::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
         Swim::ContentNode.new('/html/body/p', "content"),
       ])
-      uri = @uri + "/pagination/page01.html"
-      page = @agent.get(uri)
-      compare_generated_vs_original(generated, original, page)
+    compare_generated_vs_original(generated, original)
     end
   end
+
 end

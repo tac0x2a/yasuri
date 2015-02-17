@@ -62,6 +62,18 @@ module Swim
     end
   end
 
+  class StructNode < Node
+    def inject(agent, page)
+      sub_tags = page.search(@xpath)
+      sub_tags.map do |sub_tag|
+        child_results_kv = @children.map do |child_node|
+          [child_node.name, child_node.inject(agent, sub_tag)]
+        end
+        Hash[child_results_kv]
+      end
+    end
+  end
+
   class LinksNode < Node
     def inject(agent, page)
       links = page.search(@xpath) || [] # links expected
@@ -113,6 +125,12 @@ module Swim
         @nodes << Swim::ContentNode.new(xpath, $1, children)
         return
 
+      when /^struct_(.+)$/
+        xpath, children = *args
+        children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
+        @nodes << Swim::StructNode.new(xpath, $1, children || [])
+        return
+
       when /^links_(.+)$/
         xpath, children = *args
         children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
@@ -131,6 +149,11 @@ def method_missing(name, *args, &block)
   when /^text_(.+)$/
     xpath, children = *args
     return Swim::ContentNode.new(xpath, $1, children)
+
+  when /^struct_(.+)$/
+    xpath, children = *args
+    children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
+    return Swim::StructNode.new(xpath, $1, children)
 
   when /^links_(.+)$/
     xpath, children = *args
