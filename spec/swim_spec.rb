@@ -80,6 +80,27 @@ describe 'Swim' do
     end
   end
 
+  describe '::StructNode' do
+    before { @page = @agent.get(@uri + "/structual_text.html") }
+
+    it 'scrape single table contents' do
+      node = Swim::StructNode.new('/html/body/table[1]/tr', "table", [
+        Swim::ContentNode.new('./td[1]', "title"),
+        Swim::ContentNode.new('./td[2]', "pub_date"),
+      ])
+      expected = [
+        { "title"    => "The Perfect Insider",
+          "pub_date" => "1996/4/5" },
+        { "title"    => "Doctors in Isolated Room",
+          "pub_date" => "1996/7/5" },
+        { "title"    => "Mathematical Goodbye",
+          "pub_date" => "1996/9/5" },
+      ]
+      actual = node.inject(@agent, @page)
+      expect(actual).to match expected
+    end
+  end
+
   describe '::LinksNode' do
     it 'scrape links' do
       root_node = Swim::LinksNode.new('/html/body/a', "root", [

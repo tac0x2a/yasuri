@@ -62,6 +62,18 @@ module Swim
     end
   end
 
+  class StructNode < Node
+    def inject(agent, page)
+      sub_tags = page.search(@xpath)
+      sub_tags.map do |sub_tag|
+        child_results_kv = @children.map do |child_node|
+          [child_node.name, child_node.inject(agent, sub_tag)]
+        end
+        Hash[child_results_kv]
+      end
+    end
+  end
+
   class LinksNode < Node
     def inject(agent, page)
       links = page.search(@xpath) || [] # links expected
