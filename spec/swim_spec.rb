@@ -81,14 +81,9 @@ describe 'Swim' do
   end
 
   describe '::StructNode' do
-    before { @page = @agent.get(@uri + "/structual_text.html") }
-
-    it 'scrape single table contents' do
-      node = Swim::StructNode.new('/html/body/table[1]/tr', "table", [
-        Swim::ContentNode.new('./td[1]', "title"),
-        Swim::ContentNode.new('./td[2]', "pub_date"),
-      ])
-      expected = [
+    before do
+      @page = @agent.get(@uri + "/structual_text.html")
+      @table_1996 = [
         { "title"    => "The Perfect Insider",
           "pub_date" => "1996/4/5" },
         { "title"    => "Doctors in Isolated Room",
@@ -96,6 +91,48 @@ describe 'Swim' do
         { "title"    => "Mathematical Goodbye",
           "pub_date" => "1996/9/5" },
       ]
+      @table_1997 = [
+        { "title"    => "Jack the Poetical Private",
+          "pub_date" => "1997/1/5" },
+        { "title"    => "Who Inside",
+          "pub_date" => "1997/4/5" },
+        { "title"    => "Illusion Acts Like Magic",
+          "pub_date" => "1997/10/5" },
+      ]
+      @table_1998 = [
+        { "title"    => "Replaceable Summer",
+          "pub_date" => "1998/1/7" },
+        { "title"    => "Switch Back",
+          "pub_date" => "1998/4/5" },
+        { "title"    => "Numerical Models",
+          "pub_date" => "1998/7/5" },
+        { "title"    => "The Perfect Outsider",
+          "pub_date" => "1998/10/5" },
+      ]
+      @all_tables = [
+        {"table" => @table_1996},
+        {"table" => @table_1997},
+        {"table" => @table_1998},
+      ]
+    end
+    it 'scrape single table contents' do
+      node = Swim::StructNode.new('/html/body/table[1]/tr', "table", [
+        Swim::ContentNode.new('./td[1]', "title"),
+        Swim::ContentNode.new('./td[2]', "pub_date"),
+      ])
+      expected = @table_1996
+      actual = node.inject(@agent, @page)
+      expect(actual).to match expected
+    end
+
+    it 'scrape all tables' do
+      node = Swim::StructNode.new('/html/body/table', "tables", [
+        Swim::StructNode.new('./tr', "table", [
+          Swim::ContentNode.new('./td[1]', "title"),
+          Swim::ContentNode.new('./td[2]', "pub_date"),
+        ])
+      ])
+      expected = @all_tables
       actual = node.inject(@agent, @page)
       expect(actual).to match expected
     end
