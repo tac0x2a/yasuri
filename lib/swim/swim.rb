@@ -78,7 +78,28 @@ module Swim
     end
   end
 
-  class LinkNodeGenerator
+  class PaginateNode < Node
+    def inject(agent, page)
+
+      child_results = []
+      while page
+        child_results_kv = @children.map do |child_node|
+          [child_node.name, child_node.inject(agent, page)]
+        end
+        child_results << Hash[child_results_kv]
+
+        link = page.search(@xpath).first
+        break if link == nil
+
+        link_button = Mechanize::Page::Link.new(link, agent, page)
+        page = link_button.click
+      end
+
+      child_results
+    end
+  end
+
+  class RecursiveNodeGenerator
     def gen_recursive(&block)
       @nodes = []
       instance_eval(&block)
@@ -94,7 +115,7 @@ module Swim
 
       when /^links_(.+)$/
         xpath, children = *args
-        children = Swim::LinkNodeGenerator.new.gen_recursive(&block) if block_given?
+        children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
         @nodes << Swim::LinksNode.new(xpath, $1, children || [])
         return
       end
@@ -113,8 +134,13 @@ def method_missing(name, *args, &block)
 
   when /^links_(.+)$/
     xpath, children = *args
-    children = Swim::LinkNodeGenerator.new.gen_recursive(&block) if block_given?
+    children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
     return Swim::LinksNode.new(xpath, $1, children || [])
+
+  when /^pages_(.+)$/
+    xpath, children = *args
+    children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
+    return Swim::PaginateNode.new(xpath, $1, children || [])
   end
 
   super(name, args)
