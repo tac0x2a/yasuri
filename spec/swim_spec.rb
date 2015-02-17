@@ -152,6 +152,22 @@ describe 'Swim' do
       actual = node.inject(@agent, @page)
       expect(actual).to match expected
     end
+
+    it 'can be defined by DSL, scrape all tables' do
+      generated = struct_tables '/html/body/table' do
+        struct_table './tr' do
+          text_title    './td[1]'
+          text_pub_date './td[2]'
+        end
+      end
+      original = Swim::StructNode.new('/html/body/table', "tables", [
+        Swim::StructNode.new('./tr', "table", [
+          Swim::ContentNode.new('./td[1]', "title"),
+          Swim::ContentNode.new('./td[2]', "pub_date"),
+        ])
+      ])
+      compare_generated_vs_original(generated, original)
+    end
   end
 
   describe '::LinksNode' do

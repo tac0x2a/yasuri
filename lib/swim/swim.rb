@@ -125,6 +125,12 @@ module Swim
         @nodes << Swim::ContentNode.new(xpath, $1, children)
         return
 
+      when /^struct_(.+)$/
+        xpath, children = *args
+        children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
+        @nodes << Swim::StructNode.new(xpath, $1, children || [])
+        return
+
       when /^links_(.+)$/
         xpath, children = *args
         children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
@@ -143,6 +149,11 @@ def method_missing(name, *args, &block)
   when /^text_(.+)$/
     xpath, children = *args
     return Swim::ContentNode.new(xpath, $1, children)
+
+  when /^struct_(.+)$/
+    xpath, children = *args
+    children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
+    return Swim::StructNode.new(xpath, $1, children)
 
   when /^links_(.+)$/
     xpath, children = *args
