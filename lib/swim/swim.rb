@@ -99,7 +99,7 @@ module Swim
     end
   end
 
-  class LinkNodeGenerator
+  class RecursiveNodeGenerator
     def gen_recursive(&block)
       @nodes = []
       instance_eval(&block)
@@ -115,7 +115,7 @@ module Swim
 
       when /^links_(.+)$/
         xpath, children = *args
-        children = Swim::LinkNodeGenerator.new.gen_recursive(&block) if block_given?
+        children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
         @nodes << Swim::LinksNode.new(xpath, $1, children || [])
         return
       end
@@ -134,8 +134,13 @@ def method_missing(name, *args, &block)
 
   when /^links_(.+)$/
     xpath, children = *args
-    children = Swim::LinkNodeGenerator.new.gen_recursive(&block) if block_given?
+    children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
     return Swim::LinksNode.new(xpath, $1, children || [])
+
+  when /^pages_(.+)$/
+    xpath, children = *args
+    children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
+    return Swim::PaginateNode.new(xpath, $1, children || [])
   end
 
   super(name, args)

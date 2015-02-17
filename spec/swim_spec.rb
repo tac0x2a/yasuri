@@ -139,9 +139,9 @@ describe 'Swim' do
 
   describe 'DSL' do
 
-    def compare_generated_vs_original(generated, original)
-      expected = original.inject(@agent, @index_page)
-      actual   = generated.inject(@agent, @index_page)
+    def compare_generated_vs_original(generated, original, page = @index_page)
+      expected = original.inject(@agent, page)
+      actual   = generated.inject(@agent, page)
       expect(actual).to match expected
     end
 
@@ -181,6 +181,18 @@ describe 'Swim' do
         ]),
       ])
       compare_generated_vs_original(generated, original)
+    end
+
+    it 'return single PaginateNode content' do
+      generated = pages_next "/html/body/nav/span/a[@class='next']" do
+        text_content '/html/body/p'
+      end
+      original = Swim::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
+        Swim::ContentNode.new('/html/body/p', "content"),
+      ])
+      uri = @uri + "/pagination/page01.html"
+      page = @agent.get(uri)
+      compare_generated_vs_original(generated, original, page)
     end
   end
 end
