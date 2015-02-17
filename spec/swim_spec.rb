@@ -114,6 +114,27 @@ describe 'Swim' do
       ]
       expect(actual).to match expected
     end
+
+    describe '::PaginateNode' do
+      before do
+        @uri += "/pagination/page01.html"
+        @page = @agent.get(@uri)
+      end
+
+      it "scrape each paginated pages" do
+        root_node = Swim::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
+          Swim::ContentNode.new('/html/body/p', "content"),
+        ])
+        actual = root_node.inject(@agent, @page)
+        expected = [
+          {"content" => "PaginationTest01"},
+          {"content" => "PaginationTest02"},
+          {"content" => "PaginationTest03"},
+          {"content" => "PaginationTest04"},
+        ]
+        expect(actual).to match expected
+      end
+    end
   end
 
   describe 'DSL' do

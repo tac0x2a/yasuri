@@ -78,6 +78,27 @@ module Swim
     end
   end
 
+  class PaginateNode < Node
+    def inject(agent, page)
+
+      child_results = []
+      while page
+        child_results_kv = @children.map do |child_node|
+          [child_node.name, child_node.inject(agent, page)]
+        end
+        child_results << Hash[child_results_kv]
+
+        link = page.search(@xpath).first
+        break if link == nil
+
+        link_button = Mechanize::Page::Link.new(link, agent, page)
+        page = link_button.click
+      end
+
+      child_results
+    end
+  end
+
   class LinkNodeGenerator
     def gen_recursive(&block)
       @nodes = []
