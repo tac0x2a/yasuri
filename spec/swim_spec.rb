@@ -218,24 +218,24 @@ describe 'Swim' do
     end
 
     it "return TextNode" do
-      src = '{ "node"  : "text",
-               "name" : "content",
-               "path"  : "/html/body/p[1]"
-             }'
+      src = %q| { "node"  : "text",
+                  "name"  : "content",
+                  "path"  : "/html/body/p[1]"
+                }|
       generated = Swim.json2tree(src)
       original  = Swim::TextNode.new('/html/body/p[1]', "content")
       compare_generated_vs_original(generated, original)
     end
 
     it "return LinksNode/TextNode" do
-      src = '{ "node"     : "links",
-               "name"     : "root",
-               "path"     : "/html/body/a",
-               "children" : [ { "node" : "text",
-                                "name" : "content",
-                                "path" : "/html/body/p"
-                              } ]
-             }'
+      src = %q| { "node"     : "links",
+                  "name"     : "root",
+                  "path"     : "/html/body/a",
+                  "children" : [ { "node" : "text",
+                                   "name" : "content",
+                                   "path" : "/html/body/p"
+                                 } ]
+                }|
       generated = Swim.json2tree(src)
       original  = Swim::LinksNode.new('/html/body/a', "root", [
                     Swim::TextNode.new('/html/body/p', "content"),
@@ -244,14 +244,14 @@ describe 'Swim' do
     end
 
     it "return PaginateNode/TextNode" do
-      src = '{ "node"     : "pages",
-               "name"     : "root",
-               "path"     : "/html/body/nav/span/a[@class=\'next\']",
-               "children" : [ { "node" : "text",
-                                "name" : "content",
-                                "path" : "/html/body/p"
-                              } ]
-             }'
+      src = %q|{ "node"     : "pages",
+                 "name"     : "root",
+                 "path"     : "/html/body/nav/span/a[@class=\'next\']",
+                 "children" : [ { "node" : "text",
+                                  "name" : "content",
+                                  "path" : "/html/body/p"
+                                } ]
+               }|
       generated = Swim.json2tree(src)
       original = Swim::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
                    Swim::TextNode.new('/html/body/p', "content"),
@@ -263,25 +263,24 @@ describe 'Swim' do
     end
 
     it "return StructNode/StructNode/[TextNode,TextNode]" do
-     src = '{  "node"     : "struct",
-               "name"     : "tables",
-               "path"     : "/html/body/table",
-               "children" : [
-                 { "node"       : "struct",
-                   "name"       : "table",
-                   "path"       : "./tr",
-                   "children"   : [
-                     { "node" : "text",
-                       "name" : "title",
-                       "path" : "./td[1]"
-                     },
-                     { "node" : "text",
-                       "name" : "pub_date",
-                       "path" : "./td[2]"
-                     }]
-                 }]
-             }'
-
+     src = %q| { "node"     : "struct",
+                 "name"     : "tables",
+                 "path"     : "/html/body/table",
+                 "children" : [
+                   { "node"       : "struct",
+                     "name"       : "table",
+                     "path"       : "./tr",
+                     "children"   : [
+                       { "node" : "text",
+                         "name" : "title",
+                         "path" : "./td[1]"
+                       },
+                       { "node" : "text",
+                         "name" : "pub_date",
+                         "path" : "./td[2]"
+                       }]
+                   }]
+               }|
       generated = Swim.json2tree(src)
       original  = Swim::StructNode.new('/html/body/table', "tables", [
         Swim::StructNode.new('./tr', "table", [
