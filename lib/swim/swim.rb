@@ -6,7 +6,7 @@ require 'mechanize'
 
 module Swim
 
-  class Node
+  module Node
     attr_reader :url, :xpath, :name
 
     def initialize(xpath, name, children = [])
@@ -16,17 +16,18 @@ module Swim
     def inject(agent, page)
       fail "#{Kernel.__method__} is not implemented."
     end
-
   end
 
-  class ContentNode < Node
+  class ContentNode
+    include Node
     def inject(agent, page)
       node = page.search(@xpath)
       node.text.to_s
     end
   end
 
-  class StructNode < Node
+  class StructNode
+    include Node
     def inject(agent, page)
       sub_tags = page.search(@xpath)
       sub_tags.map do |sub_tag|
@@ -38,7 +39,8 @@ module Swim
     end
   end
 
-  class LinksNode < Node
+  class LinksNode
+    include Node
     def inject(agent, page)
       links = page.search(@xpath) || [] # links expected
       links.map do |link|
@@ -54,7 +56,8 @@ module Swim
     end
   end
 
-  class PaginateNode < Node
+  class PaginateNode
+    include Node
     def inject(agent, page)
 
       child_results = []
@@ -75,7 +78,7 @@ module Swim
     end
   end
 
-  class RecursiveNodeGenerator
+  class NodeGenerator
     def gen_recursive(&block)
       @nodes = []
       instance_eval(&block)
@@ -83,52 +86,33 @@ module Swim
     end
 
     def method_missing(name, *args, &block)
+      node = NodeGenerator.gen(name, *args, &block)
+      raise "Undefined Node Name '#{name}'" if node == nil
+      @nodes << node
+    end
+
+    def self.gen(name, *args, &block)
+      xpath, children = *args
+      children = Swim::NodeGenerator.new.gen_recursive(&block) if block_given?
+
       case name
       when /^text_(.+)$/
-        xpath, children = *args
-        @nodes << Swim::ContentNode.new(xpath, $1, children)
-        return
-
+        Swim::ContentNode.new(xpath, $1, children || [])
       when /^struct_(.+)$/
-        xpath, children = *args
-        children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
-        @nodes << Swim::StructNode.new(xpath, $1, children || [])
-        return
-
+        Swim::StructNode.new(xpath, $1, children || [])
       when /^links_(.+)$/
-        xpath, children = *args
-        children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
-        @nodes << Swim::LinksNode.new(xpath, $1, children || [])
-        return
+        Swim::LinksNode.new(xpath, $1, children || [])
+      when /^pages_(.+)$/
+        Swim::PaginateNode.new(xpath, $1, children || [])
+      else
+        nil
       end
-
-      raise "Undefined Node Name '#{name}'"
-    end
-  end
+    end # of self.gen(name, *args, &block)
+  end # of class NodeGenerator
 end
 
 # alias for DSL
 def method_missing(name, *args, &block)
-  case name
-  when /^text_(.+)$/
-    xpath, children = *args
-    return Swim::ContentNode.new(xpath, $1, children)
-
-  when /^struct_(.+)$/
-    xpath, children = *args
-    children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
-    return Swim::StructNode.new(xpath, $1, children)
-
-  when /^links_(.+)$/
-    xpath, children = *args
-    children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
-    return Swim::LinksNode.new(xpath, $1, children || [])
-
-  when /^pages_(.+)$/
-    xpath, children = *args
-    children = Swim::RecursiveNodeGenerator.new.gen_recursive(&block) if block_given?
-    return Swim::PaginateNode.new(xpath, $1, children || [])
-  end
-
-  super(name, args)
+  generated = Swim::NodeGenerator.gen(name, *args, &block)
+  generated || super(name, args)
 end
