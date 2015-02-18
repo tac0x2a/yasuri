@@ -24,17 +24,17 @@ describe 'Swim' do
     expect(actual).to match expected
   end
 
-  describe '::ContentNode' do
-    before { @node = Swim::ContentNode.new('/html/body/p[1]', "title") }
+  describe '::TextNode' do
+    before { @node = Swim::TextNode.new('/html/body/p[1]', "title") }
 
-    it 'scrape content text <p>Hello,Swim</p>' do
+    it 'scrape text text <p>Hello,Swim</p>' do
       actual = @node.inject(@agent, @index_page)
       expect(actual).to eq "Hello,Swim"
     end
 
-    it "can be defined by DSL, return single ContentNode title" do
+    it "can be defined by DSL, return single TextNode title" do
       generated = text_title '/html/body/p[1]'
-      original  = Swim::ContentNode.new('/html/body/p[1]', "title")
+      original  = Swim::TextNode.new('/html/body/p[1]', "title")
       compare_generated_vs_original(generated, original)
     end
   end
@@ -76,8 +76,8 @@ describe 'Swim' do
     end
     it 'scrape single table contents' do
       node = Swim::StructNode.new('/html/body/table[1]/tr', "table", [
-        Swim::ContentNode.new('./td[1]', "title"),
-        Swim::ContentNode.new('./td[2]', "pub_date"),
+        Swim::TextNode.new('./td[1]', "title"),
+        Swim::TextNode.new('./td[2]', "pub_date"),
       ])
       expected = @table_1996
       actual = node.inject(@agent, @page)
@@ -87,8 +87,8 @@ describe 'Swim' do
     it 'scrape all tables' do
       node = Swim::StructNode.new('/html/body/table', "tables", [
         Swim::StructNode.new('./tr', "table", [
-          Swim::ContentNode.new('./td[1]', "title"),
-          Swim::ContentNode.new('./td[2]', "pub_date"),
+          Swim::TextNode.new('./td[1]', "title"),
+          Swim::TextNode.new('./td[2]', "pub_date"),
         ])
       ])
       expected = @all_tables
@@ -105,8 +105,8 @@ describe 'Swim' do
       end
       original = Swim::StructNode.new('/html/body/table', "tables", [
         Swim::StructNode.new('./tr', "table", [
-          Swim::ContentNode.new('./td[1]', "title"),
-          Swim::ContentNode.new('./td[2]', "pub_date"),
+          Swim::TextNode.new('./td[1]', "title"),
+          Swim::TextNode.new('./td[2]', "pub_date"),
         ])
       ])
       compare_generated_vs_original(generated, original)
@@ -116,7 +116,7 @@ describe 'Swim' do
   describe '::LinksNode' do
     it 'scrape links' do
       root_node = Swim::LinksNode.new('/html/body/a', "root", [
-        Swim::ContentNode.new('/html/body/p', "content"),
+        Swim::TextNode.new('/html/body/p', "content"),
       ])
 
       actual = root_node.inject(@agent, @index_page)
@@ -130,9 +130,9 @@ describe 'Swim' do
 
     it 'scrape links, recursive' do
       root_node = Swim::LinksNode.new('/html/body/a', "root", [
-        Swim::ContentNode.new('/html/body/p', "content"),
+        Swim::TextNode.new('/html/body/p', "content"),
         Swim::LinksNode.new('/html/body/ul/li/a', "sub_link", [
-          Swim::ContentNode.new('/html/head/title', "sub_page_title"),
+          Swim::TextNode.new('/html/head/title', "sub_page_title"),
         ]),
       ])
       actual = root_node.inject(@agent, @index_page)
@@ -157,7 +157,7 @@ describe 'Swim' do
                      text_name '/html/body/p'
                   end
       original = Swim::LinksNode.new('/html/body/a', "root", [
-        Swim::ContentNode.new('/html/body/p', "name"),
+        Swim::TextNode.new('/html/body/p', "name"),
       ])
       compare_generated_vs_original(generated, original)
     end
@@ -171,9 +171,9 @@ describe 'Swim' do
       end
 
       original = Swim::LinksNode.new('/html/body/a', "root", [
-        Swim::ContentNode.new('/html/body/p', "content"),
+        Swim::TextNode.new('/html/body/p', "content"),
         Swim::LinksNode.new('/html/body/ul/li/a', "sub_link", [
-          Swim::ContentNode.new('/html/head/title', "sub_page_title"),
+          Swim::TextNode.new('/html/head/title', "sub_page_title"),
         ]),
       ])
       compare_generated_vs_original(generated, original)
@@ -188,7 +188,7 @@ describe 'Swim' do
 
     it "scrape each paginated pages" do
       root_node = Swim::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
-        Swim::ContentNode.new('/html/body/p', "content"),
+        Swim::TextNode.new('/html/body/p', "content"),
       ])
       actual = root_node.inject(@agent, @page)
       expected = [
@@ -205,7 +205,7 @@ describe 'Swim' do
         text_content '/html/body/p'
       end
       original = Swim::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
-        Swim::ContentNode.new('/html/body/p', "content"),
+        Swim::TextNode.new('/html/body/p', "content"),
       ])
     compare_generated_vs_original(generated, original)
     end

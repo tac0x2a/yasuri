@@ -18,7 +18,7 @@ module Swim
     end
   end
 
-  class ContentNode
+  class TextNode
     include Node
     def inject(agent, page)
       node = page.search(@xpath)
@@ -97,7 +97,7 @@ module Swim
 
       case name
       when /^text_(.+)$/
-        Swim::ContentNode.new(xpath, $1, children || [])
+        Swim::TextNode.new(xpath, $1, children || [])
       when /^struct_(.+)$/
         Swim::StructNode.new(xpath, $1, children || [])
       when /^links_(.+)$/
