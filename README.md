@@ -8,11 +8,30 @@ swim is easy scraping library by xpath.
 ### Example
 
 ```ruby
-# Node tree definition by DSL
+# Node tree constructing by DSL
 root = generated = links_root '//*[@id="menu"]/ul/li/a' do
          text_title '//*[@id="contents"]/h2'
          text_content '//*[@id="contents"]/p[1]'
        end
+
+# Node tree constructing by JSON
+src = <<-EOJSON
+   { "node"     : "links",
+     "name"     : "root",
+     "path"     : "//*[@id='menu']/ul/li/a",
+     "children" : [
+                    { "node" : "text",
+                      "name" : "title",
+                      "path" : "//*[@id='contents']/h2"
+                    },
+                    { "node" : "text",
+                      "name" : "content",
+                      "path" : "//*[@id='contents']/p[1]"
+                    }
+                  ]
+   }
+EOJSON
+root = Swim.json2tree(src)
 
 agent = Mechanize.new
 root_page = agent.get("http://some.scraping.page.net/")
