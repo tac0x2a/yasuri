@@ -3,6 +3,7 @@
 # Author::    TAC (tac@tac42.net)
 
 require 'mechanize'
+require 'json'
 
 module Swim
 
@@ -109,6 +110,30 @@ module Swim
       end
     end # of self.gen(name, *args, &block)
   end # of class NodeGenerator
+
+  def self.json2tree(json_string)
+    json = JSON.parse(json_string)
+    Swim.hash2node(json)
+  end
+
+  private
+  Text2Node = {
+    "text"   => TextNode,
+    "struct" => StructNode,
+    "links"  => LinksNode,
+    "pages"  => PaginateNode
+  }
+  def self.hash2node(node_h)
+    node, name, path, children = %w|node name path children|.map do |key|
+      node_h[key]
+    end
+    children ||= []
+
+    childnodes = children.map{|c| Swim.hash2node(c) }
+
+    klass = Text2Node[node]
+    klass ? klass.new(path, name, childnodes) : nil
+  end
 end
 
 # alias for DSL
