@@ -4,9 +4,9 @@
 
 require_relative 'spec_helper'
 
-require_relative '../lib/swim/swim'
+require_relative '../lib/yasuri/yasuri'
 
-describe 'Swim' do
+describe 'Yasuri' do
   include_context 'httpserver'
 
   before do
@@ -25,16 +25,16 @@ describe 'Swim' do
   end
 
   describe '::TextNode' do
-    before { @node = Swim::TextNode.new('/html/body/p[1]', "title") }
+    before { @node = Yasuri::TextNode.new('/html/body/p[1]', "title") }
 
-    it 'scrape text text <p>Hello,Swim</p>' do
+    it 'scrape text text <p>Hello,Yasuri</p>' do
       actual = @node.inject(@agent, @index_page)
-      expect(actual).to eq "Hello,Swim"
+      expect(actual).to eq "Hello,Yasuri"
     end
 
     it "can be defined by DSL, return single TextNode title" do
       generated = text_title '/html/body/p[1]'
-      original  = Swim::TextNode.new('/html/body/p[1]', "title")
+      original  = Yasuri::TextNode.new('/html/body/p[1]', "title")
       compare_generated_vs_original(generated, original)
     end
   end
@@ -75,9 +75,9 @@ describe 'Swim' do
       ]
     end
     it 'scrape single table contents' do
-      node = Swim::StructNode.new('/html/body/table[1]/tr', "table", [
-        Swim::TextNode.new('./td[1]', "title"),
-        Swim::TextNode.new('./td[2]', "pub_date"),
+      node = Yasuri::StructNode.new('/html/body/table[1]/tr', "table", [
+        Yasuri::TextNode.new('./td[1]', "title"),
+        Yasuri::TextNode.new('./td[2]', "pub_date"),
       ])
       expected = @table_1996
       actual = node.inject(@agent, @page)
@@ -85,10 +85,10 @@ describe 'Swim' do
     end
 
     it 'scrape all tables' do
-      node = Swim::StructNode.new('/html/body/table', "tables", [
-        Swim::StructNode.new('./tr', "table", [
-          Swim::TextNode.new('./td[1]', "title"),
-          Swim::TextNode.new('./td[2]', "pub_date"),
+      node = Yasuri::StructNode.new('/html/body/table', "tables", [
+        Yasuri::StructNode.new('./tr', "table", [
+          Yasuri::TextNode.new('./td[1]', "title"),
+          Yasuri::TextNode.new('./td[2]', "pub_date"),
         ])
       ])
       expected = @all_tables
@@ -103,10 +103,10 @@ describe 'Swim' do
           text_pub_date './td[2]'
         end
       end
-      original = Swim::StructNode.new('/html/body/table', "tables", [
-        Swim::StructNode.new('./tr', "table", [
-          Swim::TextNode.new('./td[1]', "title"),
-          Swim::TextNode.new('./td[2]', "pub_date"),
+      original = Yasuri::StructNode.new('/html/body/table', "tables", [
+        Yasuri::StructNode.new('./tr', "table", [
+          Yasuri::TextNode.new('./td[1]', "title"),
+          Yasuri::TextNode.new('./td[2]', "pub_date"),
         ])
       ])
       compare_generated_vs_original(generated, original)
@@ -115,8 +115,8 @@ describe 'Swim' do
 
   describe '::LinksNode' do
     it 'scrape links' do
-      root_node = Swim::LinksNode.new('/html/body/a', "root", [
-        Swim::TextNode.new('/html/body/p', "content"),
+      root_node = Yasuri::LinksNode.new('/html/body/a', "root", [
+        Yasuri::TextNode.new('/html/body/p', "content"),
       ])
 
       actual = root_node.inject(@agent, @index_page)
@@ -129,10 +129,10 @@ describe 'Swim' do
     end
 
     it 'scrape links, recursive' do
-      root_node = Swim::LinksNode.new('/html/body/a', "root", [
-        Swim::TextNode.new('/html/body/p', "content"),
-        Swim::LinksNode.new('/html/body/ul/li/a', "sub_link", [
-          Swim::TextNode.new('/html/head/title', "sub_page_title"),
+      root_node = Yasuri::LinksNode.new('/html/body/a', "root", [
+        Yasuri::TextNode.new('/html/body/p', "content"),
+        Yasuri::LinksNode.new('/html/body/ul/li/a', "sub_link", [
+          Yasuri::TextNode.new('/html/head/title', "sub_page_title"),
         ]),
       ])
       actual = root_node.inject(@agent, @index_page)
@@ -149,15 +149,15 @@ describe 'Swim' do
     end
     it 'can be defined by DSL, return single LinkNode title' do
       generated = links_title     '/html/body/a'
-      original  = Swim::LinksNode.new('/html/body/a', "title")
+      original  = Yasuri::LinksNode.new('/html/body/a', "title")
       compare_generated_vs_original(generated, original)
     end
     it 'can be defined by DSL, return nested contents under link' do
       generated = links_title '/html/body/a' do
                      text_name '/html/body/p'
                   end
-      original = Swim::LinksNode.new('/html/body/a', "root", [
-        Swim::TextNode.new('/html/body/p', "name"),
+      original = Yasuri::LinksNode.new('/html/body/a', "root", [
+        Yasuri::TextNode.new('/html/body/p', "name"),
       ])
       compare_generated_vs_original(generated, original)
     end
@@ -170,10 +170,10 @@ describe 'Swim' do
         end
       end
 
-      original = Swim::LinksNode.new('/html/body/a', "root", [
-        Swim::TextNode.new('/html/body/p', "content"),
-        Swim::LinksNode.new('/html/body/ul/li/a', "sub_link", [
-          Swim::TextNode.new('/html/head/title', "sub_page_title"),
+      original = Yasuri::LinksNode.new('/html/body/a', "root", [
+        Yasuri::TextNode.new('/html/body/p', "content"),
+        Yasuri::LinksNode.new('/html/body/ul/li/a', "sub_link", [
+          Yasuri::TextNode.new('/html/head/title', "sub_page_title"),
         ]),
       ])
       compare_generated_vs_original(generated, original)
@@ -187,8 +187,8 @@ describe 'Swim' do
     end
 
     it "scrape each paginated pages" do
-      root_node = Swim::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
-        Swim::TextNode.new('/html/body/p', "content"),
+      root_node = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
+        Yasuri::TextNode.new('/html/body/p', "content"),
       ])
       actual = root_node.inject(@agent, @page)
       expected = [
@@ -204,8 +204,8 @@ describe 'Swim' do
       generated = pages_next "/html/body/nav/span/a[@class='next']" do
         text_content '/html/body/p'
       end
-      original = Swim::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
-        Swim::TextNode.new('/html/body/p', "content"),
+      original = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
+        Yasuri::TextNode.new('/html/body/p', "content"),
       ])
     compare_generated_vs_original(generated, original)
     end
@@ -213,7 +213,7 @@ describe 'Swim' do
 
   describe '.json2tree' do
     it "return empty tree" do
-      tree = Swim.json2tree("{}")
+      tree = Yasuri.json2tree("{}")
       expect(tree).to be_nil
     end
 
@@ -222,8 +222,8 @@ describe 'Swim' do
                   "name"  : "content",
                   "path"  : "/html/body/p[1]"
                 }|
-      generated = Swim.json2tree(src)
-      original  = Swim::TextNode.new('/html/body/p[1]', "content")
+      generated = Yasuri.json2tree(src)
+      original  = Yasuri::TextNode.new('/html/body/p[1]', "content")
       compare_generated_vs_original(generated, original)
     end
 
@@ -236,9 +236,9 @@ describe 'Swim' do
                                    "path" : "/html/body/p"
                                  } ]
                 }|
-      generated = Swim.json2tree(src)
-      original  = Swim::LinksNode.new('/html/body/a', "root", [
-                    Swim::TextNode.new('/html/body/p', "content"),
+      generated = Yasuri.json2tree(src)
+      original  = Yasuri::LinksNode.new('/html/body/a', "root", [
+                    Yasuri::TextNode.new('/html/body/p', "content"),
                   ])
       compare_generated_vs_original(generated, original)
     end
@@ -252,9 +252,9 @@ describe 'Swim' do
                                   "path" : "/html/body/p"
                                 } ]
                }|
-      generated = Swim.json2tree(src)
-      original = Swim::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
-                   Swim::TextNode.new('/html/body/p', "content"),
+      generated = Yasuri.json2tree(src)
+      original = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
+                   Yasuri::TextNode.new('/html/body/p', "content"),
                  ])
 
       paginate_test_uri  = @uri + "/pagination/page01.html"
@@ -281,11 +281,11 @@ describe 'Swim' do
                        }]
                    }]
                }|
-      generated = Swim.json2tree(src)
-      original  = Swim::StructNode.new('/html/body/table', "tables", [
-        Swim::StructNode.new('./tr', "table", [
-          Swim::TextNode.new('./td[1]', "title"),
-          Swim::TextNode.new('./td[2]', "pub_date"),
+      generated = Yasuri.json2tree(src)
+      original  = Yasuri::StructNode.new('/html/body/table', "tables", [
+        Yasuri::StructNode.new('./tr', "table", [
+          Yasuri::TextNode.new('./td[1]', "title"),
+          Yasuri::TextNode.new('./td[2]', "pub_date"),
         ])
       ])
       page = @agent.get(@uri + "/structual_text.html")

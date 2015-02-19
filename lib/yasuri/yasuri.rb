@@ -5,7 +5,7 @@
 require 'mechanize'
 require 'json'
 
-module Swim
+module Yasuri
 
   module Node
     attr_reader :url, :xpath, :name
@@ -94,17 +94,17 @@ module Swim
 
     def self.gen(name, *args, &block)
       xpath, children = *args
-      children = Swim::NodeGenerator.new.gen_recursive(&block) if block_given?
+      children = Yasuri::NodeGenerator.new.gen_recursive(&block) if block_given?
 
       case name
       when /^text_(.+)$/
-        Swim::TextNode.new(xpath, $1, children || [])
+        Yasuri::TextNode.new(xpath, $1, children || [])
       when /^struct_(.+)$/
-        Swim::StructNode.new(xpath, $1, children || [])
+        Yasuri::StructNode.new(xpath, $1, children || [])
       when /^links_(.+)$/
-        Swim::LinksNode.new(xpath, $1, children || [])
+        Yasuri::LinksNode.new(xpath, $1, children || [])
       when /^pages_(.+)$/
-        Swim::PaginateNode.new(xpath, $1, children || [])
+        Yasuri::PaginateNode.new(xpath, $1, children || [])
       else
         nil
       end
@@ -113,7 +113,7 @@ module Swim
 
   def self.json2tree(json_string)
     json = JSON.parse(json_string)
-    Swim.hash2node(json)
+    Yasuri.hash2node(json)
   end
 
   private
@@ -129,7 +129,7 @@ module Swim
     end
     children ||= []
 
-    childnodes = children.map{|c| Swim.hash2node(c) }
+    childnodes = children.map{|c| Yasuri.hash2node(c) }
 
     klass = Text2Node[node]
     klass ? klass.new(path, name, childnodes) : nil
@@ -138,6 +138,6 @@ end
 
 # alias for DSL
 def method_missing(name, *args, &block)
-  generated = Swim::NodeGenerator.gen(name, *args, &block)
+  generated = Yasuri::NodeGenerator.gen(name, *args, &block)
   generated || super(name, args)
 end
