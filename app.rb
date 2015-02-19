@@ -7,7 +7,7 @@ require 'pp'
 require 'time'
 require 'mechanize'
 
-require_relative 'lib/swim/swim'
+require_relative 'lib/yasuri/yasuri'
 
 agent = Mechanize.new
 
@@ -36,7 +36,7 @@ src = <<-EOJSON
                   ]
    }
 EOJSON
-root = Swim.json2tree(src)
+root = Yasuri.json2tree(src)
 
 # Access to parsed resources
 page = agent.get(uri)
