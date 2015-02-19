@@ -1,6 +1,6 @@
 # Yasuri [![Build Status](https://travis-ci.org/tac0x2a/yasuri.svg?branch=master)](https://travis-ci.org/tac0x2a/yasuri) [![Coverage Status](https://coveralls.io/repos/tac0x2a/yasuri/badge.svg?branch=master)](https://coveralls.io/r/tac0x2a/yasuri?branch=master) [![Code Climate](https://codeclimate.com/github/tac0x2a/yasuri/badges/gpa.svg)](https://codeclimate.com/github/tac0x2a/yasuri)
 
-Yasuri (鑢) is easy scraping library by xpath.
+Yasuri (鑢) is an easy web-scraping library for supporting "[Mechanize](https://github.com/sparklemotion/mechanize)".
 
 ### Example
 
