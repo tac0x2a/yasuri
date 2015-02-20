@@ -1,6 +1,4 @@
-#!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
-
 # Author::    TAC (tac@tac42.net)
 
 require 'glint'
@@ -28,3 +26,6 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
   Coveralls::SimpleCov::Formatter
 ]
 SimpleCov.start
+
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+require 'yasuri'
