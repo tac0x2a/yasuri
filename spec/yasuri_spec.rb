@@ -4,7 +4,7 @@
 
 require_relative 'spec_helper'
 
-require_relative '../lib/yasuri/yasuri'
+#require_relative '../lib/yasuri/yasuri'
 
 describe 'Yasuri' do
   include_context 'httpserver'
@@ -291,5 +291,9 @@ describe 'Yasuri' do
       page = @agent.get(@uri + "/structual_text.html")
       compare_generated_vs_original(generated, original, page)
     end
+  end
+
+  it 'has a version number' do
+    expect(Yasuri::VERSION).not_to be nil
   end
 end

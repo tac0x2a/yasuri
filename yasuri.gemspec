@@ -1,0 +1,31 @@
+# coding: utf-8
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require 'yasuri/version'
+
+Gem::Specification.new do |spec|
+  spec.name          = "yasuri"
+  spec.version       = Yasuri::VERSION
+  spec.authors       = ["TAC"]
+  spec.email         = ["tac@tac42.net"]
+  spec.summary       = %q{Yasuri is easy scraping library.}
+  spec.description   = %q{Yasuri is an easy web-scraping library for supporting "Mechanize".}
+  spec.homepage      = ""
+  spec.license       = "MIT"
+
+  spec.files         = `git ls-files -z`.split("\x0")
+  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
+  spec.require_paths = ["lib"]
+
+  spec.add_development_dependency "bundler", "~> 1.7"
+  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rspec"
+  spec.add_development_dependency "fuubar"
+  spec.add_development_dependency "glint"
+  spec.add_development_dependency "coveralls"
+  spec.add_development_dependency "simplecov"
+  spec.add_development_dependency "codeclimate-test-reporter"
+
+  spec.add_dependency "mechanize"
+end

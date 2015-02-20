@@ -2,7 +2,23 @@
 
 Yasuri (鑢) is an easy web-scraping library for supporting "[Mechanize](https://github.com/sparklemotion/mechanize)".
 
-### Example
+## Installation
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'yasuri'
+```
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install yasuri
+
+## Usage
 
 ```ruby
 # Node tree constructing by DSL
@@ -36,3 +52,12 @@ root_page = agent.get("http://some.scraping.page.net/")
 result = root.inject(agent, root_page)
 # => [ {"title" => "PageTitle", "content" => "Page Contents" }, ...  ]
 ```
+
+
+## Contributing
+
+1. Fork it ( https://github.com/[my-github-username]/yasuri/fork )
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create a new Pull Request
