@@ -1,5 +1,5 @@
-require_relative "yasuri/version"
-require_relative "yasuri/yasuri"
+require "yasuri/version"
+require "yasuri/yasuri"
 
 module Yasuri
   # Your code goes here...
