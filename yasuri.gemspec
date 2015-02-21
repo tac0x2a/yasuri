@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["tac@tac42.net"]
   spec.summary       = %q{Yasuri is easy scraping library.}
   spec.description   = %q{Yasuri is an easy web-scraping library for supporting "Mechanize".}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/tac0x2a/yasuri"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
