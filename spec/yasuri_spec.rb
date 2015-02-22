@@ -35,6 +35,18 @@ describe 'Yasuri' do
       expect(actual).to eq "Hello,Yasuri"
     end
 
+    it 'return empty text if no match node' do
+      no_match_node = Yasuri::TextNode.new('/html/body/no_match_node', "title")
+      actual = no_match_node.inject(@agent, @index_page)
+      expect(actual).to be_empty
+    end
+
+    it 'fail with invalid xpath' do
+      invalid_xpath = '/html/body/no_match_node['
+      node = Yasuri::TextNode.new(invalid_xpath, "title")
+      expect { node.inject(@agent, @index_page) }.to raise_error
+    end
+
     it "can be defined by DSL, return single TextNode title" do
       generated = text_title '/html/body/p[1]'
       original  = Yasuri::TextNode.new('/html/body/p[1]', "title")
@@ -56,7 +68,7 @@ describe 'Yasuri' do
     it "return empty string if truncated with no match to regexp" do
       node = text_title '/html/body/p[1]', /^hoge/
       actual = node.inject(@agent, @index_page)
-      expect(actual).to eq ""
+      expect(actual).to be_empty
     end
   end
 
@@ -106,6 +118,32 @@ describe 'Yasuri' do
       expected = @table_1996
       actual = node.inject(@agent, @page)
       expect(actual).to match expected
+    end
+
+    it 'return empty text if no match node' do
+      no_match_xpath = '/html/body/table[1]/t'
+      node = Yasuri::StructNode.new(no_match_xpath, "table", [
+        Yasuri::TextNode.new('./td[1]', "title")
+      ])
+      actual = node.inject(@agent, @page)
+      expect(actual).to be_empty
+    end
+
+    it 'fail with invalid xpath' do
+      invalid_xpath = '/html/body/table[1]/table[1]/tr['
+      node = Yasuri::StructNode.new(invalid_xpath, "table", [
+        Yasuri::TextNode.new('./td[1]', "title")
+      ])
+      expect { node.inject(@agent, @page) }.to raise_error
+    end
+
+    it 'fail with invalid xpath in children' do
+      invalid_xpath = './td[1]['
+      node = Yasuri::StructNode.new('/html/body/table[1]/tr', "table", [
+        Yasuri::TextNode.new(invalid_xpath, "title"),
+        Yasuri::TextNode.new('./td[2]', "pub_date"),
+      ])
+      expect { node.inject(@agent, @page) }.to raise_error
     end
 
     it 'scrape all tables' do
