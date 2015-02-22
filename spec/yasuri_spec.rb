@@ -193,6 +193,16 @@ describe 'Yasuri' do
       expect(actual).to match expected
     end
 
+    it 'return empty set if no match node' do
+      missing_xpath = '/html/body/b'
+      root_node = Yasuri::LinksNode.new(missing_xpath, "root", [
+        Yasuri::TextNode.new('/html/body/p', "content"),
+      ])
+
+      actual = root_node.inject(@agent, @index_page)
+      expect(actual).to be_empty
+    end
+
     it 'scrape links, recursive' do
       root_node = Yasuri::LinksNode.new('/html/body/a', "root", [
         Yasuri::TextNode.new('/html/body/p', "content"),
@@ -266,6 +276,25 @@ describe 'Yasuri' do
         {"content" => "PaginationTest04"},
       ]
       expect(actual).to match expected
+    end
+
+    it 'return first content if paginate link node is not found' do
+      missing_xpath = "/html/body/nav/span/b[@class='next']"
+      root_node = Yasuri::PaginateNode.new(missing_xpath, "root", [
+        Yasuri::TextNode.new('/html/body/p', "content"),
+      ])
+      actual = root_node.inject(@agent, @page)
+      expected = [ {"content" => "PaginationTest01"}, ]
+      expect(actual).to match_array expected
+    end
+
+    it 'return empty hashes if content node is not found' do
+      root_node = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
+        Yasuri::TextNode.new('/html/body/hoge', "content"),
+      ])
+      actual = root_node.inject(@agent, @page)
+      expected = [ {"content" => ""}, {"content" => ""}, {"content" => ""}, {"content" => ""},]
+      expect(actual).to match_array expected
     end
 
     it 'can be defined by DSL, return single PaginateNode content' do
