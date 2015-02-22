@@ -37,6 +37,24 @@ describe 'Yasuri' do
       original  = Yasuri::TextNode.new('/html/body/p[1]', "title")
       compare_generated_vs_original(generated, original)
     end
+
+    it "can be truncated with regexp" do
+      node  = text_title '/html/body/p[1]', /^[^,]+/
+      actual = node.inject(@agent, @index_page)
+      expect(actual).to eq "Hello"
+    end
+
+    it "can be truncated with regexp" do
+      node = text_title '/html/body/p[1]', /[^,]+$/
+      actual = node.inject(@agent, @index_page)
+      expect(actual).to eq "Yasuri"
+    end
+
+    it "return empty string if truncated with no match to regexp" do
+      node = text_title '/html/body/p[1]', /^hoge/
+      actual = node.inject(@agent, @index_page)
+      expect(actual).to eq ""
+    end
   end
 
   describe '::StructNode' do
