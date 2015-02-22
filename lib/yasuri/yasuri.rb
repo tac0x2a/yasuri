@@ -25,7 +25,7 @@ module Yasuri
       super(xpath, name, children)
       @truncate_regexp, dummy = *children
     end
-    def inject(agent, page)
+    def inject(agent, page, retry_count = 5)
       node = page.search(@xpath)
       text = node.text.to_s
 
@@ -37,11 +37,11 @@ module Yasuri
 
   class StructNode
     include Node
-    def inject(agent, page)
+    def inject(agent, page, retry_count = 5)
       sub_tags = page.search(@xpath)
       sub_tags.map do |sub_tag|
         child_results_kv = @children.map do |child_node|
-          [child_node.name, child_node.inject(agent, sub_tag)]
+          [child_node.name, child_node.inject(agent, sub_tag, retry_count)]
         end
         Hash[child_results_kv]
       end
@@ -50,14 +50,14 @@ module Yasuri
 
   class LinksNode
     include Node
-    def inject(agent, page)
+    def inject(agent, page, retry_count = 5)
       links = page.search(@xpath) || [] # links expected
       links.map do |link|
         link_button = Mechanize::Page::Link.new(link, agent, page)
-        child_page = link_button.click
+        child_page = Yasuri.with_retry(retry_count) { link_button.click }
 
         child_results_kv = @children.map do |child_node|
-          [child_node.name, child_node.inject(agent, child_page)]
+          [child_node.name, child_node.inject(agent, child_page, retry_count)]
         end
 
         Hash[child_results_kv]
@@ -67,12 +67,12 @@ module Yasuri
 
   class PaginateNode
     include Node
-    def inject(agent, page)
+    def inject(agent, page, retry_count = 5)
 
       child_results = []
       while page
         child_results_kv = @children.map do |child_node|
-          [child_node.name, child_node.inject(agent, page)]
+          [child_node.name, child_node.inject(agent, page, retry_count)]
         end
         child_results << Hash[child_results_kv]
 
@@ -80,7 +80,7 @@ module Yasuri
         break if link == nil
 
         link_button = Mechanize::Page::Link.new(link, agent, page)
-        page = link_button.click
+        page = Yasuri.with_retry(retry_count) { link_button.click }
       end
 
       child_results
@@ -142,6 +142,19 @@ module Yasuri
 
     klass = Text2Node[node]
     klass ? klass.new(path, name, childnodes) : nil
+  end
+
+  def self.with_retry(retry_count = 5)
+    begin
+      return yield() if block_given?
+    rescue => e
+      if retry_count > 0
+        pp "retry #{retry_count}"
+        retry_count -= 1
+        retry
+      end
+      fail e
+    end
   end
 end
 
