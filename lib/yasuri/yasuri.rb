@@ -21,9 +21,17 @@ module Yasuri
 
   class TextNode
     include Node
+    def initialize(xpath, name, children = [])
+      super(xpath, name, children)
+      @truncate_regexp, dummy = *children
+    end
     def inject(agent, page)
       node = page.search(@xpath)
-      node.text.to_s
+      text = node.text.to_s
+
+      text = text[@truncate_regexp, 0] if @truncate_regexp
+
+      text.to_s
     end
   end
 
@@ -98,6 +106,7 @@ module Yasuri
 
       case name
       when /^text_(.+)$/
+        truncate_regexp, dummy = children
         Yasuri::TextNode.new(xpath, $1, children || [])
       when /^struct_(.+)$/
         Yasuri::StructNode.new(xpath, $1, children || [])
