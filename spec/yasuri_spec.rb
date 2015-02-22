@@ -24,6 +24,9 @@ describe 'Yasuri' do
     expect(actual).to match expected
   end
 
+  ########
+  # Text #
+  ########
   describe '::TextNode' do
     before { @node = Yasuri::TextNode.new('/html/body/p[1]', "title") }
 
@@ -57,6 +60,9 @@ describe 'Yasuri' do
     end
   end
 
+  ##########
+  # Struct #
+  ##########
   describe '::StructNode' do
     before do
       @page = @agent.get(@uri + "/structual_text.html")
@@ -131,6 +137,9 @@ describe 'Yasuri' do
     end
   end
 
+  #########
+  # Links #
+  #########
   describe '::LinksNode' do
     it 'scrape links' do
       root_node = Yasuri::LinksNode.new('/html/body/a', "root", [
@@ -198,6 +207,9 @@ describe 'Yasuri' do
     end
   end
 
+  ############
+  # Paginate #
+  ############
   describe '::PaginateNode' do
     before do
       @uri += "/pagination/page01.html"
@@ -229,6 +241,9 @@ describe 'Yasuri' do
     end
   end
 
+  #############
+  # json2tree #
+  #############
   describe '.json2tree' do
     it "return empty tree" do
       tree = Yasuri.json2tree("{}")
