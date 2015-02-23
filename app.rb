@@ -14,7 +14,7 @@ agent = Mechanize.new
 uri = "http://www.asahi.com/"
 
 # Node tree constructing by DSL
-root = links_top '//*[@id="MainInner"]/div[1]/ul/li/a' do
+root = Yasuri.links_top '//*[@id="MainInner"]/div[1]/ul/li/a' do
   text_title   '//*[@id="MainInner"]/div[1]/div/h1'
   text_article '//*[@id="MainInner"]/div/div[@class="ArticleText"]'
 end

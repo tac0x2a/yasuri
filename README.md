@@ -22,7 +22,7 @@ Or install it yourself as:
 
 ```ruby
 # Node tree constructing by DSL
-root = links_root '//*[@id="menu"]/ul/li/a' do
+root = Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
          text_title '//*[@id="contents"]/h2'
          text_content '//*[@id="contents"]/p[1]'
        end

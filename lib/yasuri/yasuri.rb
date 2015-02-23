@@ -125,6 +125,12 @@ module Yasuri
     Yasuri.hash2node(json)
   end
 
+  def self.method_missing(name, *args, &block)
+    generated = Yasuri::NodeGenerator.gen(name, *args, &block)
+    generated || super(name, args)
+  end
+
+
   private
   Text2Node = {
     "text"   => TextNode,
@@ -156,10 +162,4 @@ module Yasuri
       fail e
     end
   end
-end
-
-# alias for DSL
-def method_missing(name, *args, &block)
-  generated = Yasuri::NodeGenerator.gen(name, *args, &block)
-  generated || super(name, args)
 end

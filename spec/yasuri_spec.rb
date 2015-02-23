@@ -48,25 +48,25 @@ describe 'Yasuri' do
     end
 
     it "can be defined by DSL, return single TextNode title" do
-      generated = text_title '/html/body/p[1]'
+      generated = Yasuri.text_title '/html/body/p[1]'
       original  = Yasuri::TextNode.new('/html/body/p[1]', "title")
       compare_generated_vs_original(generated, original)
     end
 
     it "can be truncated with regexp" do
-      node  = text_title '/html/body/p[1]', /^[^,]+/
+      node  = Yasuri.text_title '/html/body/p[1]', /^[^,]+/
       actual = node.inject(@agent, @index_page)
       expect(actual).to eq "Hello"
     end
 
     it "can be truncated with regexp" do
-      node = text_title '/html/body/p[1]', /[^,]+$/
+      node = Yasuri.text_title '/html/body/p[1]', /[^,]+$/
       actual = node.inject(@agent, @index_page)
       expect(actual).to eq "Yasuri"
     end
 
     it "return empty string if truncated with no match to regexp" do
-      node = text_title '/html/body/p[1]', /^hoge/
+      node = Yasuri.text_title '/html/body/p[1]', /^hoge/
       actual = node.inject(@agent, @index_page)
       expect(actual).to be_empty
     end
@@ -159,7 +159,7 @@ describe 'Yasuri' do
     end
 
     it 'can be defined by DSL, scrape all tables' do
-      generated = struct_tables '/html/body/table' do
+      generated = Yasuri.struct_tables '/html/body/table' do
         struct_table './tr' do
           text_title    './td[1]'
           text_pub_date './td[2]'
@@ -223,12 +223,12 @@ describe 'Yasuri' do
       expect(actual).to match expected
     end
     it 'can be defined by DSL, return single LinkNode title' do
-      generated = links_title     '/html/body/a'
+      generated = Yasuri.links_title '/html/body/a'
       original  = Yasuri::LinksNode.new('/html/body/a', "title")
       compare_generated_vs_original(generated, original)
     end
     it 'can be defined by DSL, return nested contents under link' do
-      generated = links_title '/html/body/a' do
+      generated = Yasuri.links_title '/html/body/a' do
                      text_name '/html/body/p'
                   end
       original = Yasuri::LinksNode.new('/html/body/a', "root", [
@@ -238,7 +238,7 @@ describe 'Yasuri' do
     end
 
     it 'can be defined by DSL, return recursive links node' do
-      generated = links_root '/html/body/a' do
+      generated = Yasuri.links_root '/html/body/a' do
         text_content '/html/body/p'
         links_sub_link '/html/body/ul/li/a' do
           text_sub_page_title '/html/head/title'
@@ -298,7 +298,7 @@ describe 'Yasuri' do
     end
 
     it 'can be defined by DSL, return single PaginateNode content' do
-      generated = pages_next "/html/body/nav/span/a[@class='next']" do
+      generated = Yasuri.pages_next "/html/body/nav/span/a[@class='next']" do
         text_content '/html/body/p'
       end
       original = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
