@@ -67,6 +67,12 @@ module Yasuri
 
   class PaginateNode
     include Node
+
+    def initialize(xpath, name, children = [], limit = Float::INFINITY)
+      super(xpath, name, children)
+      @limit = limit
+    end
+
     def inject(agent, page, retry_count = 5)
 
       child_results = []
@@ -81,6 +87,7 @@ module Yasuri
 
         link_button = Mechanize::Page::Link.new(link, agent, page)
         page = Yasuri.with_retry(retry_count) { link_button.click }
+        break if (@limit -= 1) <= 0
       end
 
       child_results
@@ -101,19 +108,20 @@ module Yasuri
     end
 
     def self.gen(name, *args, &block)
-      xpath, children = *args
+      xpath, opt = *args
       children = Yasuri::NodeGenerator.new.gen_recursive(&block) if block_given?
 
       case name
       when /^text_(.+)$/
-        truncate_regexp, dummy = children
-        Yasuri::TextNode.new(xpath, $1, children || [])
+        truncate_regexp = opt
+        Yasuri::TextNode.new(xpath, $1, truncate_regexp)
       when /^struct_(.+)$/
         Yasuri::StructNode.new(xpath, $1, children || [])
       when /^links_(.+)$/
         Yasuri::LinksNode.new(xpath, $1, children || [])
       when /^pages_(.+)$/
-        Yasuri::PaginateNode.new(xpath, $1, children || [])
+        limit = opt || Float::INFINITY
+        Yasuri::PaginateNode.new(xpath, $1, children || [], limit)
       else
         nil
       end

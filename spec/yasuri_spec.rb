@@ -278,6 +278,20 @@ describe 'Yasuri' do
       expect(actual).to match expected
     end
 
+    it "scrape each paginated pages limited" do
+      root_node = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
+        Yasuri::TextNode.new('/html/body/p', "content"),
+      ], 3)
+      actual = root_node.inject(@agent, @page)
+      expected = [
+        {"content" => "PaginationTest01"},
+        {"content" => "PaginationTest02"},
+        {"content" => "PaginationTest03"},
+      ]
+      expect(actual).to match expected
+    end
+
+
     it 'return first content if paginate link node is not found' do
       missing_xpath = "/html/body/nav/span/b[@class='next']"
       root_node = Yasuri::PaginateNode.new(missing_xpath, "root", [
@@ -304,7 +318,17 @@ describe 'Yasuri' do
       original = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
         Yasuri::TextNode.new('/html/body/p', "content"),
       ])
-    compare_generated_vs_original(generated, original)
+      compare_generated_vs_original(generated, original, @page)
+    end
+
+    it 'can be defined by DSL, return single PaginateNode content limited' do
+      generated = Yasuri.pages_next "/html/body/nav/span/a[@class='next']", 2 do
+        text_content '/html/body/p'
+      end
+      original = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
+        Yasuri::TextNode.new('/html/body/p', "content"),
+      ], 2)
+      compare_generated_vs_original(generated, original, @page)
     end
   end
 
