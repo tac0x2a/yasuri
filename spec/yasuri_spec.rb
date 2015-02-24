@@ -54,19 +54,19 @@ describe 'Yasuri' do
     end
 
     it "can be truncated with regexp" do
-      node  = Yasuri.text_title '/html/body/p[1]', /^[^,]+/
+      node  = Yasuri.text_title '/html/body/p[1]', truncate_regexp:/^[^,]+/
       actual = node.inject(@agent, @index_page)
       expect(actual).to eq "Hello"
     end
 
     it "can be truncated with regexp" do
-      node = Yasuri.text_title '/html/body/p[1]', /[^,]+$/
+      node = Yasuri.text_title '/html/body/p[1]', truncate_regexp:/[^,]+$/
       actual = node.inject(@agent, @index_page)
       expect(actual).to eq "Yasuri"
     end
 
     it "return empty string if truncated with no match to regexp" do
-      node = Yasuri.text_title '/html/body/p[1]', /^hoge/
+      node = Yasuri.text_title '/html/body/p[1]', truncate_regexp:/^hoge/
       actual = node.inject(@agent, @index_page)
       expect(actual).to be_empty
     end
@@ -281,7 +281,7 @@ describe 'Yasuri' do
     it "scrape each paginated pages limited" do
       root_node = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
         Yasuri::TextNode.new('/html/body/p', "content"),
-      ], 3)
+      ], limit:3)
       actual = root_node.inject(@agent, @page)
       expected = [
         {"content" => "PaginationTest01"},
@@ -327,7 +327,7 @@ describe 'Yasuri' do
       end
       original = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
         Yasuri::TextNode.new('/html/body/p', "content"),
-      ], 2)
+      ], limit: 2)
       compare_generated_vs_original(generated, original, @page)
     end
   end
@@ -380,6 +380,26 @@ describe 'Yasuri' do
       original = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
                    Yasuri::TextNode.new('/html/body/p', "content"),
                  ])
+
+      paginate_test_uri  = @uri + "/pagination/page01.html"
+      paginate_test_page = @agent.get(paginate_test_uri)
+      compare_generated_vs_original(generated, original, paginate_test_page)
+    end
+
+    it "return PaginateNode/TextNode with limit" do
+      src = %q|{ "node"     : "pages",
+                 "name"     : "root",
+                 "path"     : "/html/body/nav/span/a[@class=\'next\']",
+                 "limit"    : 2,
+                 "children" : [ { "node" : "text",
+                                  "name" : "content",
+                                  "path" : "/html/body/p"
+                                } ]
+               }|
+      generated = Yasuri.json2tree(src)
+      original = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
+                   Yasuri::TextNode.new('/html/body/p', "content"),
+                 ], limit:2)
 
       paginate_test_uri  = @uri + "/pagination/page01.html"
       paginate_test_page = @agent.get(paginate_test_uri)
