@@ -10,7 +10,7 @@ module Yasuri
   module Node
     attr_reader :url, :xpath, :name
 
-    def initialize(xpath, name, children = [])
+    def initialize(xpath, name, children = [], opt: {})
       @xpath, @name, @children = xpath, name, children
     end
 
@@ -21,9 +21,9 @@ module Yasuri
 
   class TextNode
     include Node
-    def initialize(xpath, name, children = [])
+    def initialize(xpath, name, children = [], truncate_regexp: nil, opt: {})
       super(xpath, name, children)
-      @truncate_regexp, dummy = *children
+      @truncate_regexp = truncate_regexp
     end
     def inject(agent, page, retry_count = 5)
       node = page.search(@xpath)
@@ -68,9 +68,9 @@ module Yasuri
   class PaginateNode
     include Node
 
-    def initialize(xpath, name, children = [], limit = Float::INFINITY)
+    def initialize(xpath, name, children = [], limit: nil, opt: {})
       super(xpath, name, children)
-      @limit = limit
+      @limit = limit || opt["limit"] || Float::MAX
     end
 
     def inject(agent, page, retry_count = 5)
@@ -120,8 +120,9 @@ module Yasuri
       when /^links_(.+)$/
         Yasuri::LinksNode.new(xpath, $1, children || [])
       when /^pages_(.+)$/
-        limit = opt || Float::INFINITY
-        Yasuri::PaginateNode.new(xpath, $1, children || [], limit)
+        xpath, limit = *args
+        limit = limit || Float::MAX
+        Yasuri::PaginateNode.new(xpath, $1, children || [], limit: limit)
       else
         nil
       end
@@ -146,16 +147,19 @@ module Yasuri
     "links"  => LinksNode,
     "pages"  => PaginateNode
   }
+  ReservedKeys = %w|node name path children|
   def self.hash2node(node_h)
-    node, name, path, children = %w|node name path children|.map do |key|
+    node, name, path, children = ReservedKeys.map do |key|
       node_h[key]
     end
     children ||= []
 
     childnodes = children.map{|c| Yasuri.hash2node(c) }
+    ReservedKeys.each{|key| node_h.delete(key)}
+    opt = node_h
 
     klass = Text2Node[node]
-    klass ? klass.new(path, name, childnodes) : nil
+    klass ? klass.new(path, name, childnodes, opt: opt) : nil
   end
 
   def self.with_retry(retry_count = 5)
