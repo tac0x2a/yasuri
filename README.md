@@ -2,6 +2,13 @@
 
 Yasuri (鑢) is an easy web-scraping library for supporting "[Mechanize](https://github.com/sparklemotion/mechanize)".
 
+
+## Sample
+
+https://yasuri-sample.herokuapp.com/
+
+(source code: https://github.com/tac0x2a/yasuri-sample)
+
 ## Installation
 
 Add this line to your application's Gemfile:
