@@ -54,19 +54,19 @@ describe 'Yasuri' do
     end
 
     it "can be truncated with regexp" do
-      node  = Yasuri.text_title '/html/body/p[1]', truncate_regexp:/^[^,]+/
+      node  = Yasuri.text_title '/html/body/p[1]', /^[^,]+/
       actual = node.inject(@agent, @index_page)
       expect(actual).to eq "Hello"
     end
 
     it "can be truncated with regexp" do
-      node = Yasuri.text_title '/html/body/p[1]', truncate_regexp:/[^,]+$/
+      node = Yasuri.text_title '/html/body/p[1]', /[^,]+$/
       actual = node.inject(@agent, @index_page)
       expect(actual).to eq "Yasuri"
     end
 
     it "return empty string if truncated with no match to regexp" do
-      node = Yasuri.text_title '/html/body/p[1]', truncate_regexp:/^hoge/
+      node = Yasuri.text_title '/html/body/p[1]', /^hoge/
       actual = node.inject(@agent, @index_page)
       expect(actual).to be_empty
     end
@@ -351,6 +351,18 @@ describe 'Yasuri' do
       compare_generated_vs_original(generated, original)
     end
 
+    it "return TextNode with truncate_regexp" do
+      src = %q| { "node"  : "text",
+                  "name"  : "content",
+                  "path"  : "/html/body/p[1]",
+                  "truncate"  : "^[^,]+"
+                }|
+      generated = Yasuri.json2tree(src)
+      original  = Yasuri::TextNode.new('/html/body/p[1]', "content", truncate_regexp:/^[^,]+/)
+      compare_generated_vs_original(generated, original)
+    end
+
+
     it "return LinksNode/TextNode" do
       src = %q| { "node"     : "links",
                   "name"     : "root",
@@ -436,6 +448,47 @@ describe 'Yasuri' do
       compare_generated_vs_original(generated, original, page)
     end
   end
+
+  #############
+  # tree2json #
+  #############
+  describe '.tree2json' do
+    it "return empty json" do
+      json = Yasuri.tree2json(nil)
+      expect(json).to be_empty
+    end
+
+    it "return text node" do
+      node = Yasuri::TextNode.new("/html/head/title", "title")
+      json = Yasuri.tree2json(node)
+      expected_str = %q| { "node": "text",
+                           "name": "title",
+                           "path": "/html/head/title"
+                         } |
+      expected = JSON.parse(expected_str)
+      expect(json).to match expected
+    end
+
+    it "return LinksNode/TextNode" do
+      tree  = Yasuri::LinksNode.new('/html/body/a', "root", [
+                Yasuri::TextNode.new('/html/body/p', "content"),
+              ])
+      actual   = Yasuri.tree2json(tree)
+      expected_src = %q| { "node"     : "links",
+                           "name"     : "root",
+                           "path"     : "/html/body/a",
+                           "children" : [ { "node" : "text",
+                                            "name" : "content",
+                                            "path" : "/html/body/p"
+                                          } ]
+                         }|
+      expected  = JSON.parse(expected_src)
+      expect(actual).to match expected
+    end
+
+
+  end
+
 
   it 'has a version number' do
     expect(Yasuri::VERSION).not_to be nil
