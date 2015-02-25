@@ -8,7 +8,7 @@ require 'json'
 module Yasuri
 
   module Node
-    attr_reader :url, :xpath, :name
+    attr_reader :url, :xpath, :name, :children
 
     def initialize(xpath, name, children = [], opt: {})
       @xpath, @name, @children = xpath, name, children
@@ -134,19 +134,24 @@ module Yasuri
     Yasuri.hash2node(json)
   end
 
+  def self.tree2json(node)
+    Yasuri.node2hash(node)
+  end
+
   def self.method_missing(name, *args, &block)
     generated = Yasuri::NodeGenerator.gen(name, *args, &block)
     generated || super(name, args)
   end
 
-
   private
   Text2Node = {
-    "text"   => TextNode,
-    "struct" => StructNode,
-    "links"  => LinksNode,
-    "pages"  => PaginateNode
+    "text"   => Yasuri::TextNode,
+    "struct" => Yasuri::StructNode,
+    "links"  => Yasuri::LinksNode,
+    "pages"  => Yasuri::PaginateNode
   }
+  Node2Text = Text2Node.invert
+
   ReservedKeys = %w|node name path children|
   def self.hash2node(node_h)
     node, name, path, children = ReservedKeys.map do |key|
@@ -160,6 +165,23 @@ module Yasuri
 
     klass = Text2Node[node]
     klass ? klass.new(path, name, childnodes, opt: opt) : nil
+  end
+
+  def self.node2hash(node)
+    json = JSON.parse("{}")
+    return json if node.nil?
+
+    klass = node.class
+    klass_str = Node2Text[klass]
+
+    json["node"] = klass_str
+    json["name"] = node.name
+    json["path"] = node.xpath
+
+    children = node.children.map{|c| Yasuri.node2hash(c)}
+    json["children"] = children if not children.empty?
+
+    json
   end
 
   def self.with_retry(retry_count = 5)

@@ -437,6 +437,47 @@ describe 'Yasuri' do
     end
   end
 
+  #############
+  # tree2json #
+  #############
+  describe '.tree2json' do
+    it "return empty json" do
+      json = Yasuri.tree2json(nil)
+      expect(json).to be_empty
+    end
+
+    it "return text node" do
+      node = Yasuri::TextNode.new("/html/head/title", "title")
+      json = Yasuri.tree2json(node)
+      expected_str = %q| { "node": "text",
+                           "name": "title",
+                           "path": "/html/head/title"
+                         } |
+      expected = JSON.parse(expected_str)
+      expect(json).to match expected
+    end
+
+    it "return LinksNode/TextNode" do
+      tree  = Yasuri::LinksNode.new('/html/body/a', "root", [
+                Yasuri::TextNode.new('/html/body/p', "content"),
+              ])
+      actual   = Yasuri.tree2json(tree)
+      expected_src = %q| { "node"     : "links",
+                           "name"     : "root",
+                           "path"     : "/html/body/a",
+                           "children" : [ { "node" : "text",
+                                            "name" : "content",
+                                            "path" : "/html/body/p"
+                                          } ]
+                         }|
+      expected  = JSON.parse(expected_src)
+      expect(actual).to match expected
+    end
+
+
+  end
+
+
   it 'has a version number' do
     expect(Yasuri::VERSION).not_to be nil
   end
