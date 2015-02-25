@@ -54,19 +54,19 @@ describe 'Yasuri' do
     end
 
     it "can be truncated with regexp" do
-      node  = Yasuri.text_title '/html/body/p[1]', truncate_regexp:/^[^,]+/
+      node  = Yasuri.text_title '/html/body/p[1]', /^[^,]+/
       actual = node.inject(@agent, @index_page)
       expect(actual).to eq "Hello"
     end
 
     it "can be truncated with regexp" do
-      node = Yasuri.text_title '/html/body/p[1]', truncate_regexp:/[^,]+$/
+      node = Yasuri.text_title '/html/body/p[1]', /[^,]+$/
       actual = node.inject(@agent, @index_page)
       expect(actual).to eq "Yasuri"
     end
 
     it "return empty string if truncated with no match to regexp" do
-      node = Yasuri.text_title '/html/body/p[1]', truncate_regexp:/^hoge/
+      node = Yasuri.text_title '/html/body/p[1]', /^hoge/
       actual = node.inject(@agent, @index_page)
       expect(actual).to be_empty
     end
@@ -350,6 +350,18 @@ describe 'Yasuri' do
       original  = Yasuri::TextNode.new('/html/body/p[1]', "content")
       compare_generated_vs_original(generated, original)
     end
+
+    it "return TextNode with truncate_regexp" do
+      src = %q| { "node"  : "text",
+                  "name"  : "content",
+                  "path"  : "/html/body/p[1]",
+                  "truncate_regexp"  : "^[^,]+"
+                }|
+      generated = Yasuri.json2tree(src)
+      original  = Yasuri::TextNode.new('/html/body/p[1]', "content", truncate_regexp:/^[^,]+/)
+      compare_generated_vs_original(generated, original)
+    end
+
 
     it "return LinksNode/TextNode" do
       src = %q| { "node"     : "links",

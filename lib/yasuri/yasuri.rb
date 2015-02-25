@@ -109,18 +109,19 @@ module Yasuri
 
     def self.gen(name, *args, &block)
       xpath, opt = *args
+      opt = [opt].flatten.compact
       children = Yasuri::NodeGenerator.new.gen_recursive(&block) if block_given?
 
       case name
       when /^text_(.+)$/
-        truncate_regexp = opt
-        Yasuri::TextNode.new(xpath, $1, truncate_regexp)
+        truncate_regexp, dummy = *opt
+        Yasuri::TextNode.new(xpath,   $1, children || [], truncate_regexp:truncate_regexp)
       when /^struct_(.+)$/
         Yasuri::StructNode.new(xpath, $1, children || [])
       when /^links_(.+)$/
-        Yasuri::LinksNode.new(xpath, $1, children || [])
+        Yasuri::LinksNode.new(xpath,  $1, children || [])
       when /^pages_(.+)$/
-        xpath, limit = *args
+        limit, dummy = *opt
         limit = limit || Float::MAX
         Yasuri::PaginateNode.new(xpath, $1, children || [], limit: limit)
       else
