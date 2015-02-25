@@ -114,8 +114,8 @@ module Yasuri
 
       case name
       when /^text_(.+)$/
-        truncate_regexp, dummy = *opt
-        Yasuri::TextNode.new(xpath,   $1, children || [], truncate_regexp:truncate_regexp)
+        truncate, dummy = *opt
+        Yasuri::TextNode.new(xpath,   $1, children || [], truncate_regexp: truncate)
       when /^struct_(.+)$/
         Yasuri::StructNode.new(xpath, $1, children || [])
       when /^links_(.+)$/

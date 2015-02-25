@@ -355,7 +355,7 @@ describe 'Yasuri' do
       src = %q| { "node"  : "text",
                   "name"  : "content",
                   "path"  : "/html/body/p[1]",
-                  "truncate_regexp"  : "^[^,]+"
+                  "truncate"  : "^[^,]+"
                 }|
       generated = Yasuri.json2tree(src)
       original  = Yasuri::TextNode.new('/html/body/p[1]', "content", truncate_regexp:/^[^,]+/)
