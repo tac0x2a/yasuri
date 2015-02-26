@@ -153,7 +153,7 @@ module Yasuri
   end
 
   def self.tree2json(node)
-    Yasuri.node2hash(node)
+    Yasuri.node2hash(node).to_json
   end
 
   def self.method_missing(name, *args, &block)

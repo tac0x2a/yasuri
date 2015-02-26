@@ -455,7 +455,7 @@ describe 'Yasuri' do
   describe '.tree2json' do
     it "return empty json" do
       json = Yasuri.tree2json(nil)
-      expect(json).to be_empty
+      expect(json).to match "{}"
     end
 
     it "return text node" do
@@ -466,7 +466,8 @@ describe 'Yasuri' do
                            "path": "/html/head/title"
                          } |
       expected = JSON.parse(expected_str)
-      expect(json).to match expected
+      actual   = JSON.parse(json)
+      expect(actual).to match expected
     end
 
     it "return text node with truncate_regexp" do
@@ -478,7 +479,7 @@ describe 'Yasuri' do
                            "truncate": "^[^,]+"
                          } |
       expected = Yasuri.tree2json(Yasuri.json2tree(expected_str))
-      actual   = Yasuri.tree2json(Yasuri.json2tree(json.to_json))
+      actual   = Yasuri.tree2json(Yasuri.json2tree(json))
       expect(actual).to match expected
     end
 
@@ -486,7 +487,7 @@ describe 'Yasuri' do
       tree  = Yasuri::LinksNode.new('/html/body/a', "root", [
                 Yasuri::TextNode.new('/html/body/p', "content"),
               ])
-      actual   = Yasuri.tree2json(tree)
+      json   = Yasuri.tree2json(tree)
       expected_src = %q| { "node"     : "links",
                            "name"     : "root",
                            "path"     : "/html/body/a",
@@ -496,6 +497,7 @@ describe 'Yasuri' do
                                           } ]
                          }|
       expected  = JSON.parse(expected_src)
+      actual    = JSON.parse(json)
       expect(actual).to match expected
     end
 
