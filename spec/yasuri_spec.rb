@@ -501,6 +501,27 @@ describe 'Yasuri' do
       expect(actual).to match expected
     end
 
+    it "return PaginateNode/TextNode with limit" do
+      tree = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
+                Yasuri::TextNode.new('/html/body/p', "content"),
+             ], limit:10)
+
+      json   = Yasuri.tree2json(tree)
+      expected_src = %q| { "node"     : "pages",
+                           "name"     : "root",
+                           "path"     : "/html/body/nav/span/a[@class='next']",
+                           "limit"    : 10,
+                           "children" : [ { "node" : "text",
+                                            "name" : "content",
+                                            "path" : "/html/body/p"
+                                          } ]
+                         }|
+      expected  = JSON.parse(expected_src)
+      actual    = JSON.parse(json)
+      expect(actual).to match expected
+    end
+
+
 
   end
 
