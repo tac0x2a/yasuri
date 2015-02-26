@@ -358,7 +358,7 @@ describe 'Yasuri' do
                   "truncate"  : "^[^,]+"
                 }|
       generated = Yasuri.json2tree(src)
-      original  = Yasuri::TextNode.new('/html/body/p[1]', "content", truncate_regexp:/^[^,]+/)
+      original  = Yasuri::TextNode.new('/html/body/p[1]', "content", truncate:/^[^,]+/)
       compare_generated_vs_original(generated, original)
     end
 
@@ -467,6 +467,19 @@ describe 'Yasuri' do
                          } |
       expected = JSON.parse(expected_str)
       expect(json).to match expected
+    end
+
+    it "return text node with truncate_regexp" do
+      node = Yasuri::TextNode.new("/html/head/title", "title", truncate:/^[^,]+/)
+      json = Yasuri.tree2json(node)
+      expected_str = %q| { "node": "text",
+                           "name": "title",
+                           "path": "/html/head/title",
+                           "truncate": "^[^,]+"
+                         } |
+      expected = Yasuri.tree2json(Yasuri.json2tree(expected_str))
+      actual   = Yasuri.tree2json(Yasuri.json2tree(json.to_json))
+      expect(actual).to match expected
     end
 
     it "return LinksNode/TextNode" do

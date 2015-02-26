@@ -17,21 +17,34 @@ module Yasuri
     def inject(agent, page)
       fail "#{Kernel.__method__} is not implemented."
     end
+    def opts
+      {}
+    end
   end
 
   class TextNode
     include Node
-    def initialize(xpath, name, children = [], truncate_regexp: nil, opt: {})
+    def initialize(xpath, name, children = [], truncate: nil, opt: {})
       super(xpath, name, children)
-      @truncate_regexp = truncate_regexp
+
+      truncate_opt = opt["truncate"] #str
+      truncate_opt = Regexp.new(truncate_opt) if not truncate_opt.nil? # regexp or nil
+
+      @truncate = truncate || truncate_opt || nil # regexp or nil
+
+      @truncate = Regexp.new(@truncate.to_s) if not @truncate.nil?
+
     end
     def inject(agent, page, retry_count = 5)
       node = page.search(@xpath)
       text = node.text.to_s
 
-      text = text[@truncate_regexp, 0] if @truncate_regexp
+      text = text[@truncate, 0] if @truncate
 
       text.to_s
+    end
+    def opts
+      {truncate:@truncate}
     end
   end
 
@@ -70,12 +83,13 @@ module Yasuri
 
     def initialize(xpath, name, children = [], limit: nil, opt: {})
       super(xpath, name, children)
-      @limit = limit || opt["limit"] || Float::MAX
+      @limit = limit || opt["limit"]
     end
 
     def inject(agent, page, retry_count = 5)
 
       child_results = []
+      limit = @limit.nil? ? Float::MAX : @limit
       while page
         child_results_kv = @children.map do |child_node|
           [child_node.name, child_node.inject(agent, page, retry_count)]
@@ -87,10 +101,13 @@ module Yasuri
 
         link_button = Mechanize::Page::Link.new(link, agent, page)
         page = Yasuri.with_retry(retry_count) { link_button.click }
-        break if (@limit -= 1) <= 0
+        break if (limit -= 1) <= 0
       end
 
       child_results
+    end
+    def opts
+      {limit:@limit}
     end
   end
 
@@ -115,7 +132,7 @@ module Yasuri
       case name
       when /^text_(.+)$/
         truncate, dummy = *opt
-        Yasuri::TextNode.new(xpath,   $1, children || [], truncate_regexp: truncate)
+        Yasuri::TextNode.new(xpath,   $1, children || [], truncate: truncate)
       when /^struct_(.+)$/
         Yasuri::StructNode.new(xpath, $1, children || [])
       when /^links_(.+)$/
@@ -181,6 +198,10 @@ module Yasuri
 
     children = node.children.map{|c| Yasuri.node2hash(c)}
     json["children"] = children if not children.empty?
+
+    node.opts.each do |key,value|
+      json[key] = value if not value.nil?
+    end
 
     json
   end
