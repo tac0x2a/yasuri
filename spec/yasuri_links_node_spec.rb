@@ -90,5 +90,19 @@ describe 'Yasuri' do
       ])
       compare_generated_vs_original(generated, original, @index_page)
     end
+
+    it 'return child node as symbol' do
+      root_node = Yasuri::LinksNode.new('/html/body/a', "root", [
+        Yasuri::TextNode.new('/html/body/p', "content"),
+      ])
+
+      actual = root_node.inject(@agent, @index_page, symbolize_names: true )
+      expected = [
+        {:content => "Child 01 page."},
+        {:content => "Child 02 page."},
+        {:content => "Child 03 page."},
+      ]
+      expect(actual).to match expected
+    end
   end
 end

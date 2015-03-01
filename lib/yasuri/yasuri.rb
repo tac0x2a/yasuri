@@ -78,6 +78,10 @@ module Yasuri
     json
   end
 
+  def self.NodeName(name, symbolize_names:false)
+    symbolize_names ? name.to_sym : name
+  end
+
   def self.with_retry(retry_count = 5)
     begin
       return yield() if block_given?
