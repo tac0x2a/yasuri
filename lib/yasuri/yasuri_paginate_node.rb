@@ -7,9 +7,9 @@ module Yasuri
   class PaginateNode
     include Node
 
-    def initialize(xpath, name, children = [], limit: nil, opt: {})
+    def initialize(xpath, name, children = [], limit: nil)
       super(xpath, name, children)
-      @limit = limit || opt["limit"]
+      @limit = limit
     end
 
     def inject(agent, page, retry_count = 5)
