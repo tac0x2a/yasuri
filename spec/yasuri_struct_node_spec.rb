@@ -110,5 +110,16 @@ describe 'Yasuri' do
       ])
       compare_generated_vs_original(generated, original, @page)
     end
+
+    it 'return child node as symbol' do
+      node = Yasuri::StructNode.new('/html/body/table[1]/tr', "table", [
+        Yasuri::TextNode.new('./td[1]', "title"),
+        Yasuri::TextNode.new('./td[2]', "pub_date"),
+      ])
+      expected = @table_1996.map{|h| h.map{|k,v| [k.to_sym, v] }.to_h }
+      actual = node.inject(@agent, @page, symbolize_names:true)
+      expect(actual).to match expected
+    end
+
   end
 end

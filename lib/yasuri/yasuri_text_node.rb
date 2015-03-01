@@ -16,7 +16,7 @@ module Yasuri
       @truncate = Regexp.new(@truncate.to_s) if not @truncate.nil?
     end
 
-    def inject(agent, page, opt:{})
+    def inject(agent, page, opt = {})
       node = page.search(@xpath)
       text = node.text.to_s
 

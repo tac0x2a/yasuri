@@ -81,5 +81,19 @@ describe 'Yasuri' do
       ], limit: 2)
       compare_generated_vs_original(generated, original, @page)
     end
+
+    it "return child node as symbol" do
+      root_node = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
+        Yasuri::TextNode.new('/html/body/p', "content"),
+      ])
+      actual = root_node.inject(@agent, @page, symbolize_names:true)
+      expected = [
+        {:content => "PaginationTest01"},
+        {:content => "PaginationTest02"},
+        {:content => "PaginationTest03"},
+        {:content => "PaginationTest04"},
+      ]
+      expect(actual).to match expected
+    end
   end
 end

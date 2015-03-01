@@ -6,7 +6,7 @@ require_relative 'yasuri_node'
 module Yasuri
   class LinksNode
     include Node
-    def inject(agent, page, opt:{})
+    def inject(agent, page, opt = {})
       retry_count = opt[:retry_count] || 5
 
       links = page.search(@xpath) || [] # links expected
@@ -15,7 +15,8 @@ module Yasuri
         child_page = Yasuri.with_retry(retry_count) { link_button.click }
 
         child_results_kv = @children.map do |child_node|
-          [child_node.name, child_node.inject(agent, child_page, opt)]
+          child_name = Yasuri.NodeName(child_node.name, opt)
+          [child_name, child_node.inject(agent, child_page, opt)]
         end
 
         Hash[child_results_kv]
