@@ -12,13 +12,14 @@ module Yasuri
       @limit = limit
     end
 
-    def inject(agent, page, retry_count = 5)
+    def inject(agent, page, opt:{})
+      retry_count = opt[:retry_count] || 5
 
       child_results = []
       limit = @limit.nil? ? Float::MAX : @limit
       while page
         child_results_kv = @children.map do |child_node|
-          [child_node.name, child_node.inject(agent, page, retry_count)]
+          [child_node.name, child_node.inject(agent, page, opt)]
         end
         child_results << Hash[child_results_kv]
 
