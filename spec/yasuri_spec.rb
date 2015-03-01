@@ -20,9 +20,8 @@ describe 'Yasuri' do
   # json2tree #
   #############
   describe '.json2tree' do
-    it "return empty tree" do
-      tree = Yasuri.json2tree("{}")
-      expect(tree).to be_nil
+    it "fail if empty json" do
+      expect { Yasuri.json2tree("{}") }.to raise_error
     end
 
     it "return TextNode" do
@@ -32,6 +31,7 @@ describe 'Yasuri' do
                 }|
       generated = Yasuri.json2tree(src)
       original  = Yasuri::TextNode.new('/html/body/p[1]', "content")
+
       compare_generated_vs_original(generated, original, @index_page)
     end
 

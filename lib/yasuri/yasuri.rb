@@ -15,7 +15,7 @@ require_relative 'yasuri_node_generator'
 module Yasuri
 
   def self.json2tree(json_string)
-    json = JSON.parse(json_string)
+    json = JSON.parse(json_string, {symbolize_names: true})
     Yasuri.hash2node(json)
   end
 
@@ -30,26 +30,31 @@ module Yasuri
 
   private
   Text2Node = {
-    "text"   => Yasuri::TextNode,
-    "struct" => Yasuri::StructNode,
-    "links"  => Yasuri::LinksNode,
-    "pages"  => Yasuri::PaginateNode
+    text:   Yasuri::TextNode,
+    struct: Yasuri::StructNode,
+    links:  Yasuri::LinksNode,
+    pages:  Yasuri::PaginateNode
   }
   Node2Text = Text2Node.invert
 
-  ReservedKeys = %w|node name path children|
+  ReservedKeys = %i|node name path children|
   def self.hash2node(node_h)
     node, name, path, children = ReservedKeys.map do |key|
       node_h[key]
     end
     children ||= []
 
+    fail "Not found 'node' value in json" if node.nil?
+    fail "Not found 'name' value in json" if name.nil?
+    fail "Not found 'path' value in json" if path.nil?
+
     childnodes = children.map{|c| Yasuri.hash2node(c) }
     ReservedKeys.each{|key| node_h.delete(key)}
     opt = node_h
 
-    klass = Text2Node[node]
-    klass ? klass.new(path, name, childnodes, opt: opt) : nil
+    klass = Text2Node[node.to_sym]
+    fail "Undefined node type #{node}" if klass.nil?
+    klass.new(path, name, childnodes, opt)
   end
 
   def self.node2hash(node)

@@ -6,17 +6,16 @@ require_relative 'yasuri_node'
 module Yasuri
   class TextNode
     include Node
-    def initialize(xpath, name, children = [], truncate: nil, opt: {})
+
+    def initialize(xpath, name, children = [], truncate: nil)
       super(xpath, name, children)
 
-      truncate_opt = opt["truncate"] #str
-      truncate_opt = Regexp.new(truncate_opt) if not truncate_opt.nil? # regexp or nil
+      truncate = Regexp.new(truncate) if not truncate.nil? # regexp or nil
 
-      @truncate = truncate || truncate_opt || nil # regexp or nil
-
+      @truncate = truncate
       @truncate = Regexp.new(@truncate.to_s) if not @truncate.nil?
-
     end
+
     def inject(agent, page, retry_count = 5)
       node = page.search(@xpath)
       text = node.text.to_s
