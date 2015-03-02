@@ -57,6 +57,16 @@ describe 'Yasuri' do
       expect(actual).to match expected
     end
 
+    it 'return single result without array' do
+      node = Yasuri::StructNode.new('/html/body/table[1]/tr[1]', "table_first_tr", [
+        Yasuri::TextNode.new('./td[1]', "title"),
+        Yasuri::TextNode.new('./td[2]', "pub_date"),
+      ])
+      expected = @table_1996.first
+      actual = node.inject(@agent, @page)
+      expect(actual).to match expected
+    end
+
     it 'return empty text if no match node' do
       no_match_xpath = '/html/body/table[1]/t'
       node = Yasuri::StructNode.new(no_match_xpath, "table", [
