@@ -46,6 +46,12 @@ describe 'Yasuri' do
       expect(actual).to eq "Hello"
     end
 
+    it "return first captured if matched given capture pattern" do
+      node  = Yasuri.text_title '/html/body/p[1]', /H(.+)i/
+      actual = node.inject(@agent, @index_page)
+      expect(actual).to eq "ello,Yasur"
+    end
+
     it "can be truncated with regexp" do
       node = Yasuri.text_title '/html/body/p[1]', /[^,]+$/
       actual = node.inject(@agent, @index_page)

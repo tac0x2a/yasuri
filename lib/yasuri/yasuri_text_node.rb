@@ -20,7 +20,10 @@ module Yasuri
       node = page.search(@xpath)
       text = node.text.to_s
 
-      text = text[@truncate, 0] if @truncate
+      if @truncate
+        matches = @truncate.match(text)
+        text = matches ? matches[1] || matches[0] || text : ""
+      end
 
       text.to_s
     end
