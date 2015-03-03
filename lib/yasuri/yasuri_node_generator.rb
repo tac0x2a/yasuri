@@ -28,16 +28,13 @@ module Yasuri
 
       case name
       when /^text_(.+)$/
-        truncate, dummy = *opt
-        Yasuri::TextNode.new(xpath,   $1, children || [], truncate: truncate)
+        Yasuri::TextNode.new(xpath,   $1, children || [], *opt)
       when /^struct_(.+)$/
-        Yasuri::StructNode.new(xpath, $1, children || [])
+        Yasuri::StructNode.new(xpath, $1, children || [], *opt)
       when /^links_(.+)$/
-        Yasuri::LinksNode.new(xpath,  $1, children || [])
+        Yasuri::LinksNode.new(xpath,  $1, children || [], *opt)
       when /^pages_(.+)$/
-        limit, dummy = *opt
-        limit = limit || Float::MAX
-        Yasuri::PaginateNode.new(xpath, $1, children || [], limit: limit)
+        Yasuri::PaginateNode.new(xpath, $1, children || [], *opt)
       else
         nil
       end

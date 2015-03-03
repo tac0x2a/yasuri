@@ -73,7 +73,7 @@ describe 'Yasuri' do
     end
 
     it 'can be defined by DSL, return single PaginateNode content limited' do
-      generated = Yasuri.pages_next "/html/body/nav/span/a[@class='next']", 2 do
+      generated = Yasuri.pages_next "/html/body/nav/span/a[@class='next']", limit:2 do
         text_content '/html/body/p'
       end
       original = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [

@@ -41,27 +41,39 @@ describe 'Yasuri' do
     end
 
     it "can be truncated with regexp" do
-      node  = Yasuri.text_title '/html/body/p[1]', /^[^,]+/
+      node  = Yasuri.text_title '/html/body/p[1]', truncate:/^[^,]+/
       actual = node.inject(@agent, @index_page)
       expect(actual).to eq "Hello"
     end
 
     it "return first captured if matched given capture pattern" do
-      node  = Yasuri.text_title '/html/body/p[1]', /H(.+)i/
+      node  = Yasuri.text_title '/html/body/p[1]', truncate:/H(.+)i/
       actual = node.inject(@agent, @index_page)
       expect(actual).to eq "ello,Yasur"
     end
 
     it "can be truncated with regexp" do
-      node = Yasuri.text_title '/html/body/p[1]', /[^,]+$/
+      node = Yasuri.text_title '/html/body/p[1]', truncate:/[^,]+$/
       actual = node.inject(@agent, @index_page)
       expect(actual).to eq "Yasuri"
     end
 
     it "return empty string if truncated with no match to regexp" do
-      node = Yasuri.text_title '/html/body/p[1]', /^hoge/
+      node = Yasuri.text_title '/html/body/p[1]', truncate:/^hoge/
       actual = node.inject(@agent, @index_page)
       expect(actual).to be_empty
+    end
+
+    it "return symbol method applied string" do
+      node = Yasuri.text_title '/html/body/p[1]', proc: :upcase
+      actual = node.inject(@agent, @index_page)
+      expect(actual).to eq "HELLO,YASURI"
+    end
+
+    it "return apply multi arguments" do
+      node = Yasuri.text_title '/html/body/p[1]', proc: :upcase, truncate:/H(.+)i/
+      actual = node.inject(@agent, @index_page)
+      expect(actual).to eq "ELLO,YASUR"
     end
   end
 end

@@ -3,9 +3,6 @@
 # Author::    TAC (tac@tac42.net)
 
 require_relative 'spec_helper'
-require_relative 'yasuri_text_node_spec'
-
-#require_relative '../lib/yasuri/yasuri'
 
 describe 'Yasuri' do
   include_context 'httpserver'
