@@ -7,9 +7,9 @@
 
 ### Construct parse tree
 
-```ruby:Example
-
+```ruby
 require 'mechanize'
+require 'yasuri'
 
 
 # 1. Construct parse tree.
