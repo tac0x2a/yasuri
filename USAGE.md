@@ -26,3 +26,21 @@ tree.inject(agent, page)
 ```
 
 Tree is definable by 3 ways, basic ruby code, DSL ruby code, and json. In this example, DSL.
+
+
+```ruby
+# Construct by json.
+src = <<-EOJSON
+   { "node"     : "links",
+     "name"     : "title",
+     "path"     : "/html/body/a",
+     "children" : [
+                    { "node" : "text",
+                      "name" : "name",
+                      "path" : "/html/body/p"
+                    }
+                  ]
+   }
+EOJSON
+tree = Yasuri.json2tree(src)
+```
