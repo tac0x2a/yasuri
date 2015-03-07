@@ -44,3 +44,24 @@ src = <<-EOJSON
 EOJSON
 tree = Yasuri.json2tree(src)
 ```
+
+### Node
+Tree is constructed by nested Nodes.
+Node has `Type`, `Name`, `Path`, `Childlen`, and some `Options`.
+
+
+#### Type
+Type meen behavior of Node.
+
+- Text
+- Structure
+- Links
+- Paginate
+
+## TextNode
+
+Example
+
+```ruby
+node = Yasuri.text_title '/html/body/p[1]', truncate:/^hoge/
+```
