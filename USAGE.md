@@ -109,12 +109,18 @@ Path determine target node by xpath or ccs selector. It given by Machinize `sear
 Child nodes. TextNode has always empty set, because TextNode is leaf.
 
 ### Options
-Parse options. It different in each types.
+Parse options. It different in each types. You can get options and values by `opt` method.
+
+```
+# TextNode Exaample
+node = Yasuri.text_title '/html/body/p[1]', truncate:/^[^,]+/
+node.opt #=> {:truncate => /^[^,]+/, :proc => nil}
+```
 
 ## TextNode
 TextNode return scraped text. This node have to be leaf.
 
-Example
+### Example
 
 ```html:http://yasuri.example.net
 <html>
@@ -140,3 +146,22 @@ node.inject(agent, page) #=> { "title" => "HELLO,YASURI" }
 ```
 
 ### Options
+##### `truncate`
+Match to regexp, and truncate text. When you use group, it will return first matched group only.
+
+```ruby
+node  = Yasuri.text_example '/html/body/p[1]', truncate:/H(.+)i/
+node.inject(@agent, @index_page)
+#=> { "example" => "ello,Yasur" }
+```
+
+
+##### `proc`
+Apply method to text. Method is given as Symbol.
+If it is given `truncate` option, apply method after truncated.
+
+```ruby
+node = Yasuri.text_example '/html/body/p[1]', proc: :upcase, truncate:/H(.+)i/
+node.inject(@agent, @index_page)
+#=> { "example" => "ELLO,YASUR" }
+```
