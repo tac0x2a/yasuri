@@ -95,7 +95,7 @@ end
 Type meen behavior of Node.
 
 - *Text*
-- *Structure*
+- *Struct*
 - *Links*
 - *Paginate*
 
@@ -117,12 +117,13 @@ node = Yasuri.text_title '/html/body/p[1]', truncate:/^[^,]+/
 node.opt #=> {:truncate => /^[^,]+/, :proc => nil}
 ```
 
-## TextNode
+## Text Node
 TextNode return scraped text. This node have to be leaf.
 
 ### Example
 
-```html:http://yasuri.example.net
+```html
+<!-- http://yasuri.example.net -->
 <html>
   <head></head>
   <body>
@@ -151,7 +152,7 @@ Match to regexp, and truncate text. When you use group, it will return first mat
 
 ```ruby
 node  = Yasuri.text_example '/html/body/p[1]', truncate:/H(.+)i/
-node.inject(@agent, @index_page)
+node.inject(agent, index_page)
 #=> { "example" => "ello,Yasur" }
 ```
 
@@ -162,6 +163,122 @@ If it is given `truncate` option, apply method after truncated.
 
 ```ruby
 node = Yasuri.text_example '/html/body/p[1]', proc: :upcase, truncate:/H(.+)i/
-node.inject(@agent, @index_page)
+node.inject(agent, index_page)
 #=> { "example" => "ELLO,YASUR" }
 ```
+
+## Struct Node
+Struct Node return structured text.
+
+At first, Struct Node narrow down sub-tags by `Path`. Child nodes parse narrowed tags, and struct node returns hash contains parsed result.
+
+If Struct Node `Path` matches multi sub-tags, child nodes parse each sub-tags and struct node returns array.
+
+### Example
+
+```
+<!-- http://yasuri.example.net -->
+<html>
+  <head>
+    <title>Books</title>
+  </head>
+  <body>
+    <h1>1996</h1>
+    <table>
+      <thead>
+        <tr><th>Title</th> <th>Publication Date</th></tr>
+      </thead>
+      <tr><td>The Perfect Insider</td>      <td>1996/4/5</td></tr>
+      <tr><td>Doctors in Isolated Room</td> <td>1996/7/5</td></tr>
+      <tr><td>Mathematical Goodbye</td>     <td>1996/9/5</td></tr>
+    </table>
+
+    <h1>1997</h1>
+    <table>
+      <thead>
+        <tr><th>Title</th> <th>Publication Date</th></tr>
+      </thead>
+      <tr><td>Jack the Poetical Private</td> <td>1997/1/5</td></tr>
+      <tr><td>Who Inside</td>                <td>1997/4/5</td></tr>
+      <tr><td>Illusion Acts Like Magic</td>  <td>1997/10/5</td></tr>
+    </table>
+
+    <h1>1998</h1>
+    <table>
+      <thead>
+        <tr><th>Title</th> <th>Publication Date</th></tr>
+      </thead>
+      <tr><td>Replaceable Summer</td>   <td>1998/1/7</td></tr>
+      <tr><td>Switch Back</td>          <td>1998/4/5</td></tr>
+      <tr><td>Numerical Models</td>     <td>1998/7/5</td></tr>
+      <tr><td>The Perfect Outsider</td> <td>1998/10/5</td></tr>
+    </table>
+  </body>
+</html>
+```
+
+```ruby
+agent = Mechanize.new
+page = agent.get("http://yasuri.example.net")
+
+node = Yasuri.struct_table '/html/body/table[1]/tr' do
+  text_title    './td[1]'
+  text_pub_date './td[2]'
+])
+
+node.inject(agent, page)
+#=> [ { "title"    => "The Perfect Insider",
+#       "pub_date" => "1996/4/5" },
+#     { "title"    => "Doctors in Isolated Room",
+#       "pub_date" => "1996/7/5" },
+#     { "title"    => "Mathematical Goodbye",
+#       "pub_date" => "1996/9/5" }, ]
+```
+
+StructNode narrow down `<tr>` tags in first `<table>` by `'/html/body/table[1]/tr'`. Then,
+`<tr>` tags parsed Struct node has two child node.
+
+In this case, first `<table>` contains three `<tr>` tags (Not four.`<thead><tr>` is not match to `Path` ), so struct node returns three hashes. Each hash contains parsed text by Text Node.
+
+Struct node can contain not only Text node.
+
+### Example
+
+```ruby
+agent = Mechanize.new
+page = agent.get("http://yasuri.example.net")
+
+node = Yasuri.strucre_tables '/html/body/table' do
+  struct_table './tr' do
+    text_title    './td[1]'
+    text_pub_date './td[2]'
+  end
+])
+
+node.inject(agent, page)
+
+#=>      [ { "table" => [ { "title"    => "The Perfect Insider",
+#                           "pub_date" => "1996/4/5" },
+#                         { "title"    => "Doctors in Isolated Room",
+#                           "pub_date" => "1996/7/5" },
+#                         { "title"    => "Mathematical Goodbye",
+#                           "pub_date" => "1996/9/5" }]},
+#          { "table" => [ { "title"    => "Jack the Poetical Private",
+#                           "pub_date" => "1997/1/5" },
+#                         { "title"    => "Who Inside",
+#                           "pub_date" => "1997/4/5" },
+#                         { "title"    => "Illusion Acts Like Magic",
+#                           "pub_date" => "1997/10/5" }]},
+#          { "table" => [ { "title"    => "Replaceable Summer",
+#                           "pub_date" => "1998/1/7" },
+#                         { "title"    => "Switch Back",
+#                           "pub_date" => "1998/4/5" },
+#                         { "title"    => "Numerical Models",
+#                           "pub_date" => "1998/7/5" },
+#                         { "title"    => "The Perfect Outsider",
+#                           "pub_date" => "1998/10/5" }]}
+#       ]
+```
+
+### Options
+None.
