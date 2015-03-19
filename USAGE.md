@@ -176,7 +176,7 @@ If Struct Node `Path` matches multi sub-tags, child nodes parse each sub-tags an
 
 ### Example
 
-```
+```html
 <!-- http://yasuri.example.net -->
 <html>
   <head>
