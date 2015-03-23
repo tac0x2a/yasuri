@@ -53,7 +53,7 @@ page = agent.get(uri)
 tree.inject(agent, page)
 ```
 
-Tree is definable by 2(+1) ways, DSL, json, (and basic ruby code). In above example, DSL.
+Tree is definable by 2(+1) ways, DSL and json (and basic ruby code). In above example, DSL.
 
 ```ruby
 # Construct by json.
@@ -282,3 +282,75 @@ node.inject(agent, page)
 
 ### Options
 None.
+
+## Links Node
+Links Node returns parsed text in each linked pages.
+
+### Example
+```
+<!-- http://yasuri.example.net -->
+<html>
+  <head><title>Yasuri Test</title></head>
+  <body>
+    <p>Hello,Yasuri</p>
+    <a href="./child01.html">child01</a>
+    <a href="./child02.html">child02</a>
+    <a href="./child03.html">child03</a>
+  </body>
+<title>
+```
+
+```
+<!-- http://yasuri.example.net/child01.html -->
+<html>
+  <head><title>Child 01 Test</title></head>
+  <body>
+    <p>Child 01 page.</p>
+    <ul>
+      <li><a href="./child01_sub.html">Child01_Sub</a></li>
+      <li><a href="./child02_sub.html">Child02_Sub</a></li>
+    </ul>
+  </body>
+<title>
+```
+
+```
+<!-- http://yasuri.example.net/child02.html -->
+<html>
+  <head><title>Child 02 Test</title></head>
+  <body>
+    <p>Child 02 page.</p>
+  </body>
+<title>
+```
+
+```
+<!-- http://yasuri.example.net/child03.html -->
+<html>
+  <head><title>Child 03 Test</title></head>
+  <body>
+    <p>Child 03 page.</p>
+    <ul>
+      <li><a href="./child03_sub.html">Child03_Sub</a></li>
+    </ul>
+  </body>
+<title>
+```
+
+```
+agent = Mechanize.new
+page = agent.get("http://yasuri.example.net")
+
+node = Yasuri.links_title '/html/body/a' do
+  text_content '/html/body/p'
+end
+
+node.inject(agent, page)
+#=> [ {"content" => "Child 01 page."},
+      {"content" => "Child 02 page."},
+      {"content" => "Child 03 page."}]
+```
+
+At first, Links Node find all links in the page by path. In this case, LinksNode find `/html/body/a` tags in 'http://yasuri.example.net'. Then, open href attributes (`./child01.html`, `./child02.html` and `./child03.html`).
+
+Then, Links Node and apply child nodes. Links Node will return applyed result of each page as array.
