@@ -351,6 +351,65 @@ node.inject(agent, page)
       {"content" => "Child 03 page."}]
 ```
 
-At first, Links Node find all links in the page by path. In this case, LinksNode find `/html/body/a` tags in 'http://yasuri.example.net'. Then, open href attributes (`./child01.html`, `./child02.html` and `./child03.html`).
+At first, Links Node find all links in the page by path. In this case, LinksNode find `/html/body/a` tags in `http://yasuri.example.net`. Then, open href attributes (`./child01.html`, `./child02.html` and `./child03.html`).
 
 Then, Links Node and apply child nodes. Links Node will return applied result of each page as array.
+
+### Options
+None.
+
+## Paginate Node
+Paginate Node parses and returns each pages that provid by paginate.
+
+### Example
+Target page `page01.html` is like this. `page02.html` to `page04.html` are similarly.
+
+```html
+<!-- http://yasuri.example.net/page01.html -->
+<html>
+  <head><title>Page01</title></head>
+  <body>
+    <p>Pagination01</p>
+
+    <nav class='pagination'>
+      <span class='prev'> PreviousPage </span>
+      <span class='page'> 1 </span>
+      <span class='page'> <a href="./page02.html">2</a> </span>
+      <span class='page'> <a href="./page03.html">3</a> </span>
+      <span class='page'> <a href="./page04.html">4</a> </span>
+      <span class='next'> <a href="./page02.html" class="next" rel="next"> NextPage </a> </span>
+    </nav>
+
+  </body>
+<title>
+```
+
+```ruby
+agent = Mechanize.new
+page = agent.get("http://yasuri.example.net/page01.html")
+
+node = Yasuri.pages_root "/html/body/nav/span/a[@class='next']" do
+         text_content '/html/body/p'
+       end
+
+node.inject(agent, page)
+#=> [ {"content" => "Pagination01"},
+      {"content" => "Pagination02"},
+      {"content" => "Pagination03"},
+      {"content" => "Pagination04"}]
+```
+
+Paginate Node require link for next page. In this case, it is `NextPage` `/html/body/nav/span/a[@class='next']`.
+
+### Options
+##### `limit`
+Upper limit of open pages in pagination.
+
+```ruby
+node = Yasuri.pages_root "/html/body/nav/span/a[@class='next']" , limit:2 do
+         text_content '/html/body/p'
+       end
+node.inject(agent, page)
+#=> [ {"content" => "Pagination01"}, {"content" => "Pagination02"}]
+```
+Paginate Node open upto 3 given by `limit`. In this situation, pagination has 4 pages, but result json has 2 texts because given `limit:2`.
