@@ -111,7 +111,7 @@ Child nodes. TextNode has always empty set, because TextNode is leaf.
 ### Options
 Parse options. It different in each types. You can get options and values by `opt` method.
 
-```
+```ruby
 # TextNode Exaample
 node = Yasuri.text_title '/html/body/p[1]', truncate:/^[^,]+/
 node.opt #=> {:truncate => /^[^,]+/, :proc => nil}
@@ -287,7 +287,7 @@ None.
 Links Node returns parsed text in each linked pages.
 
 ### Example
-```
+```html
 <!-- http://yasuri.example.net -->
 <html>
   <head><title>Yasuri Test</title></head>
@@ -300,7 +300,7 @@ Links Node returns parsed text in each linked pages.
 <title>
 ```
 
-```
+```html
 <!-- http://yasuri.example.net/child01.html -->
 <html>
   <head><title>Child 01 Test</title></head>
@@ -314,7 +314,7 @@ Links Node returns parsed text in each linked pages.
 <title>
 ```
 
-```
+```html
 <!-- http://yasuri.example.net/child02.html -->
 <html>
   <head><title>Child 02 Test</title></head>
@@ -324,7 +324,7 @@ Links Node returns parsed text in each linked pages.
 <title>
 ```
 
-```
+```html
 <!-- http://yasuri.example.net/child03.html -->
 <html>
   <head><title>Child 03 Test</title></head>
@@ -337,7 +337,7 @@ Links Node returns parsed text in each linked pages.
 <title>
 ```
 
-```
+```ruby
 agent = Mechanize.new
 page = agent.get("http://yasuri.example.net")
 
