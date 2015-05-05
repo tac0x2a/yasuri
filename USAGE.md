@@ -1,5 +1,21 @@
 # Yasuri Usage
 
+## What is Yasuri
+`Yasuri` is an easy web-scraping library for supporting "Mechanize".
+
+Yasuri (鑢) is an easy web-scraping library for supporting "[Mechanize](https://github.com/sparklemotion/mechanize)".
+
+Yasuri can reduce frequently processes in Scraping.
+
+For example,
+
++ Open links in the page, scraping each page, and getting result as Hash.
++ Scraping texts in the page, and named result in Hash.
++ A table that repeatedly appears in a page each, scraping, get as an array.
++ Of each page provided by the pagination, scraping the only top 3.
+
+You can implement easy by Yasuri.
+
 ## Quick Start
 
 ```
@@ -103,7 +119,7 @@ Type meen behavior of Node.
 Name is used keys in returned hash.
 
 ### Path
-Path determine target node by xpath or ccs selector. It given by Machinize `search`.
+Path determine target node by xpath or css selector. It given by Machinize `search`.
 
 ### Childlen
 Child nodes. TextNode has always empty set, because TextNode is leaf.
@@ -412,4 +428,4 @@ node = Yasuri.pages_root "/html/body/nav/span/a[@class='next']" , limit:2 do
 node.inject(agent, page)
 #=> [ {"content" => "Pagination01"}, {"content" => "Pagination02"}]
 ```
-Paginate Node open upto 3 given by `limit`. In this situation, pagination has 4 pages, but result json has 2 texts because given `limit:2`.
+Paginate Node open upto 2 given by `limit`. In this situation, pagination has 4 pages, but result Array has 2 texts because given `limit:2`.
