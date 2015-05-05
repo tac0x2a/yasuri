@@ -353,4 +353,4 @@ node.inject(agent, page)
 
 At first, Links Node find all links in the page by path. In this case, LinksNode find `/html/body/a` tags in 'http://yasuri.example.net'. Then, open href attributes (`./child01.html`, `./child02.html` and `./child03.html`).
 
-Then, Links Node and apply child nodes. Links Node will return applyed result of each page as array.
+Then, Links Node and apply child nodes. Links Node will return applied result of each page as array.
