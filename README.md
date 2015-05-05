@@ -2,6 +2,16 @@
 
 Yasuri (鑢) is an easy web-scraping library for supporting "[Mechanize](https://github.com/sparklemotion/mechanize)".
 
+Yasuri can reduce frequently processes in Scraping.
+
+For example,
+
++ Open links in the page, scraping each page, and getting result as Hash.
++ Scraping texts in the page, and named result in Hash.
++ A table that repeatedly appears in a page each, scraping, get as an array.
++ Of each page provided by the pagination, scraping the only top 3.
+
+You can implement easy by Yasuri.
 
 ## Sample
 
