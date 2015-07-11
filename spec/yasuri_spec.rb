@@ -18,7 +18,7 @@ describe 'Yasuri' do
   #############
   describe '.json2tree' do
     it "fail if empty json" do
-      expect { Yasuri.json2tree("{}") }.to raise_error
+      expect { Yasuri.json2tree("{}") }.to raise_error(RuntimeError)
     end
 
     it "return TextNode" do
