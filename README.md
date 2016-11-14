@@ -27,6 +27,14 @@ Add this line to your application's Gemfile:
 gem 'yasuri'
 ```
 
+or
+
+```ruby
+# for Ruby 1.9.3 or lower
+gem 'yasuri', '~> 1.9'
+```
+
+
 And then execute:
 
     $ bundle
