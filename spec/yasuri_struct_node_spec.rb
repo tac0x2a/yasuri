@@ -81,7 +81,7 @@ describe 'Yasuri' do
       node = Yasuri::StructNode.new(invalid_xpath, "table", [
         Yasuri::TextNode.new('./td[1]', "title")
       ])
-      expect { node.inject(@agent, @page) }.to raise_error
+      expect { node.inject(@agent, @page) }.to raise_error(Nokogiri::XML::XPath::SyntaxError)
     end
 
     it 'fail with invalid xpath in children' do
@@ -90,7 +90,7 @@ describe 'Yasuri' do
         Yasuri::TextNode.new(invalid_xpath, "title"),
         Yasuri::TextNode.new('./td[2]', "pub_date"),
       ])
-      expect { node.inject(@agent, @page) }.to raise_error
+      expect { node.inject(@agent, @page) }.to raise_error(Nokogiri::XML::XPath::SyntaxError)
     end
 
     it 'scrape all tables' do

@@ -31,7 +31,7 @@ describe 'Yasuri' do
     it 'fail with invalid xpath' do
       invalid_xpath = '/html/body/no_match_node['
       node = Yasuri::TextNode.new(invalid_xpath, "title")
-      expect { node.inject(@agent, @index_page) }.to raise_error
+      expect { node.inject(@agent, @index_page) }.to raise_error(Nokogiri::XML::XPath::SyntaxError)
     end
 
     it "can be defined by DSL, return single TextNode title" do
