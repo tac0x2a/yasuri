@@ -7,8 +7,11 @@ module Yasuri
   class TextNode
     include Node
 
-    def initialize(xpath, name, children = [], truncate: nil, proc:nil)
+    def initialize(xpath, name, children = [], hash = {})
       super(xpath, name, children)
+
+      truncate = hash[:truncate]
+      proc     = hash[:proc]
 
       truncate = Regexp.new(truncate) if not truncate.nil? # regexp or nil
       @truncate = truncate

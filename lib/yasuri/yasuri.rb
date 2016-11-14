@@ -37,7 +37,7 @@ module Yasuri
   }
   Node2Text = Text2Node.invert
 
-  ReservedKeys = %i|node name path children|
+  ReservedKeys = [:node, :name, :path, :children]
   def self.hash2node(node_h)
     node, name, path, children = ReservedKeys.map do |key|
       node_h[key]
@@ -78,7 +78,8 @@ module Yasuri
     json
   end
 
-  def self.NodeName(name, symbolize_names:false)
+  def self.NodeName(name, hash = {})
+    symbolize_names = hash[:symbolize_names] || false
     symbolize_names ? name.to_sym : name
   end
 

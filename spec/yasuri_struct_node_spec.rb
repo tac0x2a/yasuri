@@ -126,7 +126,7 @@ describe 'Yasuri' do
         Yasuri::TextNode.new('./td[1]', "title"),
         Yasuri::TextNode.new('./td[2]', "pub_date"),
       ])
-      expected = @table_1996.map{|h| h.map{|k,v| [k.to_sym, v] }.to_h }
+      expected = @table_1996.map{|h| Hash[h.map{|k,v| [k.to_sym, v] }] }
       actual = node.inject(@agent, @page, symbolize_names:true)
       expect(actual).to match expected
     end

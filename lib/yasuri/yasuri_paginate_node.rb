@@ -7,9 +7,9 @@ module Yasuri
   class PaginateNode
     include Node
 
-    def initialize(xpath, name, children = [], limit: nil)
+    def initialize(xpath, name, children = [], hash = {})
       super(xpath, name, children)
-      @limit = limit
+      @limit = hash[:limit]
     end
 
     def inject(agent, page, opt = {})
