@@ -12,7 +12,7 @@ module Yasuri
       @limit = limit
     end
 
-    def inject(agent, page, opt = {})
+    def inject(agent, page, opt = {}, element = page)
       retry_count = opt[:retry_count] || 5
 
       child_results = []
