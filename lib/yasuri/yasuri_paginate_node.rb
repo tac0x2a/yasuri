@@ -15,6 +15,8 @@ module Yasuri
     def inject(agent, page, opt = {}, element = page)
       retry_count = opt[:retry_count] || 5
 
+      raise NotImplementedError.new("PagenateNode inside StructNode, Not Supported") if page != element
+
       child_results = []
       limit = @limit.nil? ? Float::MAX : @limit
       while page
