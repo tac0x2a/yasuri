@@ -136,7 +136,7 @@ describe 'Yasuri' do
   describe '::StructNode::Links' do
     before do
       @agent = Mechanize.new
-      @page = @agent.get(uri + "/structual_links.html")
+      @page = @agent.get(uri + "/struct/structual_links.html")
 
       @table = [
         { "title" => "Child01,02",
