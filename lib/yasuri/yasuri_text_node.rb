@@ -21,8 +21,8 @@ module Yasuri
 
     end
 
-    def inject(agent, page, opt = {})
-      node = page.search(@xpath)
+    def inject(agent, page, opt = {}, element = page)
+      node = element.search(@xpath)
       text = node.text.to_s
 
       if @truncate

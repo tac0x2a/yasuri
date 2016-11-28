@@ -126,7 +126,7 @@ describe 'Yasuri' do
           Yasuri::TextNode.new('./td[2]', "pub_date"),
         ])
       ])
-      page = @agent.get(@uri + "/structual_text.html")
+      page = @agent.get(@uri + "/struct/structual_text.html")
       compare_generated_vs_original(generated, original, page)
     end
   end

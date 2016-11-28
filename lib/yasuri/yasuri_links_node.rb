@@ -6,10 +6,10 @@ require_relative 'yasuri_node'
 module Yasuri
   class LinksNode
     include Node
-    def inject(agent, page, opt = {})
+    def inject(agent, page, opt = {}, element = page)
       retry_count = opt[:retry_count] || 5
 
-      links = page.search(@xpath) || [] # links expected
+      links = element.search(@xpath) || [] # links expected
       links.map do |link|
         link_button = Mechanize::Page::Link.new(link, agent, page)
         child_page = Yasuri.with_retry(retry_count) { link_button.click }

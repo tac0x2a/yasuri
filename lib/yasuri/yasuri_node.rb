@@ -11,7 +11,7 @@ module Yasuri
       @xpath, @name, @children = xpath, name, children
     end
 
-    def inject(agent, page, opt = {})
+    def inject(agent, page, opt = {}, element = page)
       fail "#{Kernel.__method__} is not implemented."
     end
     def opts
