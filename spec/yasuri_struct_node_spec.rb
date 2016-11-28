@@ -159,4 +159,18 @@ describe 'Yasuri' do
       expect(actual).to match expected
     end
   end # descrive
+
+  describe '::StructNode::Pages' do
+    before do
+      @agent = Mechanize.new
+      @page = @agent.get(uri + "/struct/structual_text.html") #dummy
+    end
+
+    it 'not supported' do
+      node = Yasuri::StructNode.new('/html/body/table[1]/tr', "table", [
+        Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "pages", [])
+      ])
+      expect{ node.inject(@agent, @page) }.to raise_error(NotImplementedError, "PagenateNode inside StructNode, Not Supported")
+    end
+  end
 end
