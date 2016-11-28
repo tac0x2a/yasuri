@@ -12,7 +12,7 @@ describe 'Yasuri' do
   describe '::StructNode' do
     before do
       @agent = Mechanize.new
-      @page = @agent.get(uri + "/structual_text.html")
+      @page = @agent.get(uri + "/struct/structual_text.html")
 
       @table_1996 = [
         { "title"    => "The Perfect Insider",
@@ -132,4 +132,31 @@ describe 'Yasuri' do
     end
 
   end
+
+  describe '::StructNode::Links' do
+    before do
+      @agent = Mechanize.new
+      @page = @agent.get(uri + "/structual_links.html")
+
+      @table = [
+        { "title" => "Child01,02",
+          "child" => [{"p" => "Child 01 page."}, {"p" => "Child 02 page."}] },
+
+        { "title" => "Child01,02,03",
+          "child" => [{"p" => "Child 01 page."}, {"p" => "Child 02 page."}, {"p" => "Child 03 page."}]}
+      ]
+    end
+
+    it 'return child node in links inside struct' do
+      node = Yasuri::StructNode.new('/html/body/table/tr', "table", [
+        Yasuri::TextNode.new('./td[1]', "title"),
+        Yasuri::LinksNode.new('./td/a', "child", [
+          Yasuri::TextNode.new('/html/body/p', "p"),
+        ])
+      ])
+      expected = @table
+      actual = node.inject(@agent, @page)
+      expect(actual).to match expected
+    end
+  end # descrive
 end
