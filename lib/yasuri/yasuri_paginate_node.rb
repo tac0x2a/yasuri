@@ -7,8 +7,9 @@ module Yasuri
   class PaginateNode
     include Node
 
-    def initialize(xpath, name, children = [], limit: nil)
+    def initialize(xpath, name, children = [], limit: nil, flatten: false)
       super(xpath, name, children)
+      @flatten = flatten
       @limit = limit
     end
 
@@ -34,10 +35,14 @@ module Yasuri
         break if (limit -= 1) <= 0
       end
 
+      if @flatten == true
+        return child_results.map{|h| h.values}.flatten
+      end
+
       child_results
     end
     def opts
-      {limit:@limit}
+      {limit:@limit, flatten:@flatten}
     end
   end
 end

@@ -30,6 +30,49 @@ describe 'Yasuri' do
       expect(actual).to match expected
     end
 
+    it "scrape each paginated pages with flatten" do
+      root_node = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
+        Yasuri::TextNode.new('/html/body/p', "content"),
+        Yasuri::StructNode.new('/html/body/nav/span', "span", [
+          Yasuri::TextNode.new('./a', "text"),
+        ]),
+      ], flatten: true)
+      actual = root_node.inject(@agent, @page)
+      expected = [
+        "PaginationTest01",
+        {"text"=>""},
+        {"text"=>""},
+        {"text" => "2"},
+        {"text" => "3"},
+        {"text" => "4"},
+        {"text"=>"NextPage »"},
+        "PaginationTest02",
+        {"text"=>"« PreviousPage"},
+        {"text" => "1"},
+        {"text"=>""},
+        {"text" => "3"},
+        {"text" => "4"},
+        {"text"=>"NextPage »"},
+        "PaginationTest03",
+        {"text"=>"« PreviousPage"},
+        {"text" => "1"},
+        {"text" => "2"},
+        {"text"=>""},
+        {"text" => "4"},
+        {"text"=>"NextPage »"},
+        "PaginationTest04",
+        {"text"=>"« PreviousPage"},
+        {"text" => "1"},
+        {"text" => "2"},
+        {"text" => "3"},
+        {"text"=>""},
+        {"text"=>""},
+      ]
+
+      expect(actual).to match expected
+    end
+
+
     it "scrape each paginated pages limited" do
       root_node = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
         Yasuri::TextNode.new('/html/body/p', "content"),

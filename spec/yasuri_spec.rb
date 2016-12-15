@@ -193,6 +193,7 @@ describe 'Yasuri' do
                            "name"     : "root",
                            "path"     : "/html/body/nav/span/a[@class='next']",
                            "limit"    : 10,
+                           "flatten"  : false,
                            "children" : [ { "node" : "text",
                                             "name" : "content",
                                             "path" : "/html/body/p"
