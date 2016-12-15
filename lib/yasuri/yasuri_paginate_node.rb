@@ -10,6 +10,7 @@ module Yasuri
     def initialize(xpath, name, children = [], hash = {})
       super(xpath, name, children)
       @limit = hash[:limit]
+      @flatten = hash[:flatten] || false
     end
 
     def inject(agent, page, opt = {}, element = page)
@@ -34,10 +35,14 @@ module Yasuri
         break if (limit -= 1) <= 0
       end
 
+      if @flatten == true
+        return child_results.map{|h| h.values}.flatten
+      end
+
       child_results
     end
     def opts
-      {limit:@limit}
+      {limit:@limit, flatten:@flatten}
     end
   end
 end
