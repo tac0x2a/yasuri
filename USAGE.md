@@ -429,3 +429,38 @@ node.inject(agent, page)
 #=> [ {"content" => "Pagination01"}, {"content" => "Pagination02"}]
 ```
 Paginate Node open upto 2 given by `limit`. In this situation, pagination has 4 pages, but result Array has 2 texts because given `limit:2`.
+
+##### `flatten`
+`flatten` option expands each page results.
+
+```ruby
+agent = Mechanize.new
+page = agent.get("http://yasuri.example.net/page01.html")
+
+node = Yasuri.pages_root "/html/body/nav/span/a[@class='next']" , flatten:true do
+         text_title   '/html/head/title'
+         text_content '/html/body/p'
+       end
+node.inject(agent, page)
+
+#=> [ {"title" => "Page01",
+       "content" => "Patination01"},
+      {"title"   => "Page01",
+       "content" => "Patination02"},
+      {"title"   => "Page01",
+       "content" => "Patination03"}]
+
+
+node = Yasuri.pages_root "/html/body/nav/span/a[@class='next']" , flatten:true do
+        text_title   '/html/head/title'
+        text_content '/html/body/p'
+      end
+node.inject(agent, page)
+
+#=> [ "Page01",
+      "Patination01",
+      "Page02",
+      "Patination02",
+      "Page03",
+      "Patination03"]
+```
