@@ -67,7 +67,7 @@ page = agent.get(uri)
 tree.inject(agent, page)
 ```
 
-ツリーは、DSLまたはjsonで定義することができます．上の例ではDSLで定義しています．
+ツリーは、json，yaml，またはDSLで定義することができます．上の例ではDSLで定義しています．
 以下は、jsonで上記と等価な解析ツリーを定義した例です．
 
 ```ruby
@@ -87,6 +87,19 @@ EOJSON
 tree = Yasuri.json2tree(src)
 ```
 
+```ruby
+# yaml で構成する場合
+src = <<-EOYAML
+title:
+  node: links
+  path: "/html/body/a"
+  children:
+    - name:
+        node: text
+        path: "/html/body/p"
+EOYAML
+tree = Yasuri.yaml2tree(src)
+```
 
 ### Node
 ツリーは入れ子になった *Node* で構成されます．
