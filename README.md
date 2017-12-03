@@ -52,6 +52,23 @@ root = Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
          text_content '//*[@id="contents"]/p[1]'
        end
 
+
+# Node tree constructing by YAML
+src = <<-EOYAML
+root:
+  node: links
+  path: "//*[@id='menu']/ul/li/a"
+  children:
+    - title:
+        node: text
+        path: "//*[@id='contents']/h2"
+    - content:
+        node: text
+        path: "//*[@id='contents']/p[1]"
+EOYAML
+root = Yasuri.yaml2tree(src)
+
+
 # Node tree constructing by JSON
 src = <<-EOJSON
    { "node"     : "links",

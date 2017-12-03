@@ -13,6 +13,89 @@ describe 'Yasuri' do
     @index_page = @agent.get(@uri)
   end
 
+  ############
+  # yam2tree #
+  ############
+  describe '.yaml2tree' do
+    it "fail if empty yaml" do
+      expect { Yasuri.yaml2tree(nil) }.to raise_error(RuntimeError)
+    end
+
+    it "return text node" do
+      src = <<-EOB
+content:
+  node: text
+  path: "/html/body/p[1]"
+EOB
+      generated = Yasuri.yaml2tree(src)
+      original  = Yasuri::TextNode.new('/html/body/p[1]', "content")
+
+      compare_generated_vs_original(generated, original, @index_page)
+    end
+
+    it "return text node as symbol" do
+      src = <<-EOB
+:content:
+  :node: text
+  :path: "/html/body/p[1]"
+EOB
+      generated = Yasuri.yaml2tree(src)
+      original  = Yasuri::TextNode.new('/html/body/p[1]', "content")
+
+      compare_generated_vs_original(generated, original, @index_page)
+    end
+
+    it "return LinksNode/TextNode" do
+
+      src = <<-EOB
+root:
+  node: links
+  path: "/html/body/a"
+  children:
+    - content:
+        node: text
+        path: "/html/body/p"
+EOB
+      generated = Yasuri.yaml2tree(src)
+      original  = Yasuri::LinksNode.new('/html/body/a', "root", [
+                    Yasuri::TextNode.new('/html/body/p', "content"),
+                  ])
+
+      compare_generated_vs_original(generated, original, @index_page)
+    end
+
+    it "return StructNode/StructNode/[TextNode,TextNode]" do
+      src = <<-EOB
+tables:
+  node: struct
+  path: "/html/body/table"
+  children:
+    - table:
+        node: struct
+        path: "./tr"
+        children:
+          - title:
+              node: text
+              path: "./td[1]"
+          - pub_date:
+              node: text
+              path: "./td[2]"
+EOB
+
+      generated = Yasuri.yaml2tree(src)
+      original  = Yasuri::StructNode.new('/html/body/table', "tables", [
+        Yasuri::StructNode.new('./tr', "table", [
+          Yasuri::TextNode.new('./td[1]', "title"),
+          Yasuri::TextNode.new('./td[2]', "pub_date"),
+        ])
+      ])
+      page = @agent.get(@uri + "/struct/structual_text.html")
+      compare_generated_vs_original(generated, original, page)
+    end
+
+  end # end of describe '.yaml2tree'
+
+
   #############
   # json2tree #
   #############

@@ -69,7 +69,7 @@ page = agent.get(uri)
 tree.inject(agent, page)
 ```
 
-Tree is definable by 2(+1) ways, DSL and json (and basic ruby code). In above example, DSL.
+Tree is definable by 3(+1) ways, json, yaml, and DSL (or basic ruby code). In above example, DSL.
 
 ```ruby
 # Construct by json.
@@ -87,6 +87,21 @@ src = <<-EOJSON
 EOJSON
 tree = Yasuri.json2tree(src)
 ```
+
+```ruby
+# Construct by yaml.
+src = <<-EOYAML
+title:
+  node: links
+  path: "/html/body/a"
+  children:
+    - name:
+        node: text
+        path: "/html/body/p"
+EOYAML
+tree = Yasuri.yaml2tree(src)
+```
+
 
 ### Node
 Tree is constructed by nested Nodes.
