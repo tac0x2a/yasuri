@@ -59,12 +59,8 @@ root:
   node: links
   path: "//*[@id='menu']/ul/li/a"
   children:
-    - title:
-        node: text
-        path: "//*[@id='contents']/h2"
-    - content:
-        node: text
-        path: "//*[@id='contents']/p[1]"
+    - title:   { node: text, path: "//*[@id='contents']/h2" }
+    - content: { node: text, path: "//*[@id='contents']/p[1]" }
 EOYAML
 root = Yasuri.yaml2tree(src)
 
