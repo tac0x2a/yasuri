@@ -92,6 +92,17 @@ result = root.inject(agent, root_page)
 # => [ {"title" => "PageTitle", "content" => "Page Contents" }, ...  ]
 ```
 
+## Dev
+```sh
+$ gem install bundler
+$ bundle install
+```
+### Test
+```sh
+$ rake
+# or
+$ rspec spec/*spec.rb
+```
 
 ## Contributing
 

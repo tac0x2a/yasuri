@@ -59,10 +59,18 @@ describe 'Yasuri' do
       ]
       expect(actual).to match expected
     end
-    it 'can be defined by DSL, return single LinkNode title' do
-      generated = Yasuri.links_title '/html/body/a'
-      original  = Yasuri::LinksNode.new('/html/body/a', "title")
-      compare_generated_vs_original(generated, original, @index_page)
+    it 'can be defined by DSL, return no contains if no child node' do
+      root_node = Yasuri.links_title '/html/body/a'
+      actual = root_node.inject(@agent, @index_page)
+      expected = [{}, {}, {}] # Empty if no child node under links node.
+      expect(actual).to match expected
+    end
+
+    it 'can be defined return no contains if no child node' do
+      root_node = Yasuri::LinksNode.new('/html/body/a', "title")
+      actual = root_node.inject(@agent, @index_page)
+      expected = [{}, {}, {}] # Empty if no child node under links node.
+      expect(actual).to match expected
     end
     it 'can be defined by DSL, return nested contents under link' do
       generated = Yasuri.links_title '/html/body/a' do
