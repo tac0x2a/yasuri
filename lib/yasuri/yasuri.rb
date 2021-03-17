@@ -54,9 +54,9 @@ module Yasuri
     body
   end
 
-  def self.method_missing(name, *args, &block)
-    generated = Yasuri::NodeGenerator.gen(name, *args, &block)
-    generated || super(name, args)
+  def self.method_missing(node_name, pattern, **opt, &block)
+    generated = Yasuri::NodeGenerator.gen(node_name, pattern, **opt, &block)
+    generated || super(node_name, **opt)
   end
 
   private
@@ -85,7 +85,7 @@ module Yasuri
 
     klass = Text2Node[node.to_sym]
     fail "Undefined node type #{node}" if klass.nil?
-    klass.new(path, name, childnodes, opt)
+    klass.new(path, name, childnodes, **opt)
   end
 
   def self.node2hash(node)
@@ -109,7 +109,8 @@ module Yasuri
     json
   end
 
-  def self.NodeName(name, symbolize_names:false)
+  def self.NodeName(name, opt)
+    symbolize_names = opt[:symbolize_names]
     symbolize_names ? name.to_sym : name
   end
 
