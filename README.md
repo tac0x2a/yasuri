@@ -104,6 +104,16 @@ $ rake
 $ rspec spec/*spec.rb
 ```
 
+### Release RubyGems
+```sh
+# Only first time
+$ curl -u <user_name> https://rubygems.org/api/v1/api_key.yaml > ~/.gem/credentials
+$ chmod 0600 ~/.gem/credentials
+
+$ nano lib/yasuri/version.rb # edit gem version
+$ rake release
+```
+
 ## Contributing
 
 1. Fork it ( https://github.com/tac0x2a/yasuri/fork )
