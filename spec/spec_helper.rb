@@ -12,11 +12,6 @@ shared_context 'httpserver' do
   }
 end
 
-
-# ENV['CODECLIMATE_REPO_TOKEN'] = "0dc78d33107a7f11f257c0218ac1a37e0073005bb9734f2fd61d0f7e803fc151"
-# require "codeclimate-test-reporter"
-# CodeClimate::TestReporter.start
-
 require 'simplecov'
 require 'coveralls'
 Coveralls.wear!
