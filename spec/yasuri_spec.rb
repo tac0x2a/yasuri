@@ -13,6 +13,22 @@ describe 'Yasuri' do
     @index_page = @agent.get(@uri)
   end
 
+  describe '.tree' do
+    it "multi scrape in singe page" do
+      tree = Yasuri.tree do
+        text_title  '/html/head/title'
+        text_body_p '/html/body/p[1]'
+      end
+      actual = tree.inject(@agent, @index_page)
+
+      expected = {
+        "title"  => "Yasuri Test",
+        "body_p" => "Hello,Yasuri"
+      }
+      expect(actual).to include expected
+    end
+  end
+
   ############
   # yam2tree #
   ############

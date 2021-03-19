@@ -12,6 +12,7 @@ require_relative 'yasuri_struct_node'
 require_relative 'yasuri_paginate_node'
 require_relative 'yasuri_links_node'
 require_relative 'yasuri_node_generator'
+require_relative 'yasuri_tree'
 
 module Yasuri
 
@@ -34,6 +35,11 @@ module Yasuri
     hash = Yasuri.yaml2tree_sub(root_key, root)
 
     Yasuri.hash2node(hash)
+  end
+
+  def self.tree(&block)
+    node_list = Yasuri::NodeGenerator.new.gen_recursive(&block)
+    Yasuri::Tree.new(node_list)
   end
 
   private
