@@ -37,11 +37,6 @@ module Yasuri
     Yasuri.hash2node(hash)
   end
 
-  def self.tree(&block)
-    node_list = Yasuri::NodeGenerator.new.gen_recursive(&block)
-    Yasuri::Tree.new(node_list)
-  end
-
   private
   def self.yaml2tree_sub(name, body)
     return nil if name.nil? or body.nil?
@@ -60,7 +55,7 @@ module Yasuri
     body
   end
 
-  def self.method_missing(node_name, pattern, **opt, &block)
+  def self.method_missing(node_name, pattern=nil, **opt, &block)
     generated = Yasuri::NodeGenerator.gen(node_name, pattern, **opt, &block)
     generated || super(node_name, **opt)
   end

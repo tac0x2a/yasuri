@@ -1,13 +1,16 @@
 
 module Yasuri
-  class Tree
-    def initialize(node_list, opt: {})
-      @node_list = node_list
+  class TreeNode
+    attr_reader :name, :children
+
+    def initialize(name, children, opt: {})
+      @name = name
+      @children = children
       @opt = opt
     end
 
     def inject(agent, page, opt = {}, element = page)
-      child_results_kv = @node_list.map do |node|
+      child_results_kv = @children.map do |node|
         [node.name, node.inject(agent, page, opt)]
       end
       Hash[child_results_kv]

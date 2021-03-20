@@ -15,7 +15,7 @@ module Yasuri
       @nodes
     end
 
-    def method_missing(name, pattern, **args, &block)
+    def method_missing(name, pattern=nil, **args, &block)
       node = NodeGenerator.gen(name, pattern, **args, &block)
       raise "Undefined Node Name '#{name}'" if node == nil
       @nodes << node
@@ -33,6 +33,8 @@ module Yasuri
         Yasuri::LinksNode.new(xpath,  $1, children || [], **opt)
       when /^pages_(.+)$/
         Yasuri::PaginateNode.new(xpath, $1, children || [], **opt)
+      when /^tree_(.+)$/
+        Yasuri::TreeNode.new($1, children, **opt)
       else
         nil
       end
