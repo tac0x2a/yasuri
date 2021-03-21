@@ -33,10 +33,10 @@ or
 
 ```ruby
 # for Ruby 1.9.3 or lower
-gem 'yasuri', '~> 1.9'
+gem 'yasuri', '~> 2.0', '>= 2.0.13'
 
 # for Ruby 3.0.0 or lower
-gem 'yasuri', '~> 3.0.1'
+gem 'yasuri', '~> 3.1'
 ```
 
 
