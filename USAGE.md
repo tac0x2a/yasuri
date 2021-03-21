@@ -499,8 +499,6 @@ node.inject(agent, page)
 ```
 
 ## Map Node
-*MapNode* collect as はスクレイピングした結果をまとめるノードです．このノードはパースツリーにおいて常に節です．
-
 *MapNode* is a node that summarizes the results of scraping. This node is always a branch node in the parse tree.
 
 ### Example
