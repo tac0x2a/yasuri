@@ -26,7 +26,7 @@ module Yasuri
       h["name"] = self.name
       h["children"] = self.children.map{|c| c.to_h} if not children.empty?
 
-      self.opt.each do |key,value|
+      self.opts.each do |key,value|
         h[key] = value if not value.nil?
       end
 
@@ -49,10 +49,6 @@ module Yasuri
       opt = node_h
 
       self.new(name, childnodes, **opt)
-    end
-
-    def node_type_str
-      fail "#{Kernel.__method__} is not implemented in included class."
     end
   end
 end

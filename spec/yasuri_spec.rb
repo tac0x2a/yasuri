@@ -269,6 +269,31 @@ EOB
       expect(actual).to match expected
     end
 
+    it "return map node with text nodes" do
+      tree = Yasuri::MapNode.new('parent', [
+        Yasuri::TextNode.new('/html/body/p[1]', "content01"),
+        Yasuri::TextNode.new('/html/body/p[2]', "content02"),
+      ])
+      actual_json = Yasuri.tree2json(tree)
+
+      expected_json = %q| { "node" : "map",
+        "name"  : "parent",
+        "children" : [
+          { "node"  : "text",
+            "name"  : "content01",
+            "path"  : "/html/body/p[1]"
+          },
+          { "node"  : "text",
+            "name"  : "content02",
+            "path"  : "/html/body/p[2]"
+          }
+        ]
+      }|
+      expected = Yasuri.tree2json(Yasuri.json2tree(expected_json))
+      actual   = Yasuri.tree2json(Yasuri.json2tree(actual_json))
+      expect(actual).to match expected
+    end
+
     it "return LinksNode/TextNode" do
       tree  = Yasuri::LinksNode.new('/html/body/a', "root", [
                 Yasuri::TextNode.new('/html/body/p', "content"),
