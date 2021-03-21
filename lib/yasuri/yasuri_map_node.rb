@@ -1,6 +1,6 @@
 
 module Yasuri
-  class TreeNode
+  class MapNode
     attr_reader :name, :children
 
     def initialize(name, children, opt: {})
@@ -22,7 +22,7 @@ module Yasuri
 
     def to_h
       h = {}
-      h["node"] = "tree"
+      h["node"] = "map"
       h["name"] = self.name
       h["children"] = self.children.map{|c| c.to_h} if not children.empty?
 

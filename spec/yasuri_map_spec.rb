@@ -8,13 +8,13 @@ describe 'Yasuri' do
     @index_page = @agent.get(uri)
   end
 
-  describe '::TreeNode' do
+  describe '::MapNode' do
     it "multi scrape in singe page" do
-      tree = Yasuri.tree_sample do
+      map = Yasuri.map_sample do
         text_title  '/html/head/title'
         text_body_p '/html/body/p[1]'
       end
-      actual = tree.inject(@agent, @index_page)
+      actual = map.inject(@agent, @index_page)
 
       expected = {
         "title"  => "Yasuri Test",
@@ -24,14 +24,14 @@ describe 'Yasuri' do
     end
 
     it "nested multi scrape in singe page" do
-      tree = Yasuri.tree_sample do
-        tree_group1 { text_child01  '/html/body/a[1]' }
-        tree_group2 do
+      map = Yasuri.map_sample do
+        map_group1 { text_child01  '/html/body/a[1]' }
+        map_group2 do
           text_child01 '/html/body/a[1]'
           text_child03 '/html/body/a[3]'
         end
       end
-      actual = tree.inject(@agent, @index_page)
+      actual = map.inject(@agent, @index_page)
 
       expected = {
         "group1" => {
@@ -46,18 +46,18 @@ describe 'Yasuri' do
     end
 
     it "scrape with links node" do
-      tree = Yasuri.tree_sample do
-        tree_group1 do
+      map = Yasuri.map_sample do
+        map_group1 do
           links_a '/html/body/a' do
             text_content '/html/body/p'
           end
           text_child01  '/html/body/a[1]'
         end
-        tree_group2 do
+        map_group2 do
           text_child03 '/html/body/a[3]'
         end
       end
-      actual = tree.inject(@agent, @index_page)
+      actual = map.inject(@agent, @index_page)
 
       expected = {
         "group1" => {

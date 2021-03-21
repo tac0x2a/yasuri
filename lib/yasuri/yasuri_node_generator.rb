@@ -6,6 +6,7 @@ require_relative 'yasuri_text_node'
 require_relative 'yasuri_struct_node'
 require_relative 'yasuri_links_node'
 require_relative 'yasuri_paginate_node'
+require_relative 'yasuri_map_node'
 
 module Yasuri
   class NodeGenerator
@@ -37,8 +38,8 @@ module Yasuri
       when /^pages_(.+)$/
         # Todo raise error xpath is not valid
         Yasuri::PaginateNode.new(xpath, $1, children || [], **opt)
-      when /^tree_(.+)$/
-        Yasuri::TreeNode.new($1, children, **opt)
+      when /^map_(.+)$/
+        Yasuri::MapNode.new($1, children, **opt)
       else
         nil
       end

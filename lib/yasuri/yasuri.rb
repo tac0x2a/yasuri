@@ -11,8 +11,8 @@ require_relative 'yasuri_text_node'
 require_relative 'yasuri_struct_node'
 require_relative 'yasuri_paginate_node'
 require_relative 'yasuri_links_node'
+require_relative 'yasuri_map_node'
 require_relative 'yasuri_node_generator'
-require_relative 'yasuri_tree'
 
 module Yasuri
 
@@ -66,7 +66,7 @@ module Yasuri
     struct: Yasuri::StructNode,
     links:  Yasuri::LinksNode,
     pages:  Yasuri::PaginateNode,
-    tree:   Yasuri::TreeNode
+    map:   Yasuri::MapNode
   }
   Node2Text = Text2Node.invert
 

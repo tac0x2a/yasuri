@@ -126,8 +126,8 @@ EOB
       compare_generated_vs_original(generated, original, @index_page)
     end
 
-    it "return TreeNode with TextNodes" do
-      src = %q| { "node" : "tree",
+    it "return MapNode with TextNodes" do
+      src = %q| { "node" : "map",
                   "name"  : "parent",
                   "children" : [
                     { "node"  : "text",
@@ -141,7 +141,7 @@ EOB
                   ]
                 }|
       generated = Yasuri.json2tree(src)
-      original  = Yasuri::TreeNode.new('parent', [
+      original  = Yasuri::MapNode.new('parent', [
         Yasuri::TextNode.new('/html/body/p[1]', "content01"),
         Yasuri::TextNode.new('/html/body/p[2]', "content02"),
       ])
