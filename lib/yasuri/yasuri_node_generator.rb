@@ -21,23 +21,27 @@ module Yasuri
       @nodes << node
     end
 
-    def self.gen(name, xpath, **opt, &block)
+    def self.gen(method_name, xpath, **opt, &block)
       children = Yasuri::NodeGenerator.new.gen_recursive(&block) if block_given?
 
-      case name
+      case method_name
       when /^text_(.+)$/
-        Yasuri::TextNode.new(xpath,   $1, children || [], **opt)
+        # Todo raise error xpath is not valid
+        Yasuri::TextNode.new(xpath, $1, children || [], **opt)
       when /^struct_(.+)$/
+        # Todo raise error xpath is not valid
         Yasuri::StructNode.new(xpath, $1, children || [], **opt)
       when /^links_(.+)$/
-        Yasuri::LinksNode.new(xpath,  $1, children || [], **opt)
+        # Todo raise error xpath is not valid
+        Yasuri::LinksNode.new(xpath, $1, children || [], **opt)
       when /^pages_(.+)$/
+        # Todo raise error xpath is not valid
         Yasuri::PaginateNode.new(xpath, $1, children || [], **opt)
       when /^tree_(.+)$/
         Yasuri::TreeNode.new($1, children, **opt)
       else
         nil
       end
-    end # of self.gen(name, *args, &block)
+    end # of self.gen(method_name, xpath, **opt, &block)
   end # of class NodeGenerator
 end

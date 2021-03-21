@@ -15,8 +15,44 @@ module Yasuri
       end
       Hash[child_results_kv]
     end
+
     def opts
       {}
+    end
+
+    def to_h
+      h = {}
+      h["node"] = "tree"
+      h["name"] = self.name
+      h["children"] = self.children.map{|c| c.to_h} if not children.empty?
+
+      self.opt.each do |key,value|
+        h[key] = value if not value.nil?
+      end
+
+      h
+    end
+
+    def self.hash2node(node_h)
+      reservedKeys = %i|node name children|
+
+      node, name, children = reservedKeys.map do |key|
+        node_h[key]
+      end
+
+      fail "Not found 'name' value in map" if name.nil?
+      fail "Not found 'children' value in map" if children.nil?
+      children ||= []
+
+      childnodes = children.map{|c| Yasuri.hash2node(c) }
+      reservedKeys.each{|key| node_h.delete(key)}
+      opt = node_h
+
+      self.new(name, childnodes, **opt)
+    end
+
+    def node_type_str
+      fail "#{Kernel.__method__} is not implemented in included class."
     end
   end
 end

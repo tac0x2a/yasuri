@@ -34,6 +34,10 @@ module Yasuri
       text
     end
 
+    def node_type_str
+      "text"
+    end
+
     def opts
       {truncate:@truncate, proc:@proc}
     end
