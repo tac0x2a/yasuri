@@ -55,9 +55,9 @@ module Yasuri
     body
   end
 
-  def self.method_missing(node_name, pattern=nil, **opt, &block)
-    generated = Yasuri::NodeGenerator.gen(node_name, pattern, **opt, &block)
-    generated || super(node_name, **opt)
+  def self.method_missing(method_name, pattern=nil, **opt, &block)
+    generated = Yasuri::NodeGenerator.gen(method_name, pattern, **opt, &block)
+    generated || super(method_name, **opt)
   end
 
   private
