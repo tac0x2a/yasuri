@@ -34,6 +34,9 @@ or
 ```ruby
 # for Ruby 1.9.3 or lower
 gem 'yasuri', '~> 1.9'
+
+# for Ruby 3.0.0 or lower
+gem 'yasuri', '~> 3.0.1'
 ```
 
 
