@@ -186,12 +186,14 @@ page = agent.get("http://yasuri.example.net")
 
 p1  = Yasuri.text_title '/html/body/p[1]'
 p1t = Yasuri.text_title '/html/body/p[1]', truncate:/^[^,]+/
-p2u = Yasuri.text_title '/html/body/p[2]', proc: :upcase
+p2u = Yasuri.text_title '/html/body/p[1]', proc: :upcase
 
-p1.inject(agent, page)   #=> { "title" => "Hello,World" }
-p1t.inject(agent, page)  #=> { "title" => "Hello" }
-node.inject(agent, page) #=> { "title" => "HELLO,YASURI" }
+p1.inject(agent, page)   #=> "Hello,World"
+p1t.inject(agent, page)  #=> "Hello"
+p2u.inject(agent, page)  #=> "HELLO,WORLD"
 ```
+
+Note that if you want to scrape multiple elements in the same page at once, use `MapNode`. See the `MapNode` example for details.
 
 ### Options
 ##### `truncate`

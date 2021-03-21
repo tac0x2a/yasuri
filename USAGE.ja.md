@@ -186,12 +186,14 @@ page = agent.get("http://yasuri.example.net")
 
 p1  = Yasuri.text_title '/html/body/p[1]'
 p1t = Yasuri.text_title '/html/body/p[1]', truncate:/^[^,]+/
-p2u = Yasuri.text_title '/html/body/p[2]', proc: :upcase
+p2u = Yasuri.text_title '/html/body/p[1]', proc: :upcase
 
-p1.inject(agent, page)   #=> { "title" => "Hello,World" }
-p1t.inject(agent, page)  #=> { "title" => "Hello" }
-node.inject(agent, page) #=> { "title" => "HELLO,YASURI" }
+p1.inject(agent, page)   #=> "Hello,World"
+p1t.inject(agent, page)  #=> "Hello"
+p2u.inject(agent, page)  #=> "HELLO,WORLD"
 ```
+
+なお、同じページ内の複数の要素を一度にスクレイピングする場合は、`MapNode`を使用します。
 
 ### オプション
 ##### `truncate`
