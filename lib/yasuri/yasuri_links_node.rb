@@ -22,5 +22,9 @@ module Yasuri
         Hash[child_results_kv]
       end # each named child node
     end
-  end
-end
+
+    def node_type_str
+      "links"
+    end
+  end # class
+end # module

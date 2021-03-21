@@ -44,5 +44,9 @@ module Yasuri
     def opts
       {limit:@limit, flatten:@flatten}
     end
+
+    def node_type_str
+      "pages"
+    end
   end
 end

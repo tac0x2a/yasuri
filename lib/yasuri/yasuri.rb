@@ -11,6 +11,7 @@ require_relative 'yasuri_text_node'
 require_relative 'yasuri_struct_node'
 require_relative 'yasuri_paginate_node'
 require_relative 'yasuri_links_node'
+require_relative 'yasuri_map_node'
 require_relative 'yasuri_node_generator'
 
 module Yasuri
@@ -54,9 +55,9 @@ module Yasuri
     body
   end
 
-  def self.method_missing(node_name, pattern, **opt, &block)
-    generated = Yasuri::NodeGenerator.gen(node_name, pattern, **opt, &block)
-    generated || super(node_name, **opt)
+  def self.method_missing(method_name, pattern=nil, **opt, &block)
+    generated = Yasuri::NodeGenerator.gen(method_name, pattern, **opt, &block)
+    generated || super(method_name, **opt)
   end
 
   private
@@ -64,49 +65,22 @@ module Yasuri
     text:   Yasuri::TextNode,
     struct: Yasuri::StructNode,
     links:  Yasuri::LinksNode,
-    pages:  Yasuri::PaginateNode
+    pages:  Yasuri::PaginateNode,
+    map:   Yasuri::MapNode
   }
   Node2Text = Text2Node.invert
 
   ReservedKeys = %i|node name path children|
   def self.hash2node(node_h)
-    node, name, path, children = ReservedKeys.map do |key|
-      node_h[key]
-    end
-    children ||= []
+    node = node_h[:node]
 
     fail "Not found 'node' value in map" if node.nil?
-    fail "Not found 'name' value in map" if name.nil?
-    fail "Not found 'path' value in map" if path.nil?
-
-    childnodes = children.map{|c| Yasuri.hash2node(c) }
-    ReservedKeys.each{|key| node_h.delete(key)}
-    opt = node_h
-
     klass = Text2Node[node.to_sym]
-    fail "Undefined node type #{node}" if klass.nil?
-    klass.new(path, name, childnodes, **opt)
+    klass::hash2node(node_h)
   end
 
   def self.node2hash(node)
-    json = JSON.parse("{}")
-    return json if node.nil?
-
-    klass = node.class
-    klass_str = Node2Text[klass]
-
-    json["node"] = klass_str
-    json["name"] = node.name
-    json["path"] = node.xpath
-
-    children = node.children.map{|c| Yasuri.node2hash(c)}
-    json["children"] = children if not children.empty?
-
-    node.opts.each do |key,value|
-      json[key] = value if not value.nil?
-    end
-
-    json
+    node.to_h
   end
 
   def self.NodeName(name, opt)

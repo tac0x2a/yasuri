@@ -126,6 +126,27 @@ EOB
       compare_generated_vs_original(generated, original, @index_page)
     end
 
+    it "return MapNode with TextNodes" do
+      src = %q| { "node" : "map",
+                  "name"  : "parent",
+                  "children" : [
+                    { "node"  : "text",
+                      "name"  : "content01",
+                      "path"  : "/html/body/p[1]"
+                    },
+                    { "node"  : "text",
+                      "name"  : "content02",
+                      "path"  : "/html/body/p[2]"
+                    }
+                  ]
+                }|
+      generated = Yasuri.json2tree(src)
+      original  = Yasuri::MapNode.new('parent', [
+        Yasuri::TextNode.new('/html/body/p[1]', "content01"),
+        Yasuri::TextNode.new('/html/body/p[2]', "content02"),
+      ])
+      compare_generated_vs_original(generated, original, @index_page)
+    end
 
     it "return LinksNode/TextNode" do
       src = %q| { "node"     : "links",
@@ -245,6 +266,31 @@ EOB
                          } |
       expected = Yasuri.tree2json(Yasuri.json2tree(expected_str))
       actual   = Yasuri.tree2json(Yasuri.json2tree(json))
+      expect(actual).to match expected
+    end
+
+    it "return map node with text nodes" do
+      tree = Yasuri::MapNode.new('parent', [
+        Yasuri::TextNode.new('/html/body/p[1]', "content01"),
+        Yasuri::TextNode.new('/html/body/p[2]', "content02"),
+      ])
+      actual_json = Yasuri.tree2json(tree)
+
+      expected_json = %q| { "node" : "map",
+        "name"  : "parent",
+        "children" : [
+          { "node"  : "text",
+            "name"  : "content01",
+            "path"  : "/html/body/p[1]"
+          },
+          { "node"  : "text",
+            "name"  : "content02",
+            "path"  : "/html/body/p[2]"
+          }
+        ]
+      }|
+      expected = Yasuri.tree2json(Yasuri.json2tree(expected_json))
+      actual   = Yasuri.tree2json(Yasuri.json2tree(actual_json))
       expect(actual).to match expected
     end
 
