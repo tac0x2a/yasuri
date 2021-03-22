@@ -18,7 +18,6 @@ module Yasuri
       @truncate = Regexp.new(@truncate.to_s) if not @truncate.nil?
 
       @proc = proc.nil? ? nil : proc.to_sym
-
     end
 
     def inject(agent, page, opt = {}, element = page)
