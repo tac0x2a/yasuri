@@ -18,7 +18,6 @@ module Yasuri
       @truncate = Regexp.new(@truncate.to_s) if not @truncate.nil?
 
       @proc = proc.nil? ? nil : proc.to_sym
-
     end
 
     def inject(agent, page, opt = {}, element = page)
@@ -31,11 +30,12 @@ module Yasuri
       end
 
       text = text.__send__(@proc) if @proc && text.respond_to?(@proc)
+
       text
     end
 
     def node_type_str
-      "text"
+      "text".freeze
     end
 
     def opts

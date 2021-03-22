@@ -16,9 +16,13 @@ require_relative 'yasuri_node_generator'
 
 module Yasuri
 
+  DefaultRetryCount = 5
+
   def self.json2tree(json_string)
-    json = JSON.parse(json_string, {symbolize_names: true})
-    Yasuri.hash2node(json)
+    raise RuntimeError if json_string.nil? or json_string.empty?
+
+    node_hash = JSON.parse(json_string, {symbolize_names: true})
+    Yasuri.hash2node(node_hash)
   end
 
   def self.tree2json(node)
@@ -32,9 +36,9 @@ module Yasuri
     raise RuntimeError if yaml.keys.size < 1
 
     root_key, root = yaml.keys.first, yaml.values.first
-    hash = Yasuri.yaml2tree_sub(root_key, root)
+    node_hash = Yasuri.yaml2tree_sub(root_key, root)
 
-    Yasuri.hash2node(hash)
+    Yasuri.hash2node(node_hash)
   end
 
   private
@@ -66,17 +70,15 @@ module Yasuri
     struct: Yasuri::StructNode,
     links:  Yasuri::LinksNode,
     pages:  Yasuri::PaginateNode,
-    map:   Yasuri::MapNode
+    map:    Yasuri::MapNode
   }
-  Node2Text = Text2Node.invert
 
-  ReservedKeys = %i|node name path children|
-  def self.hash2node(node_h)
-    node = node_h[:node]
+  def self.hash2node(node_hash)
+    node = node_hash[:node]
 
     fail "Not found 'node' value in map" if node.nil?
     klass = Text2Node[node.to_sym]
-    klass::hash2node(node_h)
+    klass::hash2node(node_hash)
   end
 
   def self.node2hash(node)
