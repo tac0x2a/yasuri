@@ -73,12 +73,46 @@ module Yasuri
     map:    Yasuri::MapNode
   }
 
-  def self.hash2node(node_hash)
-    node = node_hash[:node]
+  def self.hash2node(node_hash, node_name = nil, node_type_class = nil)
 
-    fail "Not found 'node' value in map" if node.nil?
-    klass = Text2Node[node.to_sym]
-    klass::hash2node(node_hash)
+    node_prefixes = Text2Node.keys.freeze
+    child_nodes = []
+    opt = {}
+    path = nil
+
+    if node_hash.is_a?(String)
+      path = node_hash
+    else
+      node_hash.each do |key, value|
+        Text2Node.keys.any? do |node_type_sym|
+          case key
+          when /^#{node_type_sym.to_s}_(.+)$/
+            child_node_name = $1
+            child_node_type = Text2Node[node_type_sym]
+
+            child_nodes << hash2node(value, child_node_name, child_node_type)
+          when :path
+            path = value
+          else
+            opt[key] = value
+          end # end of case
+        end
+      end
+    end
+
+    # p "--------------------"
+    # p node_type_class
+    # p node_name
+    # p path
+    # p child_nodes
+
+    node = if node_type_class.nil?
+      Yasuri::MapNode.new(node_name, child_nodes, **opt)
+    else
+      node_type_class::new(path, node_name, child_nodes, **opt)
+    end
+
+    node
   end
 
   def self.node2hash(node)
