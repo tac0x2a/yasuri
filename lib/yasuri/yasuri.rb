@@ -16,6 +16,8 @@ require_relative 'yasuri_node_generator'
 
 module Yasuri
 
+  DefaultRetryCount = 5
+
   def self.json2tree(json_string)
     raise RuntimeError if json_string.nil? or json_string.empty?
 

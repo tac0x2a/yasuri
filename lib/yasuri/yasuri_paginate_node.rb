@@ -14,7 +14,7 @@ module Yasuri
     end
 
     def inject(agent, page, opt = {}, element = page)
-      retry_count = opt[:retry_count] || 5
+      retry_count = opt[:retry_count] || Yasuri::DefaultRetryCount
 
       raise NotImplementedError.new("PagenateNode inside StructNode, Not Supported") if page != element
 

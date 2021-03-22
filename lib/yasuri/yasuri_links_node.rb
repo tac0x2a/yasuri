@@ -7,7 +7,7 @@ module Yasuri
   class LinksNode
     include Node
     def inject(agent, page, opt = {}, element = page)
-      retry_count = opt[:retry_count] || 5
+      retry_count = opt[:retry_count] || Yasuri::DefaultRetryCount
 
       links = element.search(@xpath) || [] # links expected
       links.map do |link|
