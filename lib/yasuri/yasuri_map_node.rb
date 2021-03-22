@@ -34,9 +34,9 @@ module Yasuri
     end
 
     def self.hash2node(node_h)
-      reservedKeys = %i|node name children|
+      reserved_keys = %i|node name children|
 
-      node, name, children = reservedKeys.map do |key|
+      node, name, children = reserved_keys.map do |key|
         node_h[key]
       end
 
@@ -45,7 +45,7 @@ module Yasuri
       children ||= []
 
       childnodes = children.map{|c| Yasuri.hash2node(c) }
-      reservedKeys.each{|key| node_h.delete(key)}
+      reserved_keys.each{|key| node_h.delete(key)}
       opt = node_h
 
       self.new(name, childnodes, **opt)
