@@ -24,7 +24,7 @@ module Yasuri
     end
 
     def node_type_str
-      "links"
+      "links".freeze
     end
   end # class
 end # module

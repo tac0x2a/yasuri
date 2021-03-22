@@ -41,12 +41,13 @@ module Yasuri
 
       child_results
     end
+
     def opts
       {limit:@limit, flatten:@flatten}
     end
 
     def node_type_str
-      "pages"
+      "pages".freeze
     end
   end
 end
