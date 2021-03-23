@@ -86,7 +86,12 @@ agent = Mechanize.new
 root_page = agent.get("http://some.scraping.page.net/")
 
 result = root.inject(agent, root_page)
-# => [ {"title" => "PageTitle", "content" => "Page Contents" }, ...  ]
+# => [
+#      {"title" => "PageTitle 01", "content" => "Page Contents  01" },
+#      {"title" => "PageTitle 02", "content" => "Page Contents  02" },
+#      ...
+#      {"title" => "PageTitle N",  "content" => "Page Contents  N" }
+#    ]
 ```
 
 ## Dev

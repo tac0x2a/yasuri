@@ -36,10 +36,14 @@ agent = Mechanize.new
 root_page = agent.get("http://some.scraping.page.net/")
 
 result = root.inject(agent, root_page)
-# => [ {"title" => "PageTitle1", "content" => "Page Contents1" },
-#      {"title" => "PageTitle2", "content" => "Page Contents2" }, ...  ]
-
+# => [
+#      {"title" => "PageTitle 01", "content" => "Page Contents  01" },
+#      {"title" => "PageTitle 02", "content" => "Page Contents  02" },
+#      ...
+#      {"title" => "PageTitle N",  "content" => "Page Contents  N" }
+#    ]
 ```
+
 This example, from the pages of each link that is expressed by the xpath of LinkNode(`links_root`), to scraping the two text that is expressed by the xpath of TextNode(`text_title`,`text_content`).
 
 (i.e. open each links `//*[@id="menu"]/ul/li/a` and, scrape `//*[@id="contents"]/h2` and `//*[@id="contents"]/p[1]`.)

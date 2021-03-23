@@ -33,10 +33,14 @@ agent = Mechanize.new
 root_page = agent.get("http://some.scraping.page.net/")
 
 result = root.inject(agent, root_page)
-# => [ {"title" => "PageTitle1", "content" => "Page Contents1" },
-#      {"title" => "PageTitle2", "content" => "Page Contents2" }, ...  ]
-
+# => [
+# =>   {"title" => "PageTitle 01", "content" => "Page Contents  01" },
+# =>   {"title" => "PageTitle 02", "content" => "Page Contents  02" },
+# =>   ...
+# =>   {"title" => "PageTitle N",  "content" => "Page Contents  N" }
+# => ]
 ```
+
 この例では、 LinkNode(`links_root`)の xpath で指定された各リンク先のページから、TextNode(`text_title`,`text_content`) の xpath で指定された2つのテキストをスクレイピングする例です．
 
 (言い換えると、`//*[@id="menu"]/ul/li/a` で示される各リンクを開いて、`//*[@id="contents"]/h2` と `//*[@id="contents"]/p[1]` で指定されたテキストをスクレイピングします)
