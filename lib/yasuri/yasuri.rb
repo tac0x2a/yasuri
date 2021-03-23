@@ -26,19 +26,16 @@ module Yasuri
   end
 
   def self.tree2json(node)
+    raise RuntimeError if node.nil?
+
     Yasuri.node2hash(node).to_json
   end
 
   def self.yaml2tree(yaml_string)
     raise RuntimeError if yaml_string.nil? or yaml_string.empty?
 
-    yaml = YAML.load(yaml_string)
-    raise RuntimeError if yaml.keys.size < 1
-
-    root_key, root = yaml.keys.first, yaml.values.first
-    node_hash = Yasuri.yaml2tree_sub(root_key, root)
-
-    Yasuri.hash2node(node_hash)
+    node_hash = YAML.load(yaml_string)
+    Yasuri.hash2node(node_hash.deep_symbolize_keys)
   end
 
   private
@@ -128,7 +125,11 @@ module Yasuri
   end
 
   def self.node2hash(node)
-    node.to_h
+    return node.to_h if node.instance_of?(Yasuri::MapNode)
+
+    {
+      "#{node.node_type_str}_#{node.name}" => node.to_h
+    }
   end
 
   def self.NodeName(name, opt)
@@ -147,5 +148,16 @@ module Yasuri
       end
       fail e
     end
+  end
+end
+
+class Hash
+  def deep_symbolize_keys
+    Hash[
+      self.map do |k, v|
+        v = v.deep_symbolize_keys if v.kind_of?(Hash)
+        [k.to_sym, v]
+      end
+    ]
   end
 end

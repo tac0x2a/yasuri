@@ -23,10 +23,8 @@ describe 'Yasuri' do
 
     it "return text node" do
       src = <<-EOB
-content:
-  node: text
-  path: "/html/body/p[1]"
-EOB
+        text_content: "/html/body/p[1]"
+      EOB
       generated = Yasuri.yaml2tree(src)
       original  = Yasuri::TextNode.new('/html/body/p[1]', "content")
 
@@ -35,10 +33,9 @@ EOB
 
     it "return text node as symbol" do
       src = <<-EOB
-:content:
-  :node: text
-  :path: "/html/body/p[1]"
-EOB
+      :text_content:
+        :path: "/html/body/p[1]"
+      EOB
       generated = Yasuri.yaml2tree(src)
       original  = Yasuri::TextNode.new('/html/body/p[1]', "content")
 
@@ -48,14 +45,10 @@ EOB
     it "return LinksNode/TextNode" do
 
       src = <<-EOB
-root:
-  node: links
-  path: "/html/body/a"
-  children:
-    - content:
-        node: text
-        path: "/html/body/p"
-EOB
+      links_root:
+        path: "/html/body/a"
+        text_content: "/html/body/p"
+      EOB
       generated = Yasuri.yaml2tree(src)
       original  = Yasuri::LinksNode.new('/html/body/a', "root", [
                     Yasuri::TextNode.new('/html/body/p', "content"),
@@ -66,21 +59,13 @@ EOB
 
     it "return StructNode/StructNode/[TextNode,TextNode]" do
       src = <<-EOB
-tables:
-  node: struct
-  path: "/html/body/table"
-  children:
-    - table:
-        node: struct
-        path: "./tr"
-        children:
-          - title:
-              node: text
-              path: "./td[1]"
-          - pub_date:
-              node: text
-              path: "./td[2]"
-EOB
+      struct_tables:
+        path: "/html/body/table"
+        struct_table:
+          path: "./tr"
+          text_title: "./td[1]"
+          text_pub_date: "./td[2]"
+      EOB
 
       generated = Yasuri.yaml2tree(src)
       original  = Yasuri::StructNode.new('/html/body/table', "tables", [
@@ -117,7 +102,8 @@ EOB
 
     it "return TextNode with truncate_regexp" do
       src = %q|
-      { "text_content": {
+      {
+        "text_content": {
           "path": "/html/body/p[1]",
           "truncate"  : "^[^,]+"
         }
@@ -128,7 +114,8 @@ EOB
     end
 
     it "return MapNode with TextNodes" do
-      src = %q| {
+      src = %q|
+      {
         "text_content01": "/html/body/p[1]",
         "text_content02": "/html/body/p[2]"
       }|
@@ -141,7 +128,8 @@ EOB
     end
 
     it "return LinksNode/TextNode" do
-      src = %q| {
+      src = %q|
+      {
         "links_root": {
           "path": "/html/body/a",
           "text_content": "/html/body/p"
@@ -217,22 +205,22 @@ EOB
     end
   end
 
+
   #############
   # tree2json #
   #############
   describe '.tree2json' do
     it "return empty json" do
-      json = Yasuri.tree2json(nil)
-      expect(json).to match "{}"
+      expect { Yasuri.tree2json(nil) }.to raise_error(RuntimeError)
     end
 
     it "return text node" do
       node = Yasuri::TextNode.new("/html/head/title", "title")
       json = Yasuri.tree2json(node)
-      expected_str = %q| { "node": "text",
-                           "name": "title",
-                           "path": "/html/head/title"
-                         } |
+      expected_str = %q|
+      {
+        "text_title": "/html/head/title"
+      }|
       expected = JSON.parse(expected_str)
       actual   = JSON.parse(json)
       expect(actual).to match expected
@@ -241,11 +229,13 @@ EOB
     it "return text node with truncate_regexp" do
       node = Yasuri::TextNode.new("/html/head/title", "title", truncate:/^[^,]+/)
       json = Yasuri.tree2json(node)
-      expected_str = %q| { "node": "text",
-                           "name": "title",
-                           "path": "/html/head/title",
-                           "truncate": "^[^,]+"
-                         } |
+      expected_str = %q|
+      {
+        "text_title": {
+          "path": "/html/head/title",
+          "truncate": "^[^,]+"
+        }
+      }|
       expected = Yasuri.tree2json(Yasuri.json2tree(expected_str))
       actual   = Yasuri.tree2json(Yasuri.json2tree(json))
       expect(actual).to match expected
@@ -258,19 +248,12 @@ EOB
       ])
       actual_json = Yasuri.tree2json(tree)
 
-      expected_json = %q| { "node" : "map",
-        "name"  : "parent",
-        "children" : [
-          { "node"  : "text",
-            "name"  : "content01",
-            "path"  : "/html/body/p[1]"
-          },
-          { "node"  : "text",
-            "name"  : "content02",
-            "path"  : "/html/body/p[2]"
-          }
-        ]
+      expected_json = %q|
+      {
+        "text_content01": "/html/body/p[1]",
+        "text_content02": "/html/body/p[2]"
       }|
+
       expected = Yasuri.tree2json(Yasuri.json2tree(expected_json))
       actual   = Yasuri.tree2json(Yasuri.json2tree(actual_json))
       expect(actual).to match expected
@@ -281,14 +264,14 @@ EOB
                 Yasuri::TextNode.new('/html/body/p', "content"),
               ])
       json   = Yasuri.tree2json(tree)
-      expected_src = %q| { "node"     : "links",
-                           "name"     : "root",
-                           "path"     : "/html/body/a",
-                           "children" : [ { "node" : "text",
-                                            "name" : "content",
-                                            "path" : "/html/body/p"
-                                          } ]
-                         }|
+
+      expected_src = %q|
+      {
+        "links_root": {
+          "path": "/html/body/a",
+          "text_content":"/html/body/p"
+        }
+      }|
       expected  = JSON.parse(expected_src)
       actual    = JSON.parse(json)
       expect(actual).to match expected

@@ -20,17 +20,19 @@ module Yasuri
     end
 
     def to_h
-      h = {}
-      h["node"] = self.node_type_str
-      h["name"] = self.name
-      h["path"] = self.xpath
-      h["children"] = self.children.map{|c| c.to_h} if not children.empty?
+      return @xpath if @xpath and @children.empty? and self.opts.values.compact.empty?
 
-      self.opts.each do |key,value|
-        h[key] = value if not value.nil?
+      node_hash = {}
+      self.opts.each{|k, v| node_hash[k] = v if not v.nil?}
+
+      node_hash[:path] = @xpath if @xpath
+
+      children.each do |child|
+        child_node_name = "#{child.node_type_str}_#{child.name}"
+        node_hash[child_node_name] = child.to_h
       end
 
-      h
+      node_hash
     end
 
     module ClassMethods

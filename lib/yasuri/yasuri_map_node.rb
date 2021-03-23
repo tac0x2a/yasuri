@@ -20,14 +20,17 @@ module Yasuri
       {}
     end
 
+    def node_type_str
+      "map".freeze
+    end
+
     def to_h
       node_hash = {}
-      node_hash["node"] = "map".freeze
-      node_hash["name"] = self.name
-      node_hash["children"] = self.children.map{|c| c.to_h} if not children.empty?
+      self.opts.each{|k, v| node_hash[k] = v if not v.nil?}
 
-      self.opts.each do |key,value|
-        node_hash[key] = value if not value.nil?
+      children.each do |child|
+        child_node_name = "#{child.node_type_str}_#{child.name}"
+        node_hash[child_node_name] = child.to_h
       end
 
       node_hash
