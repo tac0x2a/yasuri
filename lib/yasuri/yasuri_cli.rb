@@ -14,7 +14,12 @@ module Yasuri
       root_page = agent.get(uri)
       result = root.inject(agent, root_page)
 
-      STDOUT.puts result
+      if result.instance_of?(String)
+        puts result
+      else
+        j result
+      end
+
       return 0
     end
   end
