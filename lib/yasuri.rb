@@ -1,6 +1,6 @@
 require "yasuri/version"
 require "yasuri/yasuri"
-require "yasuri/cli"
+require "yasuri/yasuri_cli"
 
 module Yasuri
   # Your code goes here...

@@ -3,8 +3,8 @@ require 'json'
 require 'yasuri'
 require 'mechanize'
 
-module YasuriUtils
-  class CLI < Thor
+module Yasuri
+  class YasuriCLI < Thor
     desc "scrape <URI> <JSON>", "Getting from <URI> and scrape with <JSON>. <JSON> is Yasuri's format json string."
     def scrape(uri, json)
       src = json
