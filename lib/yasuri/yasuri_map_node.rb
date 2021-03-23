@@ -16,14 +16,6 @@ module Yasuri
       Hash[child_results_kv]
     end
 
-    def opts
-      {}
-    end
-
-    def node_type_str
-      "map".freeze
-    end
-
     def to_h
       node_hash = {}
       self.opts.each{|k, v| node_hash[k] = v if not v.nil?}
@@ -36,20 +28,12 @@ module Yasuri
       node_hash
     end
 
-    def self.hash2node(node_hash)
-      reserved_keys = %i|node name children|.freeze
+    def opts
+      {}
+    end
 
-      node, name, children = reserved_keys.map{|key| node_hash[key]}
-
-      fail "Not found 'name' value in map" if name.nil?
-      fail "Not found 'children' value in map" if children.nil?
-      children ||= []
-
-      childnodes = children.map{|c| Yasuri.hash2node(c) }
-      reserved_keys.each{|key| node_hash.delete(key)}
-      opt = node_hash
-
-      self.new(name, childnodes, **opt)
+    def node_type_str
+      "map".freeze
     end
   end
 end

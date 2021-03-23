@@ -15,10 +15,6 @@ module Yasuri
       fail "#{Kernel.__method__} is not implemented in included class."
     end
 
-    def opts
-      {}
-    end
-
     def to_h
       return @xpath if @xpath and @children.empty? and self.opts.values.compact.empty?
 
@@ -35,32 +31,12 @@ module Yasuri
       node_hash
     end
 
-    module ClassMethods
-      def hash2node(node_h)
-        reserved_keys = %i|node name path children|
-
-        node, name, path, children = reserved_keys.map do |key|
-          node_h[key]
-        end
-
-        fail "Not found 'name' value in map" if name.nil?
-        fail "Not found 'path' value in map" if path.nil?
-        children ||= []
-
-        childnodes = children.map{|c| Yasuri.hash2node(c) }
-        reserved_keys.each{|key| node_h.delete(key)}
-        opt = node_h
-
-        self.new(path, name, childnodes, **opt)
-      end
-
-      def node_type_str
-        fail "#{Kernel.__method__} is not implemented in included class."
-      end
+    def opts
+      {}
     end
 
-    def self.included(base)
-      base.extend(ClassMethods)
+    def node_type_str
+      fail "#{Kernel.__method__} is not implemented in included class."
     end
   end
 end
