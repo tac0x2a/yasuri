@@ -105,10 +105,10 @@ EOB
     end
 
     it "return TextNode" do
-      src = %q| { "node"  : "text",
-                  "name"  : "content",
-                  "path"  : "/html/body/p[1]"
-                }|
+      src = %q|
+      {
+        "text_content": "/html/body/p[1]"
+      }|
       generated = Yasuri.json2tree(src)
       original  = Yasuri::TextNode.new('/html/body/p[1]', "content")
 
@@ -116,30 +116,22 @@ EOB
     end
 
     it "return TextNode with truncate_regexp" do
-      src = %q| { "node"  : "text",
-                  "name"  : "content",
-                  "path"  : "/html/body/p[1]",
-                  "truncate"  : "^[^,]+"
-                }|
+      src = %q|
+      { "text_content": {
+          "path": "/html/body/p[1]",
+          "truncate"  : "^[^,]+"
+        }
+      }|
       generated = Yasuri.json2tree(src)
       original  = Yasuri::TextNode.new('/html/body/p[1]', "content", truncate:/^[^,]+/)
       compare_generated_vs_original(generated, original, @index_page)
     end
 
     it "return MapNode with TextNodes" do
-      src = %q| { "node" : "map",
-                  "name"  : "parent",
-                  "children" : [
-                    { "node"  : "text",
-                      "name"  : "content01",
-                      "path"  : "/html/body/p[1]"
-                    },
-                    { "node"  : "text",
-                      "name"  : "content02",
-                      "path"  : "/html/body/p[2]"
-                    }
-                  ]
-                }|
+      src = %q| {
+        "text_content01": "/html/body/p[1]",
+        "text_content02": "/html/body/p[2]"
+      }|
       generated = Yasuri.json2tree(src)
       original  = Yasuri::MapNode.new('parent', [
         Yasuri::TextNode.new('/html/body/p[1]', "content01"),
@@ -149,14 +141,13 @@ EOB
     end
 
     it "return LinksNode/TextNode" do
-      src = %q| { "node"     : "links",
-                  "name"     : "root",
-                  "path"     : "/html/body/a",
-                  "children" : [ { "node" : "text",
-                                   "name" : "content",
-                                   "path" : "/html/body/p"
-                                 } ]
-                }|
+      src = %q| {
+        "links_root": {
+          "path": "/html/body/a",
+          "text_content": "/html/body/p"
+        }
+      }|
+
       generated = Yasuri.json2tree(src)
       original  = Yasuri::LinksNode.new('/html/body/a', "root", [
                     Yasuri::TextNode.new('/html/body/p', "content"),
@@ -166,14 +157,13 @@ EOB
     end
 
     it "return PaginateNode/TextNode" do
-      src = %q|{ "node"     : "pages",
-                 "name"     : "root",
-                 "path"     : "/html/body/nav/span/a[@class=\'next\']",
-                 "children" : [ { "node" : "text",
-                                  "name" : "content",
-                                  "path" : "/html/body/p"
-                                } ]
-               }|
+      src = %q|
+      {
+        "pages_root": {
+          "path": "/html/body/nav/span/a[@class=\'next\']",
+          "text_content": "/html/body/p"
+        }
+      }|
       generated = Yasuri.json2tree(src)
       original = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
                    Yasuri::TextNode.new('/html/body/p', "content"),
@@ -185,15 +175,14 @@ EOB
     end
 
     it "return PaginateNode/TextNode with limit" do
-      src = %q|{ "node"     : "pages",
-                 "name"     : "root",
-                 "path"     : "/html/body/nav/span/a[@class=\'next\']",
-                 "limit"    : 2,
-                 "children" : [ { "node" : "text",
-                                  "name" : "content",
-                                  "path" : "/html/body/p"
-                                } ]
-               }|
+      src = %q|
+      {
+        "pages_root": {
+          "path": "/html/body/nav/span/a[@class=\'next\']",
+          "limit": 2,
+          "text_content": "/html/body/p"
+        }
+      }|
       generated = Yasuri.json2tree(src)
       original = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
                    Yasuri::TextNode.new('/html/body/p', "content"),
@@ -205,24 +194,17 @@ EOB
     end
 
     it "return StructNode/StructNode/[TextNode,TextNode]" do
-     src = %q| { "node"     : "struct",
-                 "name"     : "tables",
-                 "path"     : "/html/body/table",
-                 "children" : [
-                   { "node"       : "struct",
-                     "name"       : "table",
-                     "path"       : "./tr",
-                     "children"   : [
-                       { "node" : "text",
-                         "name" : "title",
-                         "path" : "./td[1]"
-                       },
-                       { "node" : "text",
-                         "name" : "pub_date",
-                         "path" : "./td[2]"
-                       }]
-                   }]
-               }|
+      src = %q|
+      {
+        "struct_tables": {
+          "path": "/html/body/table",
+          "struct_table": {
+            "path": "./tr",
+            "text_title": "./td[1]",
+            "text_pub_date": "./td[2]"
+          }
+        }
+      }|
       generated = Yasuri.json2tree(src)
       original  = Yasuri::StructNode.new('/html/body/table', "tables", [
         Yasuri::StructNode.new('./tr', "table", [
@@ -318,23 +300,19 @@ EOB
              ], limit:10)
 
       json   = Yasuri.tree2json(tree)
-      expected_src = %q| { "node"     : "pages",
-                           "name"     : "root",
-                           "path"     : "/html/body/nav/span/a[@class='next']",
-                           "limit"    : 10,
-                           "flatten"  : false,
-                           "children" : [ { "node" : "text",
-                                            "name" : "content",
-                                            "path" : "/html/body/p"
-                                          } ]
-                         }|
+      expected_src = %q|
+      {
+        "pages_root": {
+          "path": "/html/body/nav/span/a[@class='next']",
+          "limit": 10,
+          "flatten": false,
+          "text_content": "/html/body/p"
+        }
+      }|
       expected  = JSON.parse(expected_src)
       actual    = JSON.parse(json)
       expect(actual).to match expected
     end
-
-
-
   end
 
 

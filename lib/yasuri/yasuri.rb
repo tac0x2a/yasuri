@@ -74,6 +74,7 @@ module Yasuri
   }
 
   def self.hash2node(node_hash, node_name = nil, node_type_class = nil)
+    raise RuntimeError.new("") if node_name.nil? and node_hash.empty?
 
     node_prefixes = Text2Node.keys.freeze
     child_nodes = []
@@ -84,27 +85,38 @@ module Yasuri
       path = node_hash
     else
       node_hash.each do |key, value|
-        Text2Node.keys.any? do |node_type_sym|
-          case key
-          when /^#{node_type_sym.to_s}_(.+)$/
-            child_node_name = $1
-            child_node_type = Text2Node[node_type_sym]
+        # is node?
+        node_regexps = Text2Node.keys.map do |node_type_sym|
+          /^(#{node_type_sym.to_s})_(.+)$/
+        end
+        node_regexp = node_regexps.find do |node_regexp|
+          key =~ node_regexp
+        end
 
-            child_nodes << hash2node(value, child_node_name, child_node_type)
-          when :path
-            path = value
-          else
-            opt[key] = value
-          end # end of case
+        case key
+        when node_regexp
+          node_type_sym = $1.to_sym
+          child_node_name = $2
+          child_node_type = Text2Node[node_type_sym]
+          child_nodes << hash2node(value, child_node_name, child_node_type)
+        when :path
+          path = value
+        else
+          opt[key] = value
         end
       end
     end
 
     # p "--------------------"
-    # p node_type_class
-    # p node_name
-    # p path
-    # p child_nodes
+    # p "NodeHash #{node_hash}"
+    # p "NodeTypeClass #{node_type_class}"
+    # p "NodeName #{node_name}"
+    # p "Path #{path}"
+    # p "Children #{child_nodes}"
+    # p "**opt #{opt}"
+
+    # If only single node under root, return only the node.
+    return child_nodes.first if node_name.nil? and child_nodes.size == 1
 
     node = if node_type_class.nil?
       Yasuri::MapNode.new(node_name, child_nodes, **opt)
