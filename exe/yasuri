@@ -2,4 +2,4 @@
 
 require "yasuri"
 
-Yasuri::YasuriCLI.start
+Yasuri::CLI.start
