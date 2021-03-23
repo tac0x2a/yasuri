@@ -11,52 +11,37 @@ require_relative 'yasuri_text_node'
 require_relative 'yasuri_struct_node'
 require_relative 'yasuri_paginate_node'
 require_relative 'yasuri_links_node'
+require_relative 'yasuri_map_node'
 require_relative 'yasuri_node_generator'
 
 module Yasuri
 
+  DefaultRetryCount = 5
+
   def self.json2tree(json_string)
-    json = JSON.parse(json_string, {symbolize_names: true})
-    Yasuri.hash2node(json)
+    raise RuntimeError if json_string.nil? or json_string.empty?
+
+    node_hash = JSON.parse(json_string, {symbolize_names: true})
+    Yasuri.hash2node(node_hash)
   end
 
   def self.tree2json(node)
+    raise RuntimeError if node.nil?
+
     Yasuri.node2hash(node).to_json
   end
 
   def self.yaml2tree(yaml_string)
     raise RuntimeError if yaml_string.nil? or yaml_string.empty?
 
-    yaml = YAML.load(yaml_string)
-    raise RuntimeError if yaml.keys.size < 1
-
-    root_key, root = yaml.keys.first, yaml.values.first
-    hash = Yasuri.yaml2tree_sub(root_key, root)
-
-    Yasuri.hash2node(hash)
+    node_hash = YAML.load(yaml_string)
+    Yasuri.hash2node(node_hash.deep_symbolize_keys)
   end
 
   private
-  def self.yaml2tree_sub(name, body)
-    return nil if name.nil? or body.nil?
-
-    new_body = Hash[:name, name]
-    body.each{|k,v| new_body[k.to_sym] = v}
-    body = new_body
-
-    return body if body[:children].nil?
-
-    body[:children] = body[:children].map do |c|
-      k, b = c.keys.first, c.values.first
-      Yasuri.yaml2tree_sub(k, b)
-    end
-
-    body
-  end
-
-  def self.method_missing(node_name, pattern, **opt, &block)
-    generated = Yasuri::NodeGenerator.gen(node_name, pattern, **opt, &block)
-    generated || super(node_name, **opt)
+  def self.method_missing(method_name, pattern=nil, **opt, &block)
+    generated = Yasuri::NodeGenerator.gen(method_name, pattern, **opt, &block)
+    generated || super(method_name, **opt)
   end
 
   private
@@ -64,52 +49,65 @@ module Yasuri
     text:   Yasuri::TextNode,
     struct: Yasuri::StructNode,
     links:  Yasuri::LinksNode,
-    pages:  Yasuri::PaginateNode
+    pages:  Yasuri::PaginateNode,
+    map:    Yasuri::MapNode
   }
-  Node2Text = Text2Node.invert
 
-  ReservedKeys = %i|node name path children|
-  def self.hash2node(node_h)
-    node, name, path, children = ReservedKeys.map do |key|
-      node_h[key]
+  def self.hash2node(node_hash, node_name = nil, node_type_class = nil)
+    raise RuntimeError.new("") if node_name.nil? and node_hash.empty?
+
+    node_prefixes = Text2Node.keys.freeze
+    child_nodes = []
+    opt = {}
+    path = nil
+
+    if node_hash.is_a?(String)
+      path = node_hash
+    else
+      node_hash.each do |key, value|
+        # is node?
+        node_regexps = Text2Node.keys.map do |node_type_sym|
+          /^(#{node_type_sym.to_s})_(.+)$/
+        end
+        node_regexp = node_regexps.find do |node_regexp|
+          key =~ node_regexp
+        end
+
+        case key
+        when node_regexp
+          node_type_sym = $1.to_sym
+          child_node_name = $2
+          child_node_type = Text2Node[node_type_sym]
+          child_nodes << self.hash2node(value, child_node_name, child_node_type)
+        when :path
+          path = value
+        else
+          opt[key] = value
+        end
+      end
     end
-    children ||= []
 
-    fail "Not found 'node' value in map" if node.nil?
-    fail "Not found 'name' value in map" if name.nil?
-    fail "Not found 'path' value in map" if path.nil?
+    # If only single node under root, return only the node.
+    return child_nodes.first if node_name.nil? and child_nodes.size == 1
 
-    childnodes = children.map{|c| Yasuri.hash2node(c) }
-    ReservedKeys.each{|key| node_h.delete(key)}
-    opt = node_h
+    node = if node_type_class.nil?
+      Yasuri::MapNode.new(node_name, child_nodes, **opt)
+    else
+      node_type_class::new(path, node_name, child_nodes, **opt)
+    end
 
-    klass = Text2Node[node.to_sym]
-    fail "Undefined node type #{node}" if klass.nil?
-    klass.new(path, name, childnodes, **opt)
+    node
   end
 
   def self.node2hash(node)
-    json = JSON.parse("{}")
-    return json if node.nil?
+    return node.to_h if node.instance_of?(Yasuri::MapNode)
 
-    klass = node.class
-    klass_str = Node2Text[klass]
-
-    json["node"] = klass_str
-    json["name"] = node.name
-    json["path"] = node.xpath
-
-    children = node.children.map{|c| Yasuri.node2hash(c)}
-    json["children"] = children if not children.empty?
-
-    node.opts.each do |key,value|
-      json[key] = value if not value.nil?
-    end
-
-    json
+    {
+      "#{node.node_type_str}_#{node.name}" => node.to_h
+    }
   end
 
-  def self.NodeName(name, opt)
+  def self.node_name(name, opt)
     symbolize_names = opt[:symbolize_names]
     symbolize_names ? name.to_sym : name
   end
@@ -125,5 +123,16 @@ module Yasuri
       end
       fail e
     end
+  end
+end
+
+class Hash
+  def deep_symbolize_keys
+    Hash[
+      self.map do |k, v|
+        v = v.deep_symbolize_keys if v.kind_of?(Hash)
+        [k.to_sym, v]
+      end
+    ]
   end
 end

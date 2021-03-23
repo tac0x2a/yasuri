@@ -36,10 +36,14 @@ agent = Mechanize.new
 root_page = agent.get("http://some.scraping.page.net/")
 
 result = root.inject(agent, root_page)
-# => [ {"title" => "PageTitle1", "content" => "Page Contents1" },
-#      {"title" => "PageTitle2", "content" => "Page Contents2" }, ...  ]
-
+# => [
+#      {"title" => "PageTitle 01", "content" => "Page Contents  01" },
+#      {"title" => "PageTitle 02", "content" => "Page Contents  02" },
+#      ...
+#      {"title" => "PageTitle N",  "content" => "Page Contents  N" }
+#    ]
 ```
+
 This example, from the pages of each link that is expressed by the xpath of LinkNode(`links_root`), to scraping the two text that is expressed by the xpath of TextNode(`text_title`,`text_content`).
 
 (i.e. open each links `//*[@id="menu"]/ul/li/a` and, scrape `//*[@id="contents"]/h2` and `//*[@id="contents"]/p[1]`.)
@@ -74,16 +78,12 @@ Tree is definable by 3(+1) ways, json, yaml, and DSL (or basic ruby code). In ab
 ```ruby
 # Construct by json.
 src = <<-EOJSON
-   { "node"     : "links",
-     "name"     : "title",
-     "path"     : "/html/body/a",
-     "children" : [
-                    { "node" : "text",
-                      "name" : "name",
-                      "path" : "/html/body/p"
-                    }
-                  ]
-   }
+{
+  links_title": {
+    "path": "/html/body/a",
+    "text_name": "/html/body/p"
+  }
+}
 EOJSON
 tree = Yasuri.json2tree(src)
 ```
@@ -91,13 +91,9 @@ tree = Yasuri.json2tree(src)
 ```ruby
 # Construct by yaml.
 src = <<-EOYAML
-title:
-  node: links
+links_title:
   path: "/html/body/a"
-  children:
-    - name:
-        node: text
-        path: "/html/body/p"
+  text_name: "/html/body/p"
 EOYAML
 tree = Yasuri.yaml2tree(src)
 ```
@@ -106,18 +102,33 @@ tree = Yasuri.yaml2tree(src)
 ### Node
 Tree is constructed by nested Nodes.
 Node has `Type`, `Name`, `Path`, `Childlen`, and `Options`.
+(But only `MapNode` does not have `Path`.)
 
 Node is defined by this format.
 
 
 ```ruby
-# Top Level
 Yasuri.<Type>_<Name> <Path> [,<Options>]
 
-# Nested
+# Nested case
 Yasuri.<Type>_<Name> <Path> [,<Options>] do
   <Type>_<Name> <Path> [,<Options>] do
-    <Children>
+    <Type>_<Name> <Path> [,<Options>]
+    ...
+  end
+end
+```
+
+Example
+
+```ruby
+Yasuri.text_title '/html/head/title', truncate:/^[^,]+/
+
+# Nested case
+Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
+  struct_table './tr' do
+    text_title    './td[1]'
+    text_pub_date './td[2]'
   end
 end
 ```
@@ -129,17 +140,18 @@ Type meen behavior of Node.
 - *Struct*
 - *Links*
 - *Paginate*
+- *Map*
 
-### Name
+#### Name
 Name is used keys in returned hash.
 
-### Path
+#### Path
 Path determine target node by xpath or css selector. It given by Machinize `search`.
 
-### Childlen
+#### Childlen
 Child nodes. TextNode has always empty set, because TextNode is leaf.
 
-### Options
+#### Options
 Parse options. It different in each types. You can get options and values by `opt` method.
 
 ```ruby
@@ -170,12 +182,14 @@ page = agent.get("http://yasuri.example.net")
 
 p1  = Yasuri.text_title '/html/body/p[1]'
 p1t = Yasuri.text_title '/html/body/p[1]', truncate:/^[^,]+/
-p2u = Yasuri.text_title '/html/body/p[2]', proc: :upcase
+p2u = Yasuri.text_title '/html/body/p[1]', proc: :upcase
 
-p1.inject(agent, page)   #=> { "title" => "Hello,World" }
-p1t.inject(agent, page)  #=> { "title" => "Hello" }
-node.inject(agent, page) #=> { "title" => "HELLO,YASURI" }
+p1.inject(agent, page)   #=> "Hello,World"
+p1t.inject(agent, page)  #=> "Hello"
+p2u.inject(agent, page)  #=> "HELLO,WORLD"
 ```
+
+Note that if you want to scrape multiple elements in the same page at once, use `MapNode`. See the `MapNode` example for details.
 
 ### Options
 ##### `truncate`
@@ -479,3 +493,54 @@ node.inject(agent, page)
       "Page03",
       "Patination03"]
 ```
+
+## Map Node
+*MapNode* is a node that summarizes the results of scraping. This node is always a branch node in the parse tree.
+
+### Example
+
+```html
+<!-- http://yasuri.example.net -->
+<html>
+  <head><title>Yasuri Example</title></head>
+  <body>
+    <p>Hello,World</p>
+    <p>Hello,Yasuri</p>
+  </body>
+</html>
+```
+
+```ruby
+agent = Mechanize.new
+page = agent.get("http://yasuri.example.net")
+
+
+tree = Yasuri.map_root do
+  text_title  '/html/head/title'
+  text_body_p '/html/body/p[1]'
+end
+
+tree.inject(agent, page) #=> { "title" => "Yasuri Example", "body_p" => "Hello,World" }
+
+
+tree = Yasuri.map_root do
+  map_group1 { text_child01  '/html/body/a[1]' }
+  map_group2 do
+    text_child01 '/html/body/a[1]'
+    text_child03 '/html/body/a[3]'
+  end
+end
+
+tree.inject(agent, page) #=> {
+#   "group1" => {
+#           "child01" => "child01"
+#         },
+#         "group2" => {
+#           "child01" => "child01",
+#           "child03" => "child03"
+#         }
+# }
+```
+
+### Options
+None.

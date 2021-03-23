@@ -33,10 +33,14 @@ agent = Mechanize.new
 root_page = agent.get("http://some.scraping.page.net/")
 
 result = root.inject(agent, root_page)
-# => [ {"title" => "PageTitle1", "content" => "Page Contents1" },
-#      {"title" => "PageTitle2", "content" => "Page Contents2" }, ...  ]
-
+# => [
+# =>   {"title" => "PageTitle 01", "content" => "Page Contents  01" },
+# =>   {"title" => "PageTitle 02", "content" => "Page Contents  02" },
+# =>   ...
+# =>   {"title" => "PageTitle N",  "content" => "Page Contents  N" }
+# => ]
 ```
+
 この例では、 LinkNode(`links_root`)の xpath で指定された各リンク先のページから、TextNode(`text_title`,`text_content`) の xpath で指定された2つのテキストをスクレイピングする例です．
 
 (言い換えると、`//*[@id="menu"]/ul/li/a` で示される各リンクを開いて、`//*[@id="contents"]/h2` と `//*[@id="contents"]/p[1]` で指定されたテキストをスクレイピングします)
@@ -73,16 +77,12 @@ tree.inject(agent, page)
 ```ruby
 # json で構成する場合
 src = <<-EOJSON
-   { "node"     : "links",
-     "name"     : "title",
-     "path"     : "/html/body/a",
-     "children" : [
-                    { "node" : "text",
-                      "name" : "name",
-                      "path" : "/html/body/p"
-                    }
-                  ]
-   }
+{
+  links_title": {
+    "path": "/html/body/a",
+    "text_name": "/html/body/p"
+  }
+}
 EOJSON
 tree = Yasuri.json2tree(src)
 ```
@@ -90,13 +90,9 @@ tree = Yasuri.json2tree(src)
 ```ruby
 # yaml で構成する場合
 src = <<-EOYAML
-title:
-  node: links
+links_title:
   path: "/html/body/a"
-  children:
-    - name:
-        node: text
-        path: "/html/body/p"
+  text_name: "/html/body/p"
 EOYAML
 tree = Yasuri.yaml2tree(src)
 ```
@@ -104,20 +100,36 @@ tree = Yasuri.yaml2tree(src)
 ### Node
 ツリーは入れ子になった *Node* で構成されます．
 Node は `Type`, `Name`, `Path`, `Childlen`, `Options` を持っています．
+(ただし、`MapNode` のみ `Path` を持ちません)
 
 Nodeは以下のフォーマットで定義されます．
 
 ```ruby
-# トップレベル
 Yasuri.<Type>_<Name> <Path> [,<Options>]
 
 # 入れ子になっている場合
 Yasuri.<Type>_<Name> <Path> [,<Options>] do
   <Type>_<Name> <Path> [,<Options>] do
-    <Children>
+    <Type>_<Name> <Path> [,<Options>]
+    ...
   end
 end
 ```
+
+例
+
+```ruby
+Yasuri.text_title '/html/head/title', truncate:/^[^,]+/
+
+# 入れ子になっている場合
+Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
+  struct_table './tr' do
+    text_title    './td[1]'
+    text_pub_date './td[2]'
+  end
+end
+```
+
 
 #### Type
 *Type* は Nodeの振る舞いを示します．Typeには以下のものがあります．
@@ -126,18 +138,19 @@ end
 - *Struct*
 - *Links*
 - *Paginate*
+- *Map*
 
-### Name
+#### Name
 *Name* は 解析結果のHashにおけるキーになります．
 
-### Path
+#### Path
 *Path* は xpath あるいは css セレクタによって、HTML上の特定のノードを指定します．
 これは Machinize の `search` で使用されます．
 
-### Childlen
+#### Childlen
 入れ子になっているノードの子ノードです．TextNodeはツリーの葉に当たるため、子ノードを持ちません．
 
-### Options
+#### Options
 パースのオプションです．オプションはTypeごとに異なります．
 各ノードに対して、`opt`メソッドをコールすることで、利用可能なオプションを取得できます．
 
@@ -169,12 +182,15 @@ page = agent.get("http://yasuri.example.net")
 
 p1  = Yasuri.text_title '/html/body/p[1]'
 p1t = Yasuri.text_title '/html/body/p[1]', truncate:/^[^,]+/
-p2u = Yasuri.text_title '/html/body/p[2]', proc: :upcase
+p2u = Yasuri.text_title '/html/body/p[1]', proc: :upcase
 
-p1.inject(agent, page)   #=> { "title" => "Hello,World" }
-p1t.inject(agent, page)  #=> { "title" => "Hello" }
-node.inject(agent, page) #=> { "title" => "HELLO,YASURI" }
+p1.inject(agent, page)   #=> "Hello,World"
+p1t.inject(agent, page)  #=> "Hello"
+p2u.inject(agent, page)  #=> "HELLO,WORLD"
 ```
+
+なお、同じページ内の複数の要素を一度にスクレイピングする場合は、`MapNode`を使用します。詳細は、`MapNode`の例を参照してください。
+
 
 ### オプション
 ##### `truncate`
@@ -479,3 +495,54 @@ node.inject(agent, page)
       "Page03",
       "Patination03"]
 ```
+
+## Map Node
+*MapNode* はスクレイピングした結果をまとめるノードです．このノードはパースツリーにおいて常に節です．
+
+### 例
+
+```html
+<!-- http://yasuri.example.net -->
+<html>
+  <head><title>Yasuri Example</title></head>
+  <body>
+    <p>Hello,World</p>
+    <p>Hello,Yasuri</p>
+  </body>
+</html>
+```
+
+```ruby
+agent = Mechanize.new
+page = agent.get("http://yasuri.example.net")
+
+
+tree = Yasuri.map_root do
+  text_title  '/html/head/title'
+  text_body_p '/html/body/p[1]'
+end
+
+tree.inject(agent, page) #=> { "title" => "Yasuri Example", "body_p" => "Hello,World" }
+
+
+tree = Yasuri.map_root do
+  map_group1 { text_child01  '/html/body/a[1]' }
+  map_group2 do
+    text_child01 '/html/body/a[1]'
+    text_child03 '/html/body/a[3]'
+  end
+end
+
+tree.inject(agent, page) #=> {
+#   "group1" => {
+#           "child01" => "child01"
+#         },
+#         "group2" => {
+#           "child01" => "child01",
+#           "child03" => "child03"
+#         }
+# }
+```
+
+### オプション
+なし

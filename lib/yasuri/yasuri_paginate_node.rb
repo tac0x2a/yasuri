@@ -14,7 +14,7 @@ module Yasuri
     end
 
     def inject(agent, page, opt = {}, element = page)
-      retry_count = opt[:retry_count] || 5
+      retry_count = opt[:retry_count] || Yasuri::DefaultRetryCount
 
       raise NotImplementedError.new("PagenateNode inside StructNode, Not Supported") if page != element
 
@@ -22,12 +22,12 @@ module Yasuri
       limit = @limit.nil? ? Float::MAX : @limit
       while page
         child_results_kv = @children.map do |child_node|
-          child_name = Yasuri.NodeName(child_node.name, opt)
+          child_name = Yasuri.node_name(child_node.name, opt)
           [child_name, child_node.inject(agent, page, opt)]
         end
         child_results << Hash[child_results_kv]
 
-        link = page.search(@xpath).first
+        link = page.search(@xpath).first # Todo raise:  link is not found
         break if link == nil
 
         link_button = Mechanize::Page::Link.new(link, agent, page)
@@ -41,8 +41,13 @@ module Yasuri
 
       child_results
     end
+
     def opts
       {limit:@limit, flatten:@flatten}
+    end
+
+    def node_type_str
+      "pages".freeze
     end
   end
 end
