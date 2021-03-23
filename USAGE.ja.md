@@ -193,7 +193,8 @@ p1t.inject(agent, page)  #=> "Hello"
 p2u.inject(agent, page)  #=> "HELLO,WORLD"
 ```
 
-なお、同じページ内の複数の要素を一度にスクレイピングする場合は、`MapNode`を使用します。
+なお、同じページ内の複数の要素を一度にスクレイピングする場合は、`MapNode`を使用します。詳細は、`MapNode`の例を参照してください。
+
 
 ### オプション
 ##### `truncate`
