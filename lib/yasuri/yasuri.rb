@@ -78,7 +78,7 @@ module Yasuri
           node_type_sym = $1.to_sym
           child_node_name = $2
           child_node_type = Text2Node[node_type_sym]
-          child_nodes << hash2node(value, child_node_name, child_node_type)
+          child_nodes << self.hash2node(value, child_node_name, child_node_type)
         when :path
           path = value
         else

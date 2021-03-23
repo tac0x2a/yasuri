@@ -17,5 +17,9 @@ module Yasuri
       end
       tree.size == 1 ? tree.first : tree
     end # inject
+
+    def node_type_str
+      "struct".freeze
+    end
   end
 end

@@ -299,6 +299,30 @@ describe 'Yasuri' do
     end
   end
 
+  it "return StructNode/StructNode/[TextNode,TextNode]" do
+    tree  = Yasuri::StructNode.new('/html/body/table', "tables", [
+      Yasuri::StructNode.new('./tr', "table", [
+        Yasuri::TextNode.new('./td[1]', "title"),
+        Yasuri::TextNode.new('./td[2]', "pub_date"),
+      ])
+    ])
+    json   = Yasuri.tree2json(tree)
+    expected_src = %q|
+    {
+      "struct_tables": {
+        "path": "/html/body/table",
+        "struct_table": {
+          "path": "./tr",
+          "text_title": "./td[1]",
+          "text_pub_date": "./td[2]"
+        }
+      }
+    }|
+    expected  = JSON.parse(expected_src)
+    actual    = JSON.parse(json)
+    expect(actual).to match expected
+  end
+
   it 'has a version number' do
     expect(Yasuri::VERSION).not_to be nil
   end
