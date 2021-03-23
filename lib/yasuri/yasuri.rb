@@ -39,23 +39,6 @@ module Yasuri
   end
 
   private
-  def self.yaml2tree_sub(name, body)
-    return nil if name.nil? or body.nil?
-
-    new_body = Hash[:name, name]
-    body.each{|k,v| new_body[k.to_sym] = v}
-    body = new_body
-
-    return body if body[:children].nil?
-
-    body[:children] = body[:children].map do |c|
-      k, b = c.keys.first, c.values.first
-      Yasuri.yaml2tree_sub(k, b)
-    end
-
-    body
-  end
-
   def self.method_missing(method_name, pattern=nil, **opt, &block)
     generated = Yasuri::NodeGenerator.gen(method_name, pattern, **opt, &block)
     generated || super(method_name, **opt)
@@ -103,14 +86,6 @@ module Yasuri
         end
       end
     end
-
-    # p "--------------------"
-    # p "NodeHash #{node_hash}"
-    # p "NodeTypeClass #{node_type_class}"
-    # p "NodeName #{node_name}"
-    # p "Path #{path}"
-    # p "Children #{child_nodes}"
-    # p "**opt #{opt}"
 
     # If only single node under root, return only the node.
     return child_nodes.first if node_name.nil? and child_nodes.size == 1

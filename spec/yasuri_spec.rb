@@ -13,6 +13,7 @@ describe 'Yasuri' do
     @index_page = @agent.get(@uri)
   end
 
+
   ############
   # yam2tree #
   ############
@@ -297,7 +298,6 @@ describe 'Yasuri' do
       expect(actual).to match expected
     end
   end
-
 
   it 'has a version number' do
     expect(Yasuri::VERSION).not_to be nil
