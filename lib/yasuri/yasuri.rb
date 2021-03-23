@@ -107,7 +107,7 @@ module Yasuri
     }
   end
 
-  def self.NodeName(name, opt)
+  def self.node_name(name, opt)
     symbolize_names = opt[:symbolize_names]
     symbolize_names ? name.to_sym : name
   end

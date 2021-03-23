@@ -22,7 +22,7 @@ module Yasuri
       limit = @limit.nil? ? Float::MAX : @limit
       while page
         child_results_kv = @children.map do |child_node|
-          child_name = Yasuri.NodeName(child_node.name, opt)
+          child_name = Yasuri.node_name(child_node.name, opt)
           [child_name, child_node.inject(agent, page, opt)]
         end
         child_results << Hash[child_results_kv]
