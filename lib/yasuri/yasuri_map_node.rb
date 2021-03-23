@@ -3,7 +3,7 @@ module Yasuri
   class MapNode
     attr_reader :name, :children
 
-    def initialize(name, children, opt: {})
+    def initialize(name, children, **opt)
       @name = name
       @children = children
       @opt = opt

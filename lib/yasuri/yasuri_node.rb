@@ -7,7 +7,7 @@ module Yasuri
   module Node
     attr_reader :url, :xpath, :name, :children
 
-    def initialize(xpath, name, children = [], opt: {})
+    def initialize(xpath, name, children = [], **opt)
       @xpath, @name, @children = xpath, name, children
     end
 
