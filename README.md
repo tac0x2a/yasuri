@@ -60,40 +60,38 @@ root = Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
 
 # Node tree constructing by YAML
 src = <<-EOYAML
-root:
-  node: links
+links_root:
   path: "//*[@id='menu']/ul/li/a"
-  children:
-    - title:   { node: text, path: "//*[@id='contents']/h2" }
-    - content: { node: text, path: "//*[@id='contents']/p[1]" }
+  text_title: "//*[@id='contents']/h2"
+  text_content: "//*[@id='contents']/p[1]"
 EOYAML
 root = Yasuri.yaml2tree(src)
 
 
 # Node tree constructing by JSON
 src = <<-EOJSON
-   { "node"     : "links",
-     "name"     : "root",
-     "path"     : "//*[@id='menu']/ul/li/a",
-     "children" : [
-                    { "node" : "text",
-                      "name" : "title",
-                      "path" : "//*[@id='contents']/h2"
-                    },
-                    { "node" : "text",
-                      "name" : "content",
-                      "path" : "//*[@id='contents']/p[1]"
-                    }
-                  ]
-   }
+{
+  "links_root": {
+    "path": "//*[@id='menu']/ul/li/a",
+    "text_title": "//*[@id='contents']/h2",
+    "text_content": "//*[@id='contents']/p[1]"
+  }
+}
 EOJSON
 root = Yasuri.json2tree(src)
 
+
+# Execution and getting scraped result
 agent = Mechanize.new
 root_page = agent.get("http://some.scraping.page.net/")
 
 result = root.inject(agent, root_page)
-# => [ {"title" => "PageTitle", "content" => "Page Contents" }, ...  ]
+# => [
+#      {"title" => "PageTitle 01", "content" => "Page Contents  01" },
+#      {"title" => "PageTitle 02", "content" => "Page Contents  02" },
+#      ...
+#      {"title" => "PageTitle N",  "content" => "Page Contents  N" }
+#    ]
 ```
 
 ## Dev

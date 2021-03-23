@@ -34,12 +34,12 @@ module Yasuri
       text
     end
 
-    def node_type_str
-      "text".freeze
-    end
-
     def opts
       {truncate:@truncate, proc:@proc}
+    end
+
+    def node_type_str
+      "text".freeze
     end
   end
 end

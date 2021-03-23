@@ -36,10 +36,14 @@ agent = Mechanize.new
 root_page = agent.get("http://some.scraping.page.net/")
 
 result = root.inject(agent, root_page)
-# => [ {"title" => "PageTitle1", "content" => "Page Contents1" },
-#      {"title" => "PageTitle2", "content" => "Page Contents2" }, ...  ]
-
+# => [
+#      {"title" => "PageTitle 01", "content" => "Page Contents  01" },
+#      {"title" => "PageTitle 02", "content" => "Page Contents  02" },
+#      ...
+#      {"title" => "PageTitle N",  "content" => "Page Contents  N" }
+#    ]
 ```
+
 This example, from the pages of each link that is expressed by the xpath of LinkNode(`links_root`), to scraping the two text that is expressed by the xpath of TextNode(`text_title`,`text_content`).
 
 (i.e. open each links `//*[@id="menu"]/ul/li/a` and, scrape `//*[@id="contents"]/h2` and `//*[@id="contents"]/p[1]`.)
@@ -74,16 +78,12 @@ Tree is definable by 3(+1) ways, json, yaml, and DSL (or basic ruby code). In ab
 ```ruby
 # Construct by json.
 src = <<-EOJSON
-   { "node"     : "links",
-     "name"     : "title",
-     "path"     : "/html/body/a",
-     "children" : [
-                    { "node" : "text",
-                      "name" : "name",
-                      "path" : "/html/body/p"
-                    }
-                  ]
-   }
+{
+  links_title": {
+    "path": "/html/body/a",
+    "text_name": "/html/body/p"
+  }
+}
 EOJSON
 tree = Yasuri.json2tree(src)
 ```
@@ -91,13 +91,9 @@ tree = Yasuri.json2tree(src)
 ```ruby
 # Construct by yaml.
 src = <<-EOYAML
-title:
-  node: links
+links_title:
   path: "/html/body/a"
-  children:
-    - name:
-        node: text
-        path: "/html/body/p"
+  text_name: "/html/body/p"
 EOYAML
 tree = Yasuri.yaml2tree(src)
 ```

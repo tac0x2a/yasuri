@@ -33,10 +33,14 @@ agent = Mechanize.new
 root_page = agent.get("http://some.scraping.page.net/")
 
 result = root.inject(agent, root_page)
-# => [ {"title" => "PageTitle1", "content" => "Page Contents1" },
-#      {"title" => "PageTitle2", "content" => "Page Contents2" }, ...  ]
-
+# => [
+# =>   {"title" => "PageTitle 01", "content" => "Page Contents  01" },
+# =>   {"title" => "PageTitle 02", "content" => "Page Contents  02" },
+# =>   ...
+# =>   {"title" => "PageTitle N",  "content" => "Page Contents  N" }
+# => ]
 ```
+
 この例では、 LinkNode(`links_root`)の xpath で指定された各リンク先のページから、TextNode(`text_title`,`text_content`) の xpath で指定された2つのテキストをスクレイピングする例です．
 
 (言い換えると、`//*[@id="menu"]/ul/li/a` で示される各リンクを開いて、`//*[@id="contents"]/h2` と `//*[@id="contents"]/p[1]` で指定されたテキストをスクレイピングします)
@@ -73,16 +77,12 @@ tree.inject(agent, page)
 ```ruby
 # json で構成する場合
 src = <<-EOJSON
-   { "node"     : "links",
-     "name"     : "title",
-     "path"     : "/html/body/a",
-     "children" : [
-                    { "node" : "text",
-                      "name" : "name",
-                      "path" : "/html/body/p"
-                    }
-                  ]
-   }
+{
+  links_title": {
+    "path": "/html/body/a",
+    "text_name": "/html/body/p"
+  }
+}
 EOJSON
 tree = Yasuri.json2tree(src)
 ```
@@ -90,13 +90,9 @@ tree = Yasuri.json2tree(src)
 ```ruby
 # yaml で構成する場合
 src = <<-EOYAML
-title:
-  node: links
+links_title:
   path: "/html/body/a"
-  children:
-    - name:
-        node: text
-        path: "/html/body/p"
+  text_name: "/html/body/p"
 EOYAML
 tree = Yasuri.yaml2tree(src)
 ```
@@ -193,7 +189,8 @@ p1t.inject(agent, page)  #=> "Hello"
 p2u.inject(agent, page)  #=> "HELLO,WORLD"
 ```
 
-なお、同じページ内の複数の要素を一度にスクレイピングする場合は、`MapNode`を使用します。
+なお、同じページ内の複数の要素を一度にスクレイピングする場合は、`MapNode`を使用します。詳細は、`MapNode`の例を参照してください。
+
 
 ### オプション
 ##### `truncate`

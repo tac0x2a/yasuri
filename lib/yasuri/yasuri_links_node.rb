@@ -15,7 +15,7 @@ module Yasuri
         child_page = Yasuri.with_retry(retry_count) { link_button.click }
 
         child_results_kv = @children.map do |child_node|
-          child_name = Yasuri.NodeName(child_node.name, opt)
+          child_name = Yasuri.node_name(child_node.name, opt)
           [child_name, child_node.inject(agent, child_page, opt)]
         end
 

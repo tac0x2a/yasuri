@@ -26,39 +26,19 @@ module Yasuri
   end
 
   def self.tree2json(node)
+    raise RuntimeError if node.nil?
+
     Yasuri.node2hash(node).to_json
   end
 
   def self.yaml2tree(yaml_string)
     raise RuntimeError if yaml_string.nil? or yaml_string.empty?
 
-    yaml = YAML.load(yaml_string)
-    raise RuntimeError if yaml.keys.size < 1
-
-    root_key, root = yaml.keys.first, yaml.values.first
-    node_hash = Yasuri.yaml2tree_sub(root_key, root)
-
-    Yasuri.hash2node(node_hash)
+    node_hash = YAML.load(yaml_string)
+    Yasuri.hash2node(node_hash.deep_symbolize_keys)
   end
 
   private
-  def self.yaml2tree_sub(name, body)
-    return nil if name.nil? or body.nil?
-
-    new_body = Hash[:name, name]
-    body.each{|k,v| new_body[k.to_sym] = v}
-    body = new_body
-
-    return body if body[:children].nil?
-
-    body[:children] = body[:children].map do |c|
-      k, b = c.keys.first, c.values.first
-      Yasuri.yaml2tree_sub(k, b)
-    end
-
-    body
-  end
-
   def self.method_missing(method_name, pattern=nil, **opt, &block)
     generated = Yasuri::NodeGenerator.gen(method_name, pattern, **opt, &block)
     generated || super(method_name, **opt)
@@ -73,19 +53,61 @@ module Yasuri
     map:    Yasuri::MapNode
   }
 
-  def self.hash2node(node_hash)
-    node = node_hash[:node]
+  def self.hash2node(node_hash, node_name = nil, node_type_class = nil)
+    raise RuntimeError.new("") if node_name.nil? and node_hash.empty?
 
-    fail "Not found 'node' value in map" if node.nil?
-    klass = Text2Node[node.to_sym]
-    klass::hash2node(node_hash)
+    node_prefixes = Text2Node.keys.freeze
+    child_nodes = []
+    opt = {}
+    path = nil
+
+    if node_hash.is_a?(String)
+      path = node_hash
+    else
+      node_hash.each do |key, value|
+        # is node?
+        node_regexps = Text2Node.keys.map do |node_type_sym|
+          /^(#{node_type_sym.to_s})_(.+)$/
+        end
+        node_regexp = node_regexps.find do |node_regexp|
+          key =~ node_regexp
+        end
+
+        case key
+        when node_regexp
+          node_type_sym = $1.to_sym
+          child_node_name = $2
+          child_node_type = Text2Node[node_type_sym]
+          child_nodes << self.hash2node(value, child_node_name, child_node_type)
+        when :path
+          path = value
+        else
+          opt[key] = value
+        end
+      end
+    end
+
+    # If only single node under root, return only the node.
+    return child_nodes.first if node_name.nil? and child_nodes.size == 1
+
+    node = if node_type_class.nil?
+      Yasuri::MapNode.new(node_name, child_nodes, **opt)
+    else
+      node_type_class::new(path, node_name, child_nodes, **opt)
+    end
+
+    node
   end
 
   def self.node2hash(node)
-    node.to_h
+    return node.to_h if node.instance_of?(Yasuri::MapNode)
+
+    {
+      "#{node.node_type_str}_#{node.name}" => node.to_h
+    }
   end
 
-  def self.NodeName(name, opt)
+  def self.node_name(name, opt)
     symbolize_names = opt[:symbolize_names]
     symbolize_names ? name.to_sym : name
   end
@@ -101,5 +123,16 @@ module Yasuri
       end
       fail e
     end
+  end
+end
+
+class Hash
+  def deep_symbolize_keys
+    Hash[
+      self.map do |k, v|
+        v = v.deep_symbolize_keys if v.kind_of?(Hash)
+        [k.to_sym, v]
+      end
+    ]
   end
 end
