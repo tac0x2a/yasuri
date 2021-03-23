@@ -74,16 +74,12 @@ Tree is definable by 3(+1) ways, json, yaml, and DSL (or basic ruby code). In ab
 ```ruby
 # Construct by json.
 src = <<-EOJSON
-   { "node"     : "links",
-     "name"     : "title",
-     "path"     : "/html/body/a",
-     "children" : [
-                    { "node" : "text",
-                      "name" : "name",
-                      "path" : "/html/body/p"
-                    }
-                  ]
-   }
+{
+  links_title": {
+    "path": "/html/body/a",
+    "text_name": "/html/body/p"
+  }
+}
 EOJSON
 tree = Yasuri.json2tree(src)
 ```
@@ -91,13 +87,9 @@ tree = Yasuri.json2tree(src)
 ```ruby
 # Construct by yaml.
 src = <<-EOYAML
-title:
-  node: links
+links_title:
   path: "/html/body/a"
-  children:
-    - name:
-        node: text
-        path: "/html/body/p"
+  text_name: "/html/body/p"
 EOYAML
 tree = Yasuri.yaml2tree(src)
 ```
