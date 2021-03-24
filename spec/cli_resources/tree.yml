@@ -1,0 +1,5 @@
+pages_root:
+  path: "/html/body/nav/span/a[@class='next']"
+  limit: 10
+  flatten: false
+  text_content: "/html/body/p"
