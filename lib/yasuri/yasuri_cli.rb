@@ -5,9 +5,12 @@ require 'mechanize'
 
 module Yasuri
   class CLI < Thor
+    package_name "yasuri"
+
+    default_command :scrape
     desc "scrape <URI> [[--file <TREE_FILE>] or [--json <JSON>]]", "Getting from <URI> and scrape it. with <JSON> or json/yml from <TREE_FILE>. They should be Yasuri's format json or yaml string."
-    option :file
-    option :json
+    option :file, {aliases: 'f', desc: "path to file that written yasuri tree as json or yaml", type: :string}
+    option :json, {aliases: 'j', desc: "yasuri tree format json string", type: :string}
     def scrape(uri)
       # argument validations
       if [options[:file], options[:json]].compact.count != 1
