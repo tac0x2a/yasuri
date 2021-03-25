@@ -2,7 +2,7 @@
 [![Build Status](https://github.com/tac0x2a/yasuri/actions/workflows/ruby.yml/badge.svg)](https://github.com/tac0x2a/yasuri/actions/workflows/ruby.yml)
 [![Coverage Status](https://coveralls.io/repos/tac0x2a/yasuri/badge.svg?branch=master)](https://coveralls.io/r/tac0x2a/yasuri?branch=master) [![Maintainability](https://api.codeclimate.com/v1/badges/c29480fea1305afe999f/maintainability)](https://codeclimate.com/github/tac0x2a/yasuri/maintainability)
 
-Yasuri (鑢) is an easy web-scraping library for supporting "[Mechanize](https://github.com/sparklemotion/mechanize)".
+Yasuri (鑢) is an easy web-scraping library for supporting "[Mechanize](https://github.com/sparklemotion/mechanize)", and CLI tool using it.
 
 Yasuri can reduce frequently processes in Scraping.
 
@@ -49,6 +49,7 @@ Or install it yourself as:
     $ gem install yasuri
 
 ## Usage
+### Use as library
 
 ```ruby
 # Node tree constructing by DSL
@@ -83,7 +84,7 @@ root = Yasuri.json2tree(src)
 
 # Execution and getting scraped result
 agent = Mechanize.new
-root_page = agent.get("http://some.scraping.page.net/")
+root_page = agent.get("http://some.scraping.page.tac42.net/")
 
 result = root.inject(agent, root_page)
 # => [
@@ -92,6 +93,32 @@ result = root.inject(agent, root_page)
 #      ...
 #      {"title" => "PageTitle N",  "content" => "Page Contents  N" }
 #    ]
+```
+
+### Use as CLI
+
+```sh
+# After gem installation..
+$ yasuri help scrape
+Usage:
+  yasuri scrape <URI> [[--file <TREE_FILE>] or [--json <JSON>]]
+
+Options:
+  f, [--file=FILE]  # path to file that written yasuri tree as json or yaml
+  j, [--json=JSON]  # yasuri tree format json string
+
+Getting from <URI> and scrape it. with <JSON> or json/yml from <TREE_FILE>. They should be Yasuri's format json or yaml string.
+```
+
+Example
+```sh
+$ yasuri scrape "https://www.ruby-lang.org/en/" -j '
+{
+  "text_title": "/html/head/title",
+  "text_desc": "//*[@id=\"intro\"]/p"
+}'
+
+{"title":"Ruby Programming Language","desc":"\n    A dynamic, open source programming language with a focus on\n    simplicity and productivity. It has an elegant syntax that is\n    natural to read and easy to write.\n    "}
 ```
 
 ## Dev
@@ -106,6 +133,11 @@ $ rake
 $ rspec spec/*spec.rb
 ```
 
+### Test gem in local
+```sh
+$ gem build yasuri.gemspec
+$ gem install yasuri-*.gem
+```
 ### Release RubyGems
 ```sh
 # Only first time
