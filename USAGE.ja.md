@@ -1,24 +1,31 @@
-# Yasuri の使い方
+# Yasuri
 
 ## Yasuri とは
-Yasuri (鑢) は簡単にWebスクレイピングを行うための、"[Mechanize](https://github.com/sparklemotion/mechanize)" をサポートするライブラリです．
+Yasuri (鑢) はWebスクレイピングを宣言的に行うためのライブラリと、それを用いたスクレイピングのコマンドラインツールです。
+簡単な宣言的記法で期待結果を記述するだけで、"[Mechanize](https://github.com/sparklemotion/mechanize)" によるスクレイピングを実行します。
 
 Yasuriは、スクレイピングにおける、よくある処理を簡単に記述することができます．
-例えば、
+例えば、以下のような処理を簡単に実現することができます．
 
-+ ページ内の複数のリンクを開いて、各ページをスクレイピングした結果をHashで取得する
 + ページ内の複数のテキストをスクレイピングし、名前をつけてHashにする
++ ページ内の複数のリンクを開いて、各ページをスクレイピングした結果をHashで取得する
 + ページ内に繰り返し出現するテーブルをそれぞれスクレイピングして、配列として取得する
-+ ページネーションで提供される各ページのうち、上位3つだけを順にスクレイピングする
-
-これらを簡単に実装することができます．
++ ページネーションで提供される各ページのうち、最初の3ページだけをスクレイピングする
 
 ## クイックスタート
 
+#### インストール
+```sh
+# for Ruby 2.3.2
+$ gem 'yasuri', '~> 2.0', '>= 2.0.13'
 ```
+または
+```sh
+# for Ruby 3.0.0 or upper
 $ gem install yasuri
 ```
 
+#### ライブラリとして使う
 ```ruby
 require 'yasuri'
 require 'machinize'
@@ -30,84 +37,59 @@ root = Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
        end
 
 agent = Mechanize.new
-root_page = agent.get("http://some.scraping.page.net/")
+root_page = agent.get("http://some.scraping.page.tac42.net/")
 
 result = root.inject(agent, root_page)
 # => [
-# =>   {"title" => "PageTitle 01", "content" => "Page Contents  01" },
-# =>   {"title" => "PageTitle 02", "content" => "Page Contents  02" },
-# =>   ...
-# =>   {"title" => "PageTitle N",  "content" => "Page Contents  N" }
-# => ]
+#      {"title" => "PageTitle 01", "content" => "Page Contents  01" },
+#      {"title" => "PageTitle 02", "content" => "Page Contents  02" },
+#      ...
+#      {"title" => "PageTitle N",  "content" => "Page Contents  N" }
+#    ]
 ```
 
 この例では、 LinkNode(`links_root`)の xpath で指定された各リンク先のページから、TextNode(`text_title`,`text_content`) の xpath で指定された2つのテキストをスクレイピングする例です．
 
 (言い換えると、`//*[@id="menu"]/ul/li/a` で示される各リンクを開いて、`//*[@id="contents"]/h2` と `//*[@id="contents"]/p[1]` で指定されたテキストをスクレイピングします)
 
-## 基本
 
-1. パースツリーを作る
-2. Mechanize の agent と対象のページを与えてパースを開始する
+#### CLIツールとして使う
+上記と同じことを、CLIのコマンドとして実行できます。
 
-
-### パースツリーを作る
-
-```ruby
-require 'mechanize'
-require 'yasuri'
-
-
-# 1. パースツリーを作る
-tree = Yasuri.links_title '/html/body/a' do
-         text_name '/html/body/p'
-       end
-
-# 2. Mechanize の agent と対象のページを与えてパースを開始する
-agent = Mechanize.new
-page = agent.get(uri)
-
-
-tree.inject(agent, page)
-```
-
-ツリーは、json，yaml，またはDSLで定義することができます．上の例ではDSLで定義しています．
-以下は、jsonで上記と等価な解析ツリーを定義した例です．
-
-```ruby
-# json で構成する場合
-src = <<-EOJSON
+```sh
+$ yasuri scrape "http://some.scraping.page.tac42.net/" -j '
 {
-  links_title": {
-    "path": "/html/body/a",
-    "text_name": "/html/body/p"
-  }
-}
-EOJSON
-tree = Yasuri.json2tree(src)
+  "links_root": {
+    "path": "//*[@id=\"menu\"]/ul/li/a",
+    "text_title": "//*[@id=\"contents\"]/h2",
+    "text_content": "//*[@id=\"contents\"]/p[1]"
+    }
+}'
+
+[
+  {"title":"PageTitle 01","content":"Page Contents  01"},
+  {"title":"PageTitle 02","content":"Page Contents  02"},
+  ...,
+  {"title":"PageTitle N","content":"Page Contents  N"}
+]
 ```
 
-```ruby
-# yaml で構成する場合
-src = <<-EOYAML
-links_title:
-  path: "/html/body/a"
-  text_name: "/html/body/p"
-EOYAML
-tree = Yasuri.yaml2tree(src)
-```
+結果はjson形式の文字列として取得できます。
 
-### Node
-ツリーは入れ子になった *Node* で構成されます．
-Node は `Type`, `Name`, `Path`, `Childlen`, `Options` を持っています．
-(ただし、`MapNode` のみ `Path` を持ちません)
+----------------------------
+## パースツリー
 
-Nodeは以下のフォーマットで定義されます．
+パースツリーとは、スクレイピングする要素と出力構造を宣言的に定義するための木構造データです。
+パースツリーは入れ子になった Node で構成されます．Node は `Type`, `Name`, `Path`, `Childlen`, `Options` 属性を持っており、その `Type` に応じたスクレイピング処理を行います．(ただし、`MapNode` のみ `Path` を持ちません)
+
+
+パースツリーは以下のフォーマットで定義されます．
 
 ```ruby
+# 1ノードからなる単純なツリー
 Yasuri.<Type>_<Name> <Path> [,<Options>]
 
-# 入れ子になっている場合
+# 入れ子になっているツリー
 Yasuri.<Type>_<Name> <Path> [,<Options>] do
   <Type>_<Name> <Path> [,<Options>] do
     <Type>_<Name> <Path> [,<Options>]
@@ -116,12 +98,13 @@ Yasuri.<Type>_<Name> <Path> [,<Options>] do
 end
 ```
 
-例
+**例**
 
 ```ruby
+# 1ノードからなる単純なツリー
 Yasuri.text_title '/html/head/title', truncate:/^[^,]+/
 
-# 入れ子になっている場合
+# 入れ子になっているツリー
 Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
   struct_table './tr' do
     text_title    './td[1]'
@@ -129,6 +112,71 @@ Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
   end
 end
 ```
+
+
+パースツリーはRubyのDSL、JSON、YAMLのいずれかで定義することができます。
+以下は、上記と同じパースツリーをそれぞれの記法で定義した例です。
+
+**Ruby DSLで定義する場合**
+```ruby
+Yasuri.links_title '/html/body/a' do
+  text_name '/html/body/p'
+end
+```
+
+**JSONで定義する場合**
+```json
+{
+  links_title": {
+    "path": "/html/body/a",
+    "text_name": "/html/body/p"
+  }
+}
+```
+
+**YAMLで定義する場合**
+```yaml
+links_title:
+  path: "/html/body/a"
+  text_name: "/html/body/p"
+```
+
+**パースツリーの特殊なケース**
+
+rootの直下の要素が1つだけの場合、Hash(Object)ではなく、その要素を直接返します。
+```json
+{
+  "text_title": "/html/head/title",
+  "text_body": "/html/body",
+}
+# => {"title": "Welcome to yasuri!", "body": "Yasuri is ..."}
+
+{
+  "text_title": "/html/head/title"}
+}
+# => Welcome to yasuri!
+```
+
+
+jsonまたはyaml形式では、子Nodeを持たない場合、`path` を直接値に指定することができます。以下の2つのjsonは同じパースツリーになります。
+
+```json
+{
+  "text_name": "/html/body/p"
+}
+
+{
+  "text_name": {
+    "path": "/html/body/p"
+  }
+}
+```
+
+
+--------------------------
+## Node
+
+Nodeはパースツリーの節または葉となる要素で、`Type`, `Name`, `Path`, `Childlen`, `Options` を持っており、その `Type` に応じてスクレイピングを行います．(ただし、`MapNode` のみ `Path` を持ちません)
 
 
 #### Type
@@ -139,6 +187,8 @@ end
 - *Links*
 - *Paginate*
 - *Map*
+
+詳細は各ノードの説明を参照してください。
 
 #### Name
 *Name* は 解析結果のHashにおけるキーになります．
@@ -546,3 +596,100 @@ tree.inject(agent, page) #=> {
 
 ### オプション
 なし
+
+
+-------------------------
+## 使い方
+
+#### ライブラリとして使用する場合
+ライブラリとして使用する場合は、DSL, json, yaml の形式でツリーを定義できます。
+```ruby
+require 'mechanize'
+require 'yasuri'
+
+
+# 1. パースツリーを作る
+# DSLで定義する倍
+tree = Yasuri.links_title '/html/body/a' do
+         text_name '/html/body/p'
+       end
+
+# jsonで定義する場合
+src = <<-EOJSON
+{
+  links_title": {
+    "path": "/html/body/a",
+    "text_name": "/html/body/p"
+  }
+}
+EOJSON
+tree = Yasuri.json2tree(src)
+
+
+# yamlで定義する場合
+src = <<-EOYAML
+links_title:
+  path: "/html/body/a"
+  text_name: "/html/body/p"
+EOYAML
+tree = Yasuri.yaml2tree(src)
+
+
+
+# 2. Mechanize の agent と対象のページを与えてパースを開始する
+agent = Mechanize.new
+page = agent.get(uri)
+
+
+tree.inject(agent, page)
+```
+
+#### CLIツールとして使用する場合
+
+**ヘルプ表示**
+```sh
+$ yasuri help scrape
+Usage:
+  yasuri scrape <URI> [[--file <TREE_FILE>] or [--json <JSON>]]
+
+Options:
+  f, [--file=FILE]  # path to file that written yasuri tree as json or yaml
+  j, [--json=JSON]  # yasuri tree format json string
+
+Getting from <URI> and scrape it. with <JSON> or json/yml from <TREE_FILE>. They should be Yasuri's format json or yaml string.
+```
+
+CLIツールでは以下のどちらかの方法でパースツリーを指定します。
++ `--file`, `-f` オプションで、ファイルに出力されたjson形式またはyaml形式のパースツリーを読み込む
++ `--json`, `-j` オプションで、パースツリーを文字列として直接指定する
+
+
+**パースツリーをファイルで指定する例**
+```sh
+% cat sample.yml
+text_title: "/html/head/title"
+text_desc: "//*[@id=\"intro\"]/p"
+
+% yasuri scrape "https://www.ruby-lang.org/en/" --file sample.yml
+{"title":"Ruby Programming Language","desc":"\n    A dynamic, open source programming language with a focus on\n    simplicity and productivity. It has an elegant syntax that is\n    natural to read and easy to write.\n    "}
+
+% cat sample.json
+{
+  "text_title": "/html/head/title",
+  "text_desc": "//*[@id=\"intro\"]/p"
+}
+
+% yasuri scrape "https://www.ruby-lang.org/en/" --file sample.json
+{"title":"Ruby Programming Language","desc":"\n    A dynamic, open source programming language with a focus on\n    simplicity and productivity. It has an elegant syntax that is\n    natural to read and easy to write.\n    "}
+```
+
+**パースツリーをjsonで直接指定する例**
+```sh
+$ yasuri scrape "https://www.ruby-lang.org/en/" -j '
+{
+  "text_title": "/html/head/title",
+  "text_desc": "//*[@id=\"intro\"]/p"
+}'
+
+{"title":"Ruby Programming Language","desc":"\n    A dynamic, open source programming language with a focus on\n    simplicity and productivity. It has an elegant syntax that is\n    natural to read and easy to write.\n    "}
+```

@@ -1,27 +1,31 @@
-# Yasuri Usage
+# Yasuri
 
 ## What is Yasuri
-`Yasuri` is an easy web-scraping library for supporting "Mechanize".
+`Yasuri` (鑢) is a library for declarative web scraping and a command line tool for scraping with it. It performs scraping using "[Mechanize](https://github.com/sparklemotion/mechanize)" by simply describing the expected result in a simple declarative notation.
 
-Yasuri (鑢) is an easy web-scraping library for supporting "[Mechanize](https://github.com/sparklemotion/mechanize)".
+Yasuri makes it easy to write common scraping operations.
+For example, the following processes can be easily implemented.
 
-Yasuri can reduce frequently processes in Scraping.
++ Scrape multiple texts in a page and name them into a Hash
++ Open multiple links in a page and get the result of scraping each page as a Hash
++ Scrape each table that appears repeatedly in the page and get the result as an array
++ Scrape only the first three pages of each page provided by pagination
 
-For example,
-
-+ Open links in the page, scraping each page, and getting result as Hash.
-+ Scraping texts in the page, and named result in Hash.
-+ A table that repeatedly appears in a page each, scraping, get as an array.
-+ Of each page provided by the pagination, scraping the only top 3.
-
-You can implement easy by Yasuri.
 
 ## Quick Start
 
+
+#### Install
+```sh
+# for Ruby 2.3.2
+$ gem 'yasuri', '~> 2.0', '>= 2.0.13'
 ```
+または
+```sh
+# for Ruby 3.0.0 or upper
 $ gem install yasuri
 ```
-
+#### Use as library
 ```ruby
 require 'yasuri'
 require 'machinize'
@@ -33,7 +37,7 @@ root = Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
        end
 
 agent = Mechanize.new
-root_page = agent.get("http://some.scraping.page.net/")
+root_page = agent.get("http://some.scraping.page.tac42.net/")
 
 result = root.inject(agent, root_page)
 # => [
@@ -46,71 +50,46 @@ result = root.inject(agent, root_page)
 
 This example, from the pages of each link that is expressed by the xpath of LinkNode(`links_root`), to scraping the two text that is expressed by the xpath of TextNode(`text_title`,`text_content`).
 
-(i.e. open each links `//*[@id="menu"]/ul/li/a` and, scrape `//*[@id="contents"]/h2` and `//*[@id="contents"]/p[1]`.)
-
-## Basics
-
-1. Construct parse tree.
-2. Start parse with Mechanize agent and first page.
-
-### Construct parse tree
-
-```ruby
-require 'mechanize'
-require 'yasuri'
+(in other words, open each links `//*[@id="menu"]/ul/li/a` and, scrape `//*[@id="contents"]/h2` and `//*[@id="contents"]/p[1]`.)
 
 
-# 1. Construct parse tree.
-tree = Yasuri.links_title '/html/body/a' do
-         text_name '/html/body/p'
-       end
+#### Use as CLI tool
+The same thing as above can be executed as a CLI command.
 
-# 2. Start parse with Mechanize agent and first page.
-agent = Mechanize.new
-page = agent.get(uri)
-
-
-tree.inject(agent, page)
-```
-
-Tree is definable by 3(+1) ways, json, yaml, and DSL (or basic ruby code). In above example, DSL.
-
-```ruby
-# Construct by json.
-src = <<-EOJSON
+```sh
+$ yasuri scrape "http://some.scraping.page.tac42.net/" -j '
 {
-  links_title": {
-    "path": "/html/body/a",
-    "text_name": "/html/body/p"
-  }
-}
-EOJSON
-tree = Yasuri.json2tree(src)
+  "links_root": {
+    "path": "//*[@id=\"menu\"]/ul/li/a",
+    "text_title": "//*[@id=\"contents\"]/h2",
+    "text_content": "//*[@id=\"contents\"]/p[1]"
+    }
+}'
+
+[
+  {"title":"PageTitle 01","content":"Page Contents  01"},
+  {"title":"PageTitle 02","content":"Page Contents  02"},
+  ...,
+  {"title":"PageTitle N","content":"Page Contents  N"}
+]
 ```
 
-```ruby
-# Construct by yaml.
-src = <<-EOYAML
-links_title:
-  path: "/html/body/a"
-  text_name: "/html/body/p"
-EOYAML
-tree = Yasuri.yaml2tree(src)
-```
+The result can be obtained as a string in json format.
 
+----------------------------
+## Parse Tree
 
-### Node
-Tree is constructed by nested Nodes.
-Node has `Type`, `Name`, `Path`, `Childlen`, and `Options`.
-(But only `MapNode` does not have `Path`.)
+A parse tree is a tree structure data for declaratively defining the elements to be scraped and the output structure.
 
-Node is defined by this format.
+A parse tree consists of nested `Node`s, each of which has `Type`, `Name`, `Path`, `Childlen`, and `Options` attributes, and scrapes according to its `Type`. (Note that only `MapNode` does not have `Path`).
 
+The parse tree is defined in the following format:
 
 ```ruby
+# A simple tree consisting of one node
 Yasuri.<Type>_<Name> <Path> [,<Options>]
 
-# Nested case
+# Nested tree
 Yasuri.<Type>_<Name> <Path> [,<Options>] do
   <Type>_<Name> <Path> [,<Options>] do
     <Type>_<Name> <Path> [,<Options>]
@@ -119,12 +98,13 @@ Yasuri.<Type>_<Name> <Path> [,<Options>] do
 end
 ```
 
-Example
+**Example**
 
 ```ruby
+# A simple tree consisting of one node
 Yasuri.text_title '/html/head/title', truncate:/^[^,]+/
 
-# Nested case
+# Nested tree
 Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
   struct_table './tr' do
     text_title    './td[1]'
@@ -132,6 +112,72 @@ Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
   end
 end
 ```
+
+Parsing trees can be defined in Ruby DSL, JSON, or YAML.
+The following is an example of the same parse tree as above, defined in each notation.
+
+
+**Case of defining as Ruby DSL**
+```ruby
+Yasuri.links_title '/html/body/a' do
+  text_name '/html/body/p'
+end
+```
+
+**Case of defining as JSON**
+```json
+{
+  links_title": {
+    "path": "/html/body/a",
+    "text_name": "/html/body/p"
+  }
+}
+```
+
+**Case of defining as YAML**
+```yaml
+links_title:
+  path: "/html/body/a"
+  text_name: "/html/body/p"
+```
+
+**Special case of purse tree**
+
+If there is only one element directly under the root, it will return that element directly instead of Hash(Object).
+```json
+{
+  "text_title": "/html/head/title",
+  "text_body": "/html/body",
+}
+# => {"title": "Welcome to yasuri!", "body": "Yasuri is ..."}
+
+{
+  "text_title": "/html/head/title"}
+}
+# => Welcome to yasuri!
+```
+
+
+In json or yaml format, a attribute can directly specify `path` as a value if it doesn't have any child Node. The following two json will have the same parse tree.
+
+```json
+{
+  "text_name": "/html/body/p"
+}
+
+{
+  "text_name": {
+    "path": "/html/body/p"
+  }
+}
+```
+
+
+--------------------------
+## Node
+
+Node is a node or leaf of the parse tree, which has `Type`, `Name`, `Path`, `Childlen`, and `Options`, and scrapes according to its `Type`. (Note that only `MapNode` does not have `Path`).
+
 
 #### Type
 Type meen behavior of Node.
@@ -141,6 +187,8 @@ Type meen behavior of Node.
 - *Links*
 - *Paginate*
 - *Map*
+
+See the description of each node for details.
 
 #### Name
 Name is used keys in returned hash.
@@ -162,6 +210,8 @@ node.opt #=> {:truncate => /^[^,]+/, :proc => nil}
 
 ## Text Node
 TextNode return scraped text. This node have to be leaf.
+
+
 
 ### Example
 
@@ -544,3 +594,104 @@ tree.inject(agent, page) #=> {
 
 ### Options
 None.
+
+
+
+
+-------------------------
+## Usage
+
+#### Use as library
+When used as a library, the tree can be defined in DSL, json, or yaml format.
+```ruby
+require 'mechanize'
+require 'yasuri'
+
+
+# 1. Create a parse tree.
+# Define by Ruby's DSL
+tree = Yasuri.links_title '/html/body/a' do
+         text_name '/html/body/p'
+       end
+
+# Define by JSON
+src = <<-EOJSON
+{
+  links_title": {
+    "path": "/html/body/a",
+    "text_name": "/html/body/p"
+  }
+}
+EOJSON
+tree = Yasuri.json2tree(src)
+
+
+# Define by YAML
+src = <<-EOYAML
+links_title:
+  path: "/html/body/a"
+  text_name: "/html/body/p"
+EOYAML
+tree = Yasuri.yaml2tree(src)
+
+
+
+# 2. Give the Mechanize agent and the target page to start parsing
+agent = Mechanize.new
+page = agent.get(uri)
+
+
+tree.inject(agent, page)
+```
+
+#### Use as CLI tool
+
+**Help**
+```sh
+$ yasuri help scrape
+Usage:
+  yasuri scrape <URI> [[--file <TREE_FILE>] or [--json <JSON>]]
+
+Options:
+  f, [--file=FILE]  # path to file that written yasuri tree as json or yaml
+  j, [--json=JSON]  # yasuri tree format json string
+
+Getting from <URI> and scrape it. with <JSON> or json/yml from <TREE_FILE>. They should be Yasuri's format json or yaml string.
+```
+
+In the CLI tool, you can specify the parse tree in either of the following ways.
++ `--file`, `-f`  option to read the parse tree in json or yaml format output to a file.
++ `--json`, `-j`  option to specify the parse tree directly as a string.
+
+
+**Example of specifying a parse tree as a file**
+```sh
+% cat sample.yml
+text_title: "/html/head/title"
+text_desc: "//*[@id=\"intro\"]/p"
+
+% yasuri scrape "https://www.ruby-lang.org/en/" --file sample.yml
+{"title":"Ruby Programming Language","desc":"\n    A dynamic, open source programming language with a focus on\n    simplicity and productivity. It has an elegant syntax that is\n    natural to read and easy to write.\n    "}
+
+% cat sample.json
+{
+  "text_title": "/html/head/title",
+  "text_desc": "//*[@id=\"intro\"]/p"
+}
+
+% yasuri scrape "https://www.ruby-lang.org/en/" --file sample.json
+{"title":"Ruby Programming Language","desc":"\n    A dynamic, open source programming language with a focus on\n    simplicity and productivity. It has an elegant syntax that is\n    natural to read and easy to write.\n    "}
+```
+
+Whether the file is written in json or yaml will be determined automatically.
+
+**Example of specifying a parse tree directly in json**
+```sh
+$ yasuri scrape "https://www.ruby-lang.org/en/" -j '
+{
+  "text_title": "/html/head/title",
+  "text_desc": "//*[@id=\"intro\"]/p"
+}'
+
+{"title":"Ruby Programming Language","desc":"\n    A dynamic, open source programming language with a focus on\n    simplicity and productivity. It has an elegant syntax that is\n    natural to read and easy to write.\n    "}
+```
