@@ -51,13 +51,13 @@ describe 'Yasuri' do
 
     it "display text node as simple string via json file" do
       expect {
-        Yasuri::CLI.new.invoke(:scrape, [uri], {file: "#{@res_dir}/tree.json"})
-      }.to output('[{"content":"Hello,YasuriLast Modify - 2015/02/14"}]' + "\n").to_stdout
+        Yasuri::CLI.new.invoke(:scrape, [uri+"/pagination/page01.html"], {file: "#{@res_dir}/tree.json"})
+      }.to output('[{"content":"PaginationTest01"},{"content":"PaginationTest02"},{"content":"PaginationTest03"},{"content":"PaginationTest04"}]' + "\n").to_stdout
     end
     it "display text node as simple string via yaml file" do
       expect {
-        Yasuri::CLI.new.invoke(:scrape, [uri], {file: "#{@res_dir}/tree.yml"})
-      }.to output('[{"content":"Hello,YasuriLast Modify - 2015/02/14"}]' + "\n").to_stdout
+        Yasuri::CLI.new.invoke(:scrape, [uri+"/pagination/page01.html"], {file: "#{@res_dir}/tree.yml"})
+      }.to output('[{"content":"PaginationTest01"},{"content":"PaginationTest02"},{"content":"PaginationTest03"},{"content":"PaginationTest04"}]' + "\n").to_stdout
     end
 
 
