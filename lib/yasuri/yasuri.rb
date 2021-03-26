@@ -117,7 +117,6 @@ module Yasuri
       return yield() if block_given?
     rescue => e
       if retry_count > 0
-        pp "retry #{retry_count}"
         retry_count -= 1
         retry
       end
