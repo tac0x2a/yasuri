@@ -171,7 +171,37 @@ In json or yaml format, a attribute can directly specify `path` as a value if it
   }
 }
 ```
+### Run ParseTree
+Call the `Node#inject(agent, page, opt={})` method on the root node of the parse tree.
 
+**Example**
+```ruby
+root = Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
+         text_title '//*[@id="contents"]/h2'
+         text_content '//*[@id="contents"]/p[1]'
+       end
+
+agent = Mechanize.new
+root_page = agent.get("http://some.scraping.page.tac42.net/")
+
+result = root.inject(agent, root_page, interval_ms: 1000)
+```
+
++ `agent` is an instance of Mechanize.
++ `page` is the page to scrape retrieved with `agent`.
++ `opt` is options as Hash. The following options are available.
+
+### `opt`
+#### `interval_ms`
+Interval [milliseconds] for requesting multiple pages.
+
+If omitted, requests will be made continuously without an interval, but if requests to many pages are expected, it is strongly recommended to specify an interval time to avoid high load on the target host.
+
+#### `retry_count`
+Number of retries when page acquisition fails. If omitted, it will retry 5 times.
+
+#### `symbolize_names`
+If true, returns the keys of the result set as symbols.
 
 --------------------------
 ## Node
@@ -601,7 +631,7 @@ None.
 -------------------------
 ## Usage
 
-#### Use as library
+### Use as library
 When used as a library, the tree can be defined in DSL, json, or yaml format.
 ```ruby
 require 'mechanize'
@@ -644,7 +674,7 @@ page = agent.get(uri)
 tree.inject(agent, page)
 ```
 
-#### Use as CLI tool
+### Use as CLI tool
 
 **Help**
 ```sh
@@ -655,13 +685,14 @@ Usage:
 Options:
   f, [--file=FILE]  # path to file that written yasuri tree as json or yaml
   j, [--json=JSON]  # yasuri tree format json string
+  i, [--interval=N]  # interval each request [ms]
 
 Getting from <URI> and scrape it. with <JSON> or json/yml from <TREE_FILE>. They should be Yasuri's format json or yaml string.
 ```
 
 In the CLI tool, you can specify the parse tree in either of the following ways.
-+ `--file`, `-f`  option to read the parse tree in json or yaml format output to a file.
-+ `--json`, `-j`  option to specify the parse tree directly as a string.
++ `--file`, `-f` : option to read the parse tree in json or yaml format output to a file.
++ `--json`, `-j` : option to specify the parse tree directly as a string.
 
 
 **Example of specifying a parse tree as a file**
@@ -695,3 +726,10 @@ $ yasuri scrape "https://www.ruby-lang.org/en/" -j '
 
 {"title":"Ruby Programming Language","desc":"\n    A dynamic, open source programming language with a focus on\n    simplicity and productivity. It has an elegant syntax that is\n    natural to read and easy to write.\n    "}
 ```
+
+#### Other options
++ `--interval`, `-i` : The interval [milliseconds] for requesting multiple pages.
+   **Example: Request at 1 second intervals**
+   ```sh
+   $ yasuri scrape "https://www.ruby-lang.org/en/" --file sample.yml --interval 1000
+   ```
