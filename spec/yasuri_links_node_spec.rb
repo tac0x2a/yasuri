@@ -112,5 +112,19 @@ describe 'Yasuri' do
       ]
       expect(actual).to match expected
     end
+
+    it 'scrape with interval for each request' do
+      allow(Kernel).to receive(:sleep)
+
+      root_node = Yasuri::LinksNode.new('/html/body/a', "root", [
+        Yasuri::TextNode.new('/html/body/p', "content"),
+      ])
+      actual = root_node.inject(@agent, @index_page, interval_ms: 100)
+
+      expect(actual.size).to match 3
+      expect(Kernel).to have_received(:sleep).exactly(3).times do |interval_sec|
+        expect(interval_sec).to match 0.1
+      end
+    end
   end
 end

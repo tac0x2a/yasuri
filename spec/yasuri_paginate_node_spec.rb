@@ -138,5 +138,20 @@ describe 'Yasuri' do
       ]
       expect(actual).to match expected
     end
+
+    it "scrape with interval for each request" do
+      allow(Kernel).to receive(:sleep)
+
+      root_node = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
+        Yasuri::TextNode.new('/html/body/p', "content"),
+      ])
+      actual = root_node.inject(@agent, @page, interval_ms: 1000)
+      expect(actual.size).to match 4
+
+      # will be request 3(= 4-1) times because first page is given.
+      expect(Kernel).to have_received(:sleep).exactly(4-1).times do |interval_sec|
+        expect(interval_sec).to match 1.0
+      end
+    end
   end
 end

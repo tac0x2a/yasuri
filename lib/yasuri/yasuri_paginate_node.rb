@@ -15,6 +15,7 @@ module Yasuri
 
     def inject(agent, page, opt = {}, element = page)
       retry_count = opt[:retry_count] || Yasuri::DefaultRetryCount
+      interval_ms = opt[:interval_ms] || Yasuri::DefaultInterval_ms
 
       raise NotImplementedError.new("PagenateNode inside StructNode, Not Supported") if page != element
 
@@ -31,7 +32,7 @@ module Yasuri
         break if link == nil
 
         link_button = Mechanize::Page::Link.new(link, agent, page)
-        page = Yasuri.with_retry(retry_count) { link_button.click }
+        page = Yasuri.with_retry(retry_count, interval_ms) { link_button.click }
         break if (limit -= 1) <= 0
       end
 

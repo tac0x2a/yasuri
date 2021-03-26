@@ -317,6 +317,26 @@ describe 'Yasuri' do
         Yasuri.with_retry(2){42 / i.pop } # do this 3 times
       }.to raise_error(Exception)
     end
+
+    it "wait interval before run" do
+      allow(Kernel).to receive(:sleep)
+      Yasuri.with_retry(0){ 42 }
+      expect(Kernel).to have_received(:sleep).once
+    end
+
+    it "wait interval before run" do
+      allow(Kernel).to receive(:sleep)
+      Yasuri.with_retry(0){ 42 }
+      expect(Kernel).to have_received(:sleep).once
+    end
+
+    it "wait interval for each runs" do
+      allow(Kernel).to receive(:sleep)
+
+      i = [1,1,0,0]
+      Yasuri.with_retry(2){42 / i.pop } # 3 times in max
+      expect(Kernel).to have_received(:sleep).exactly(3).times
+    end
   end
 
   it "return StructNode/StructNode/[TextNode,TextNode]" do
