@@ -1,0 +1,4 @@
+{
+  "text_title": "/html/head/title",
+  "text_desc": "//*[@id=\"intro\"]/p"
+}
