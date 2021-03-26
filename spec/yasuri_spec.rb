@@ -299,6 +299,26 @@ describe 'Yasuri' do
     end
   end
 
+  describe '.with_retry' do
+    it "call once if success" do
+      actual = Yasuri.with_retry(0){ 42 }
+      expect(actual).to match 42
+    end
+
+    it "call untile success" do
+      i = [1,1,0,0]
+      actual = Yasuri.with_retry(2){42 / i.pop } # 3 times in max
+      expect(actual).to match 42/1
+    end
+
+    it "raise error when exceed retry count" do
+      i = [1,0,0,0]
+      expect {
+        Yasuri.with_retry(2){42 / i.pop } # do this 3 times
+      }.to raise_error(Exception)
+    end
+  end
+
   it "return StructNode/StructNode/[TextNode,TextNode]" do
     tree  = Yasuri::StructNode.new('/html/body/table', "tables", [
       Yasuri::StructNode.new('./tr', "table", [
