@@ -4,9 +4,6 @@ describe 'Yasuri' do
   include_context 'httpserver'
 
   before do
-    @agent = Mechanize.new
-    @index_page = @agent.get(uri)
-
     @res_dir = File.expand_path('../cli_resources', __FILE__)
   end
 
@@ -63,11 +60,13 @@ describe 'Yasuri' do
     it "interval option is effect for each request" do
       allow(Kernel).to receive(:sleep)
 
-      Yasuri::CLI.new.invoke(
-        :scrape,
-        [uri+"/pagination/page01.html"],
-        {file: "#{@res_dir}/tree.yml", interval: 500}
-      )
+      expect {
+        Yasuri::CLI.new.invoke(
+          :scrape,
+          [uri+"/pagination/page01.html"],
+          {file: "#{@res_dir}/tree.yml", interval: 500}
+        )
+      }.to output('[{"content":"PaginationTest01"},{"content":"PaginationTest02"},{"content":"PaginationTest03"},{"content":"PaginationTest04"}]' + "\n").to_stdout
 
       expect(Kernel).to have_received(:sleep).exactly(4).times do |interval_sec|
         expect(interval_sec).to match 0.5
