@@ -17,6 +17,7 @@ require_relative 'yasuri_node_generator'
 module Yasuri
 
   DefaultRetryCount = 5
+  DefaultInterval_ms = 0
 
   def self.json2tree(json_string)
     raise RuntimeError if json_string.nil? or json_string.empty?
@@ -112,12 +113,15 @@ module Yasuri
     symbolize_names ? name.to_sym : name
   end
 
-  def self.with_retry(retry_count = 5)
+  def self.with_retry(
+    retry_count = DefaultRetryCount,
+    interval_ms = DefaultInterval_ms)
+
     begin
+      Kernel.sleep(interval_ms * 0.001)
       return yield() if block_given?
     rescue => e
       if retry_count > 0
-        pp "retry #{retry_count}"
         retry_count -= 1
         retry
       end
