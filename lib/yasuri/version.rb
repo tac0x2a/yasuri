@@ -1,3 +1,3 @@
 module Yasuri
-  VERSION = "3.2.0"
+  VERSION = "3.3.0"
 end
