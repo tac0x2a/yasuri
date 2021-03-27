@@ -1,7 +1,6 @@
 require 'thor'
 require 'json'
 require 'yasuri'
-require 'mechanize'
 
 module Yasuri
   class CLI < Thor
@@ -51,9 +50,7 @@ module Yasuri
               end
             end
 
-      agent = Mechanize.new
-      root_page = agent.get(uri)
-      result = tree.inject(agent, root_page, interval_ms: interval_ms)
+      result = tree.scrape(uri, interval_ms: interval_ms)
 
       if result.instance_of?(String)
         puts result

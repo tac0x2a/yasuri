@@ -1,6 +1,7 @@
 
 module Yasuri
   class MapNode
+    include Node
     attr_reader :name, :children
 
     def initialize(name, children, **opt)

@@ -68,8 +68,8 @@ describe 'Yasuri' do
         [uri+"/pagination/page01.html"],
         {file: "#{@res_dir}/tree.yml", interval: 500}
       )
-      # will be request 3(= 4-1) times because first page is given.
-      expect(Kernel).to have_received(:sleep).exactly(4-1).times do |interval_sec|
+
+      expect(Kernel).to have_received(:sleep).exactly(4).times do |interval_sec|
         expect(interval_sec).to match 0.5
       end
     end
