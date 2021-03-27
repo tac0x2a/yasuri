@@ -2,7 +2,8 @@
 
 ## Yasuri とは
 Yasuri (鑢) はWebスクレイピングを宣言的に行うためのライブラリと、それを用いたスクレイピングのコマンドラインツールです。
-簡単な宣言的記法で期待結果を記述するだけで、"[Mechanize](https://github.com/sparklemotion/mechanize)" によるスクレイピングを実行します。
+
+簡単な宣言的記法で期待結果を記述するだけでスクレイピングした結果を得られます。
 
 Yasuriは、スクレイピングにおける、よくある処理を簡単に記述することができます．
 例えば、以下のような処理を簡単に実現することができます．
@@ -36,10 +37,7 @@ root = Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
          text_content '//*[@id="contents"]/p[1]'
        end
 
-agent = Mechanize.new
-root_page = agent.get("http://some.scraping.page.tac42.net/")
-
-result = root.inject(agent, root_page)
+result = root.scrape("http://some.scraping.page.tac42.net/")
 # => [
 #      {"title" => "PageTitle 01", "content" => "Page Contents  01" },
 #      {"title" => "PageTitle 02", "content" => "Page Contents  02" },
@@ -172,7 +170,7 @@ jsonまたはyaml形式では、子Nodeを持たない場合、`path` を直接�
 }
 ```
 ### ツリーを実行する
-パースツリーのルートノードで`Node#inject(agent, page, opt={})`メソッドをコールします。
+パースツリーのルートノードで`Node#scrape(uri, opt={})`メソッドをコールします。
 
 **例**
 ```ruby
@@ -181,15 +179,29 @@ root = Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
          text_content '//*[@id="contents"]/p[1]'
        end
 
-agent = Mechanize.new
-root_page = agent.get("http://some.scraping.page.tac42.net/")
-
-result = root.inject(agent, root_page, interval_ms: 1000)
+result = root.scrape("http://some.scraping.page.tac42.net/", interval_ms: 1000)
 ```
 
-+ `agent` は Mechanize のインスタンスを指定します。
-+ `page` は`agent`で取得したスクレイピング対象のページを指定します。
++ `uri` はスクレイピングする対象ページのURIです。
 + `opt` はオプションをHashで指定します。以下のオプションを利用できます。
+
+Yasuriはスクレイピングを行うエージェントとして、内部で`Mechanize`を使用しています。
+このインスタンスを指定したい場合は、`Node#scrape_with_agent(uri, agent, opt={})`をコールします。
+
+```ruby
+require 'logger'
+
+agent = Mechanize.new
+agent.log = Logger.new $stderr
+agent.request_headers = {
+  # ...
+}
+
+result = root.scrape_with_agent(
+  "http://some.scraping.page.tac42.net/",
+  agent,
+  interval_ms: 1000)
+```
 
 ### `opt`
 #### `interval_ms`
@@ -246,7 +258,7 @@ node.opt #=> {:truncate => /^[^,]+/, :proc => nil}
 ### 例
 
 ```html
-<!-- http://yasuri.example.net -->
+<!-- http://yasuri.example.tac42.net -->
 <html>
   <head></head>
   <body>
@@ -257,20 +269,16 @@ node.opt #=> {:truncate => /^[^,]+/, :proc => nil}
 ```
 
 ```ruby
-agent = Mechanize.new
-page = agent.get("http://yasuri.example.net")
-
 p1  = Yasuri.text_title '/html/body/p[1]'
 p1t = Yasuri.text_title '/html/body/p[1]', truncate:/^[^,]+/
 p2u = Yasuri.text_title '/html/body/p[1]', proc: :upcase
 
-p1.inject(agent, page)   #=> "Hello,World"
-p1t.inject(agent, page)  #=> "Hello"
-p2u.inject(agent, page)  #=> "HELLO,WORLD"
+p1.scrape("http://yasuri.example.tac42.net")   #=> "Hello,World"
+p1t.scrape("http://yasuri.example.tac42.net")  #=> "Hello"
+p2u.scrape("http://yasuri.example.tac42.net")  #=> "HELLO,WORLD"
 ```
 
 なお、同じページ内の複数の要素を一度にスクレイピングする場合は、`MapNode`を使用します。詳細は、`MapNode`の例を参照してください。
-
 
 ### オプション
 ##### `truncate`
@@ -278,7 +286,7 @@ p2u.inject(agent, page)  #=> "HELLO,WORLD"
 
 ```ruby
 node  = Yasuri.text_example '/html/body/p[1]', truncate:/H(.+)i/
-node.inject(agent, index_page)
+node.scrape(uri)
 #=> { "example" => "ello,Yasur" }
 ```
 
@@ -289,7 +297,7 @@ node.inject(agent, index_page)
 
 ```ruby
 node = Yasuri.text_example '/html/body/p[1]', proc: :upcase, truncate:/H(.+)i/
-node.inject(agent, index_page)
+node.scrape(uri)
 #=> { "example" => "ELLO,YASUR" }
 ```
 
@@ -304,7 +312,7 @@ Struct Node の `Path` が複数のタグにマッチする場合、配列とし
 ### 例
 
 ```html
-<!-- http://yasuri.example.net -->
+<!-- http://yasuri.example.tac42.net -->
 <html>
   <head>
     <title>Books</title>
@@ -345,15 +353,12 @@ Struct Node の `Path` が複数のタグにマッチする場合、配列とし
 ```
 
 ```ruby
-agent = Mechanize.new
-page = agent.get("http://yasuri.example.net")
-
 node = Yasuri.struct_table '/html/body/table[1]/tr' do
   text_title    './td[1]'
   text_pub_date './td[2]'
-])
+end
 
-node.inject(agent, page)
+node.scrape("http://yasuri.example.tac42.net")
 #=> [ { "title"    => "The Perfect Insider",
 #       "pub_date" => "1996/4/5" },
 #     { "title"    => "Doctors in Isolated Room",
@@ -367,23 +372,19 @@ Struct Node は xpath `'/html/body/table[1]/tr'` によって、最初の `<tabl
 この場合は、最初の `<table>` は 3つの `<tr>`タグを持っているため、3つのHashを返します．(`<thead><tr>` は `Path` にマッチしないため4つではないことに注意)
 各HashはTextNodeによってパースされたテキストを含んでいます．
 
-
 また以下の例のように、Struct Node は TextNode以外のノードを子ノードとすることができます．
 
 ### 例
 
 ```ruby
-agent = Mechanize.new
-page = agent.get("http://yasuri.example.net")
-
 node = Yasuri.strucre_tables '/html/body/table' do
   struct_table './tr' do
     text_title    './td[1]'
     text_pub_date './td[2]'
   end
-])
+end
 
-node.inject(agent, page)
+node.scrape("http://yasuri.example.tac42.net")
 
 #=>      [ { "table" => [ { "title"    => "The Perfect Insider",
 #                           "pub_date" => "1996/4/5" },
@@ -415,8 +416,8 @@ node.inject(agent, page)
 Links Node は リンクされた各ページをパースして結果を返します．
 
 ### 例
-```
-<!-- http://yasuri.example.net -->
+```html
+<!-- http://yasuri.example.tac42.net -->
 <html>
   <head><title>Yasuri Test</title></head>
   <body>
@@ -428,8 +429,8 @@ Links Node は リンクされた各ページをパースして結果を返し�
 <title>
 ```
 
-```
-<!-- http://yasuri.example.net/child01.html -->
+```html
+<!-- http://yasuri.example.tac42.net/child01.html -->
 <html>
   <head><title>Child 01 Test</title></head>
   <body>
@@ -442,8 +443,8 @@ Links Node は リンクされた各ページをパースして結果を返し�
 <title>
 ```
 
-```
-<!-- http://yasuri.example.net/child02.html -->
+```html
+<!-- http://yasuri.example.tac42.net/child02.html -->
 <html>
   <head><title>Child 02 Test</title></head>
   <body>
@@ -452,8 +453,8 @@ Links Node は リンクされた各ページをパースして結果を返し�
 <title>
 ```
 
-```
-<!-- http://yasuri.example.net/child03.html -->
+```html
+<!-- http://yasuri.example.tac42.net/child03.html -->
 <html>
   <head><title>Child 03 Test</title></head>
   <body>
@@ -465,22 +466,19 @@ Links Node は リンクされた各ページをパースして結果を返し�
 <title>
 ```
 
-```
-agent = Mechanize.new
-page = agent.get("http://yasuri.example.net")
-
+```ruby
 node = Yasuri.links_title '/html/body/a' do
   text_content '/html/body/p'
 end
 
-node.inject(agent, page)
+node.scrape("http://yasuri.example.tac42.net")
 #=> [ {"content" => "Child 01 page."},
       {"content" => "Child 02 page."},
       {"content" => "Child 03 page."}]
 ```
 
 まず、 LinksNode は `Path` にマッチするすべてのリンクを最初のページから探します．
-この例では、LinksNodeは `/html/body/a` にマッチするすべてのタグを `http://yasuri.example.net` から探します．
+この例では、LinksNodeは `/html/body/a` にマッチするすべてのタグを `http://yasuri.example.tac42.net` から探します．
 次に、見つかったタグのhref属性で指定されたページを開きます．(`./child01.html`, `./child02.html`, `./child03.html`)
 
 開いた各ページに対して、子ノードによる解析を行います．LinksNodeは 各ページに対するパース結果をHashの配列として返します．
@@ -493,7 +491,7 @@ PaginateNodeは ページネーション(パジネーション, Pagination) で�
 `page02.html` から `page04.html` も同様です．
 
 ```html
-<!-- http://yasuri.example.net/page01.html -->
+<!-- http://yasuri.example.tac42.net/page01.html -->
 <html>
   <head><title>Page01</title></head>
   <body>
@@ -513,17 +511,14 @@ PaginateNodeは ページネーション(パジネーション, Pagination) で�
 ```
 
 ```ruby
-agent = Mechanize.new
-page = agent.get("http://yasuri.example.net/page01.html")
-
 node = Yasuri.pages_root "/html/body/nav/span/a[@class='next']" , limit:3 do
          text_content '/html/body/p'
        end
 
-node.inject(agent, page)
+node.scrape("http://yasuri.example.tac42.net/page01.html")
 #=> [ {"content" => "Patination01"},
-      {"content" => "Patination02"},
-      {"content" => "Patination03"}]
+#     {"content" => "Patination02"},
+#     {"content" => "Patination03"}]
 ```
 PaginateNodeは 次のページ を指すリンクを`Path`として指定する必要があります．
 この例では、`NextPage` (`/html/body/nav/span/a[@class='next']`)が、次のページを指すリンクに該当します．
@@ -536,7 +531,7 @@ PaginateNodeは 次のページ を指すリンクを`Path`として指定する
 node = Yasuri.pages_root "/html/body/nav/span/a[@class='next']" , limit:2 do
          text_content '/html/body/p'
        end
-node.inject(agent, page)
+node.scrape(uri)
 #=> [ {"content" => "Pagination01"}, {"content" => "Pagination02"}]
 ```
 この場合、PaginateNode は最大2つまでのページを開いてパースします．ページネーションは4つのページを持っているようですが、`limit:2`が指定されているため、結果の配列には2つの結果のみが含まれています．
@@ -545,35 +540,32 @@ node.inject(agent, page)
 取得した各ページの結果を展開します．
 
 ```ruby
-agent = Mechanize.new
-page = agent.get("http://yasuri.example.net/page01.html")
-
 node = Yasuri.pages_root "/html/body/nav/span/a[@class='next']" , flatten:true do
          text_title   '/html/head/title'
          text_content '/html/body/p'
        end
-node.inject(agent, page)
+node.scrape("http://yasuri.example.tac42.net/page01.html")
 
 #=> [ {"title" => "Page01",
-       "content" => "Patination01"},
-      {"title"   => "Page01",
-       "content" => "Patination02"},
-      {"title"   => "Page01",
-       "content" => "Patination03"}]
+#      "content" => "Patination01"},
+#     {"title"   => "Page01",
+#      "content" => "Patination02"},
+#     {"title"   => "Page01",
+#      "content" => "Patination03"}]
 
 
 node = Yasuri.pages_root "/html/body/nav/span/a[@class='next']" , flatten:true do
         text_title   '/html/head/title'
         text_content '/html/body/p'
       end
-node.inject(agent, page)
+node.scrape("http://yasuri.example.tac42.net/page01.html")
 
 #=> [ "Page01",
-      "Patination01",
-      "Page02",
-      "Patination02",
-      "Page03",
-      "Patination03"]
+#     "Patination01",
+#     "Page02",
+#     "Patination02",
+#     "Page03",
+#     "Patination03"]
 ```
 
 ## Map Node
@@ -582,7 +574,7 @@ node.inject(agent, page)
 ### 例
 
 ```html
-<!-- http://yasuri.example.net -->
+<!-- http://yasuri.example.tac42.net -->
 <html>
   <head><title>Yasuri Example</title></head>
   <body>
@@ -593,16 +585,12 @@ node.inject(agent, page)
 ```
 
 ```ruby
-agent = Mechanize.new
-page = agent.get("http://yasuri.example.net")
-
-
 tree = Yasuri.map_root do
   text_title  '/html/head/title'
   text_body_p '/html/body/p[1]'
 end
 
-tree.inject(agent, page) #=> { "title" => "Yasuri Example", "body_p" => "Hello,World" }
+tree.scrape("http://yasuri.example.tac42.net") #=> { "title" => "Yasuri Example", "body_p" => "Hello,World" }
 
 
 tree = Yasuri.map_root do
@@ -613,7 +601,7 @@ tree = Yasuri.map_root do
   end
 end
 
-tree.inject(agent, page) #=> {
+tree.scrape("http://yasuri.example.tac42.net") #=> {
 #   "group1" => {
 #           "child01" => "child01"
 #         },
@@ -633,13 +621,12 @@ tree.inject(agent, page) #=> {
 
 ### ライブラリとして使う
 ライブラリとして使用する場合は、DSL, json, yaml の形式でツリーを定義できます。
+
 ```ruby
-require 'mechanize'
 require 'yasuri'
 
-
 # 1. パースツリーを作る
-# DSLで定義する倍
+# DSLで定義する
 tree = Yasuri.links_title '/html/body/a' do
          text_name '/html/body/p'
        end
@@ -664,14 +651,8 @@ links_title:
 EOYAML
 tree = Yasuri.yaml2tree(src)
 
-
-
-# 2. Mechanize の agent と対象のページを与えてパースを開始する
-agent = Mechanize.new
-page = agent.get(uri)
-
-
-tree.inject(agent, page)
+# 2. URLを与えてパースを開始する
+tree.inject(uri)
 ```
 
 ### CLIツールとして使う

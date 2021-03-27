@@ -81,12 +81,8 @@ src = <<-EOJSON
 EOJSON
 root = Yasuri.json2tree(src)
 
-
 # Execution and getting scraped result
-agent = Mechanize.new
-root_page = agent.get("http://some.scraping.page.tac42.net/")
-
-result = root.inject(agent, root_page)
+result = root.scrape("http://some.scraping.page.tac42.net/")
 # => [
 #      {"title" => "PageTitle 01", "content" => "Page Contents  01" },
 #      {"title" => "PageTitle 02", "content" => "Page Contents  02" },
