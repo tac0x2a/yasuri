@@ -7,11 +7,6 @@ require_relative 'spec_helper'
 describe 'Yasuri' do
   include_context 'httpserver'
 
-  before do
-    @uri = uri
-  end
-
-
   ############
   # yam2tree #
   ############
@@ -27,7 +22,7 @@ describe 'Yasuri' do
       generated = Yasuri.yaml2tree(src)
       original  = Yasuri::TextNode.new('/html/body/p[1]', "content")
 
-      compare_generated_vs_original(generated, original, @uri)
+      compare_generated_vs_original(generated, original, uri)
     end
 
     it "return text node as symbol" do
@@ -38,7 +33,7 @@ describe 'Yasuri' do
       generated = Yasuri.yaml2tree(src)
       original  = Yasuri::TextNode.new('/html/body/p[1]', "content")
 
-      compare_generated_vs_original(generated, original, @uri)
+      compare_generated_vs_original(generated, original, uri)
     end
 
     it "return LinksNode/TextNode" do
@@ -53,7 +48,7 @@ describe 'Yasuri' do
                     Yasuri::TextNode.new('/html/body/p', "content"),
                   ])
 
-      compare_generated_vs_original(generated, original, @uri)
+      compare_generated_vs_original(generated, original, uri)
     end
 
     it "return StructNode/StructNode/[TextNode,TextNode]" do
@@ -73,8 +68,8 @@ describe 'Yasuri' do
           Yasuri::TextNode.new('./td[2]', "pub_date"),
         ])
       ])
-      uri = @uri + "/struct/structual_text.html"
-      compare_generated_vs_original(generated, original, uri)
+      test_uri = uri + "/struct/structual_text.html"
+      compare_generated_vs_original(generated, original, test_uri)
     end
 
   end # end of describe '.yaml2tree'
@@ -96,7 +91,7 @@ describe 'Yasuri' do
       generated = Yasuri.json2tree(src)
       original  = Yasuri::TextNode.new('/html/body/p[1]', "content")
 
-      compare_generated_vs_original(generated, original, @uri)
+      compare_generated_vs_original(generated, original, uri)
     end
 
     it "return TextNode with truncate_regexp" do
@@ -109,7 +104,7 @@ describe 'Yasuri' do
       }|
       generated = Yasuri.json2tree(src)
       original  = Yasuri::TextNode.new('/html/body/p[1]', "content", truncate:/^[^,]+/)
-      compare_generated_vs_original(generated, original, @uri)
+      compare_generated_vs_original(generated, original, uri)
     end
 
     it "return MapNode with TextNodes" do
@@ -123,7 +118,7 @@ describe 'Yasuri' do
         Yasuri::TextNode.new('/html/body/p[1]', "content01"),
         Yasuri::TextNode.new('/html/body/p[2]', "content02"),
       ])
-      compare_generated_vs_original(generated, original, @uri)
+      compare_generated_vs_original(generated, original, uri)
     end
 
     it "return LinksNode/TextNode" do
@@ -140,7 +135,7 @@ describe 'Yasuri' do
                     Yasuri::TextNode.new('/html/body/p', "content"),
                   ])
 
-      compare_generated_vs_original(generated, original, @uri)
+      compare_generated_vs_original(generated, original, uri)
     end
 
     it "return PaginateNode/TextNode" do
@@ -156,8 +151,8 @@ describe 'Yasuri' do
                    Yasuri::TextNode.new('/html/body/p', "content"),
                  ])
 
-      uri  = @uri + "/pagination/page01.html"
-      compare_generated_vs_original(generated, original, uri)
+      test_uri = uri + "/pagination/page01.html"
+      compare_generated_vs_original(generated, original, test_uri)
     end
 
     it "return PaginateNode/TextNode with limit" do
@@ -174,8 +169,8 @@ describe 'Yasuri' do
                    Yasuri::TextNode.new('/html/body/p', "content"),
                  ], limit:2)
 
-      uri  = @uri + "/pagination/page01.html"
-      compare_generated_vs_original(generated, original, uri)
+      test_uri = uri + "/pagination/page01.html"
+      compare_generated_vs_original(generated, original, test_uri)
     end
 
     it "return StructNode/StructNode/[TextNode,TextNode]" do
@@ -197,8 +192,8 @@ describe 'Yasuri' do
           Yasuri::TextNode.new('./td[2]', "pub_date"),
         ])
       ])
-      uri = @uri + "/struct/structual_text.html"
-      compare_generated_vs_original(generated, original, uri)
+      test_uri = uri + "/struct/structual_text.html"
+      compare_generated_vs_original(generated, original, test_uri)
     end
   end
 

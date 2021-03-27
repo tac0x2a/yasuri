@@ -3,17 +3,13 @@ require_relative 'spec_helper'
 describe 'Yasuri' do
   include_context 'httpserver'
 
-  before do
-    @uri = uri
-  end
-
   describe '::MapNode' do
     it "multi scrape in singe page" do
       map = Yasuri.map_sample do
         text_title  '/html/head/title'
         text_body_p '/html/body/p[1]'
       end
-      actual = map.scrape(@uri)
+      actual = map.scrape(uri)
 
       expected = {
         "title"  => "Yasuri Test",
@@ -30,7 +26,7 @@ describe 'Yasuri' do
           text_child03 '/html/body/a[3]'
         end
       end
-      actual = map.scrape(@uri)
+      actual = map.scrape(uri)
 
       expected = {
         "group1" => {
@@ -56,7 +52,7 @@ describe 'Yasuri' do
           text_child03 '/html/body/a[3]'
         end
       end
-      actual = map.scrape(@uri)
+      actual = map.scrape(uri)
 
       expected = {
         "group1" => {

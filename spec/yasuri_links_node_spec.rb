@@ -10,16 +10,12 @@ describe 'Yasuri' do
   include_context 'httpserver'
 
   describe '::LinksNode' do
-    before do
-      @uri = uri
-    end
-
     it 'scrape links' do
       root_node = Yasuri::LinksNode.new('/html/body/a', "root", [
         Yasuri::TextNode.new('/html/body/p', "content"),
       ])
 
-      actual = root_node.scrape(@uri)
+      actual = root_node.scrape(uri)
       expected = [
         {"content" => "Child 01 page."},
         {"content" => "Child 02 page."},
@@ -34,7 +30,7 @@ describe 'Yasuri' do
         Yasuri::TextNode.new('/html/body/p', "content"),
       ])
 
-      actual = root_node.scrape(@uri)
+      actual = root_node.scrape(uri)
       expect(actual).to be_empty
     end
 
@@ -45,7 +41,7 @@ describe 'Yasuri' do
           Yasuri::TextNode.new('/html/head/title', "sub_page_title"),
         ]),
       ])
-      actual = root_node.scrape(@uri)
+      actual = root_node.scrape(uri)
       expected = [
         {"content"  => "Child 01 page.",
          "sub_link" => [{"sub_page_title" => "Child 01 SubPage Test"},
@@ -59,14 +55,14 @@ describe 'Yasuri' do
     end
     it 'can be defined by DSL, return no contains if no child node' do
       root_node = Yasuri.links_title '/html/body/a'
-      actual = root_node.scrape(@uri)
+      actual = root_node.scrape(uri)
       expected = [{}, {}, {}] # Empty if no child node under links node.
       expect(actual).to match expected
     end
 
     it 'can be defined return no contains if no child node' do
       root_node = Yasuri::LinksNode.new('/html/body/a', "title")
-      actual = root_node.scrape(@uri)
+      actual = root_node.scrape(uri)
       expected = [{}, {}, {}] # Empty if no child node under links node.
       expect(actual).to match expected
     end
@@ -77,7 +73,7 @@ describe 'Yasuri' do
       original = Yasuri::LinksNode.new('/html/body/a', "root", [
         Yasuri::TextNode.new('/html/body/p', "name"),
       ])
-      compare_generated_vs_original(generated, original, @uri)
+      compare_generated_vs_original(generated, original, uri)
     end
 
     it 'can be defined by DSL, return recursive links node' do
@@ -94,7 +90,7 @@ describe 'Yasuri' do
           Yasuri::TextNode.new('/html/head/title', "sub_page_title"),
         ]),
       ])
-      compare_generated_vs_original(generated, original, @uri)
+      compare_generated_vs_original(generated, original, uri)
     end
 
     it 'return child node as symbol' do
@@ -102,7 +98,7 @@ describe 'Yasuri' do
         Yasuri::TextNode.new('/html/body/p', "content"),
       ])
 
-      actual = root_node.scrape(@uri, symbolize_names: true )
+      actual = root_node.scrape(uri, symbolize_names: true )
       expected = [
         {:content => "Child 01 page."},
         {:content => "Child 02 page."},
@@ -117,7 +113,7 @@ describe 'Yasuri' do
       root_node = Yasuri::LinksNode.new('/html/body/a', "root", [
         Yasuri::TextNode.new('/html/body/p', "content"),
       ])
-      actual = root_node.scrape(@uri, interval_ms: 100)
+      actual = root_node.scrape(uri, interval_ms: 100)
 
       expect(actual.size).to match 3
 
