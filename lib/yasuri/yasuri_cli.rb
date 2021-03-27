@@ -9,8 +9,9 @@ module Yasuri
 
     default_command :scrape
     desc "scrape <URI> [[--file <TREE_FILE>] or [--json <JSON>]]", "Getting from <URI> and scrape it. with <JSON> or json/yml from <TREE_FILE>. They should be Yasuri's format json or yaml string."
-    option :file, {aliases: 'f', desc: "path to file that written yasuri tree as json or yaml", type: :string}
-    option :json, {aliases: 'j', desc: "yasuri tree format json string", type: :string}
+    option :file,     {aliases: 'f', desc: "path to file that written yasuri tree as json or yaml", type: :string}
+    option :json,     {aliases: 'j', desc: "yasuri tree format json string", type: :string}
+    option :interval, {aliases: 'i', desc: "interval each request [ms]", type: :numeric}
     def scrape(uri)
       # argument validations
       if [options[:file], options[:json]].compact.count != 1
@@ -25,6 +26,8 @@ module Yasuri
         $stderr.puts "ERROR: --json option require not empty argument."
         return -1
       end
+
+      interval_ms = options[:interval] || Yasuri::DefaultInterval_ms
 
       tree = if options[:file]
               src = File.read(options[:file])
@@ -50,7 +53,7 @@ module Yasuri
 
       agent = Mechanize.new
       root_page = agent.get(uri)
-      result = tree.inject(agent, root_page)
+      result = tree.inject(agent, root_page, interval_ms: interval_ms)
 
       if result.instance_of?(String)
         puts result

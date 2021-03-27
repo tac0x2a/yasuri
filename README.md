@@ -104,8 +104,9 @@ Usage:
   yasuri scrape <URI> [[--file <TREE_FILE>] or [--json <JSON>]]
 
 Options:
-  f, [--file=FILE]  # path to file that written yasuri tree as json or yaml
-  j, [--json=JSON]  # yasuri tree format json string
+  f, [--file=FILE]   # path to file that written yasuri tree as json or yaml
+  j, [--json=JSON]   # yasuri tree format json string
+  i, [--interval=N]  # interval each request [ms]
 
 Getting from <URI> and scrape it. with <JSON> or json/yml from <TREE_FILE>. They should be Yasuri's format json or yaml string.
 ```

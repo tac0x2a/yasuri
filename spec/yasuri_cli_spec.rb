@@ -51,15 +51,28 @@ describe 'Yasuri' do
 
     it "display text node as simple string via json file" do
       expect {
-        Yasuri::CLI.new.invoke(:scrape, [uri], {file: "#{@res_dir}/tree.json"})
-      }.to output('[{"content":"Hello,YasuriLast Modify - 2015/02/14"}]' + "\n").to_stdout
+        Yasuri::CLI.new.invoke(:scrape, [uri+"/pagination/page01.html"], {file: "#{@res_dir}/tree.json"})
+      }.to output('[{"content":"PaginationTest01"},{"content":"PaginationTest02"},{"content":"PaginationTest03"},{"content":"PaginationTest04"}]' + "\n").to_stdout
     end
     it "display text node as simple string via yaml file" do
       expect {
-        Yasuri::CLI.new.invoke(:scrape, [uri], {file: "#{@res_dir}/tree.yml"})
-      }.to output('[{"content":"Hello,YasuriLast Modify - 2015/02/14"}]' + "\n").to_stdout
+        Yasuri::CLI.new.invoke(:scrape, [uri+"/pagination/page01.html"], {file: "#{@res_dir}/tree.yml"})
+      }.to output('[{"content":"PaginationTest01"},{"content":"PaginationTest02"},{"content":"PaginationTest03"},{"content":"PaginationTest04"}]' + "\n").to_stdout
     end
 
+    it "interval option is effect for each request" do
+      allow(Kernel).to receive(:sleep)
+
+      Yasuri::CLI.new.invoke(
+        :scrape,
+        [uri+"/pagination/page01.html"],
+        {file: "#{@res_dir}/tree.yml", interval: 500}
+      )
+      # will be request 3(= 4-1) times because first page is given.
+      expect(Kernel).to have_received(:sleep).exactly(4-1).times do |interval_sec|
+        expect(interval_sec).to match 0.5
+      end
+    end
 
     it "display ERROR when json string is wrong" do
       wrong_json = '{,,}'

@@ -171,7 +171,37 @@ jsonまたはyaml形式では、子Nodeを持たない場合、`path` を直接�
   }
 }
 ```
+### ツリーを実行する
+パースツリーのルートノードで`Node#inject(agent, page, opt={})`メソッドをコールします。
 
+**例**
+```ruby
+root = Yasuri.links_root '//*[@id="menu"]/ul/li/a' do
+         text_title '//*[@id="contents"]/h2'
+         text_content '//*[@id="contents"]/p[1]'
+       end
+
+agent = Mechanize.new
+root_page = agent.get("http://some.scraping.page.tac42.net/")
+
+result = root.inject(agent, root_page, interval_ms: 1000)
+```
+
++ `agent` は Mechanize のインスタンスを指定します。
++ `page` は`agent`で取得したスクレイピング対象のページを指定します。
++ `opt` はオプションをHashで指定します。以下のオプションを利用できます。
+
+### `opt`
+#### `interval_ms`
+複数ページにリクエストする際の間隔[ミリ秒]です。
+
+省略した場合はインターバルなしで続けてリクエストしますが、多数のページへのリクエストが予想される場合、対象ホストが高負荷とならないよう、インターバル時間を指定することを強くお勧めします。
+
+#### `retry_count`
+ページ取得失敗時のリトライ回数です。省略した場合は5回リトライします。
+
+#### `symbolize_names`
+`true`のとき、結果セットのキーをシンボルとして返します。
 
 --------------------------
 ## Node
@@ -601,7 +631,7 @@ tree.inject(agent, page) #=> {
 -------------------------
 ## 使い方
 
-#### ライブラリとして使用する場合
+### ライブラリとして使う
 ライブラリとして使用する場合は、DSL, json, yaml の形式でツリーを定義できます。
 ```ruby
 require 'mechanize'
@@ -644,7 +674,7 @@ page = agent.get(uri)
 tree.inject(agent, page)
 ```
 
-#### CLIツールとして使用する場合
+### CLIツールとして使う
 
 **ヘルプ表示**
 ```sh
@@ -655,13 +685,14 @@ Usage:
 Options:
   f, [--file=FILE]  # path to file that written yasuri tree as json or yaml
   j, [--json=JSON]  # yasuri tree format json string
+  i, [--interval=N]  # interval each request [ms]
 
 Getting from <URI> and scrape it. with <JSON> or json/yml from <TREE_FILE>. They should be Yasuri's format json or yaml string.
 ```
 
 CLIツールでは以下のどちらかの方法でパースツリーを指定します。
-+ `--file`, `-f` オプションで、ファイルに出力されたjson形式またはyaml形式のパースツリーを読み込む
-+ `--json`, `-j` オプションで、パースツリーを文字列として直接指定する
++ `--file`, `-f` : ファイルに出力されたjson形式またはyaml形式のパースツリーを読み込む
++ `--json`, `-j` : パースツリーを文字列として直接指定する
 
 
 **パースツリーをファイルで指定する例**
@@ -683,6 +714,8 @@ text_desc: "//*[@id=\"intro\"]/p"
 {"title":"Ruby Programming Language","desc":"\n    A dynamic, open source programming language with a focus on\n    simplicity and productivity. It has an elegant syntax that is\n    natural to read and easy to write.\n    "}
 ```
 
+ファイルがjsonまたはyamlのどちらで記載されているかについては自動判別されます。
+
 **パースツリーをjsonで直接指定する例**
 ```sh
 $ yasuri scrape "https://www.ruby-lang.org/en/" -j '
@@ -693,3 +726,10 @@ $ yasuri scrape "https://www.ruby-lang.org/en/" -j '
 
 {"title":"Ruby Programming Language","desc":"\n    A dynamic, open source programming language with a focus on\n    simplicity and productivity. It has an elegant syntax that is\n    natural to read and easy to write.\n    "}
 ```
+
+#### その他のオプション
++ `--interval`, `-i` : 複数ページにリクエストする際の間隔[ミリ秒]です。
+   **例: 1秒間隔でリクエストする**
+   ```sh
+   $ yasuri scrape "https://www.ruby-lang.org/en/" --file sample.yml --interval 1000
+   ```
