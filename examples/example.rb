@@ -1,10 +1,7 @@
 #!/usr/bin/env ruby
 # Author::    TAC (tac@tac42.net)
 
-require 'mechanize'
 require 'yasuri'
-
-agent = Mechanize.new
 uri = "https://github.com/tac0x2a?tab=repositories"
 
 # Node tree constructing by DSL
@@ -36,10 +33,7 @@ end
 # EOYML
 # root = Yasuri.yaml2tree(src)
 
-# Access to parsed resources
-page = agent.get(uri)
-contents = root.inject(agent, page, interval_ms: 100)
-
+contents = root.scrape(uri, interval_ms: 100)
 # jj contents
 # {
 #   "title": "tac0x2a (TAC) / Repositories · GitHub",
