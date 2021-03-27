@@ -1,6 +1,4 @@
 
-# Author::    TAC (tac@tac42.net)
-
 require_relative 'yasuri_node'
 
 module Yasuri

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-# Author::    TAC (tac@tac42.net)
 
 require 'glint'
 Dir[File.expand_path("../servers/*.rb", __FILE__)].each {|f| require f}

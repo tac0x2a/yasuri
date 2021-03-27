@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# Author::    TAC (tac@tac42.net)
-
 require_relative 'spec_helper'
 
 describe 'Yasuri' do

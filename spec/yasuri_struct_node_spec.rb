@@ -1,11 +1,6 @@
 
-# Author::    TAC (tac@tac42.net)
-
 require_relative 'spec_helper'
 
-##########
-# Struct #
-##########
 describe 'Yasuri' do
   include_context 'httpserver'
 

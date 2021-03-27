@@ -1,6 +1,4 @@
 
-# Author::    TAC (tac@tac42.net)
-
 require_relative 'yasuri_node'
 require_relative 'yasuri_text_node'
 require_relative 'yasuri_struct_node'
