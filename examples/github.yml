@@ -1,0 +1,15 @@
+
+# yasuri scrape "https://github.com/tac0x2a?tab=repositories" -f github.yml
+text_title: /html/head/title
+links_repo:
+  path: //*[@id="user-repositories-list"]/ul/li/div[1]/div[1]/h3/a
+  text_name: //*[@id="js-repo-pjax-container"]/div[1]/div[1]/div/h1/strong/a
+  text_desc:
+    path: //*[@id="repo-content-pjax-container"]/div/div[2]/div[2]/div/div[1]/div/p
+    proc: :strip
+  text_stars:
+    path: //*[@id="js-repo-pjax-container"]/div[1]/div[2]/div[2]/a[1]
+    proc: :to_i
+  text_forks:
+    path: //*[@id="js-repo-pjax-container"]/div[1]/div[2]/div[2]/a[2]/span
+    proc: :to_i

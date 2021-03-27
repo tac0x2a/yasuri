@@ -1,0 +1,11 @@
+# yasuri scrape "https://www.tac42.net/" -f sample.yml
+links_each:
+  path: //*[@id="posts"]/article/header/h1/a
+  text_title: //*[@id="content"]/article/header/h1
+  text_description: /html/head/meta[12]/@content
+  text_date:
+    path: //*[@id="content"]/article/header/div/span
+    proc: :strip
+  text_length:
+    path: //*[@id="content"]
+    proc: :size
