@@ -4,8 +4,7 @@ describe 'Yasuri' do
   include_context 'httpserver'
 
   before do
-    @agent = Mechanize.new
-    @index_page = @agent.get(uri)
+    @uri = uri
   end
 
   describe '::MapNode' do
@@ -14,7 +13,7 @@ describe 'Yasuri' do
         text_title  '/html/head/title'
         text_body_p '/html/body/p[1]'
       end
-      actual = map.inject(@agent, @index_page)
+      actual = map.scrape(@uri)
 
       expected = {
         "title"  => "Yasuri Test",
@@ -31,7 +30,7 @@ describe 'Yasuri' do
           text_child03 '/html/body/a[3]'
         end
       end
-      actual = map.inject(@agent, @index_page)
+      actual = map.scrape(@uri)
 
       expected = {
         "group1" => {
@@ -57,7 +56,7 @@ describe 'Yasuri' do
           text_child03 '/html/body/a[3]'
         end
       end
-      actual = map.inject(@agent, @index_page)
+      actual = map.scrape(@uri)
 
       expected = {
         "group1" => {

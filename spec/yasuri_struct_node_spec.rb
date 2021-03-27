@@ -11,8 +11,7 @@ describe 'Yasuri' do
 
   describe '::StructNode' do
     before do
-      @agent = Mechanize.new
-      @page = @agent.get(uri + "/struct/structual_text.html")
+      @uri = uri + "/struct/structual_text.html"
 
       @table_1996 = [
         { "title"    => "The Perfect Insider",
@@ -53,7 +52,7 @@ describe 'Yasuri' do
         Yasuri::TextNode.new('./td[2]', "pub_date"),
       ])
       expected = @table_1996
-      actual = node.inject(@agent, @page)
+      actual = node.scrape(@uri)
       expect(actual).to match expected
     end
 
@@ -63,7 +62,7 @@ describe 'Yasuri' do
         Yasuri::TextNode.new('./td[2]', "pub_date"),
       ])
       expected = @table_1996.first
-      actual = node.inject(@agent, @page)
+      actual = node.scrape(@uri)
       expect(actual).to match expected
     end
 
@@ -72,7 +71,7 @@ describe 'Yasuri' do
       node = Yasuri::StructNode.new(no_match_xpath, "table", [
         Yasuri::TextNode.new('./td[1]', "title")
       ])
-      actual = node.inject(@agent, @page)
+      actual = node.scrape(@uri)
       expect(actual).to be_empty
     end
 
@@ -81,7 +80,7 @@ describe 'Yasuri' do
       node = Yasuri::StructNode.new(invalid_xpath, "table", [
         Yasuri::TextNode.new('./td[1]', "title")
       ])
-      expect { node.inject(@agent, @page) }.to raise_error(Nokogiri::XML::XPath::SyntaxError)
+      expect { node.scrape(@uri) }.to raise_error(Nokogiri::XML::XPath::SyntaxError)
     end
 
     it 'fail with invalid xpath in children' do
@@ -90,7 +89,7 @@ describe 'Yasuri' do
         Yasuri::TextNode.new(invalid_xpath, "title"),
         Yasuri::TextNode.new('./td[2]', "pub_date"),
       ])
-      expect { node.inject(@agent, @page) }.to raise_error(Nokogiri::XML::XPath::SyntaxError)
+      expect { node.scrape(@uri) }.to raise_error(Nokogiri::XML::XPath::SyntaxError)
     end
 
     it 'scrape all tables' do
@@ -101,7 +100,7 @@ describe 'Yasuri' do
         ])
       ])
       expected = @all_tables
-      actual = node.inject(@agent, @page)
+      actual = node.scrape(@uri)
       expect(actual).to match expected
     end
 
@@ -118,7 +117,7 @@ describe 'Yasuri' do
           Yasuri::TextNode.new('./td[2]', "pub_date"),
         ])
       ])
-      compare_generated_vs_original(generated, original, @page)
+      compare_generated_vs_original(generated, original, @uri)
     end
 
     it 'return child node as symbol' do
@@ -127,7 +126,7 @@ describe 'Yasuri' do
         Yasuri::TextNode.new('./td[2]', "pub_date"),
       ])
       expected = @table_1996.map{|h| h.map{|k,v| [k.to_sym, v] }.to_h }
-      actual = node.inject(@agent, @page, symbolize_names:true)
+      actual = node.scrape(@uri, symbolize_names:true)
       expect(actual).to match expected
     end
 
@@ -135,9 +134,7 @@ describe 'Yasuri' do
 
   describe '::StructNode::Links' do
     before do
-      @agent = Mechanize.new
-      @page = @agent.get(uri + "/struct/structual_links.html")
-
+      @uri = uri + "/struct/structual_links.html"
       @table = [
         { "title" => "Child01,02",
           "child" => [{"p" => "Child 01 page."}, {"p" => "Child 02 page."}] },
@@ -155,22 +152,21 @@ describe 'Yasuri' do
         ])
       ])
       expected = @table
-      actual = node.inject(@agent, @page)
+      actual = node.scrape(@uri)
       expect(actual).to match expected
     end
   end # descrive
 
   describe '::StructNode::Pages' do
     before do
-      @agent = Mechanize.new
-      @page = @agent.get(uri + "/struct/structual_text.html") #dummy
+      @uri = uri + "/struct/structual_text.html"
     end
 
     it 'not supported' do
       node = Yasuri::StructNode.new('/html/body/table[1]/tr', "table", [
         Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "pages", [])
       ])
-      expect{ node.inject(@agent, @page) }.to raise_error(NotImplementedError, "PagenateNode inside StructNode, Not Supported")
+      expect{ node.scrape(@uri) }.to raise_error(NotImplementedError, "PagenateNode inside StructNode, Not Supported")
     end
   end
 end

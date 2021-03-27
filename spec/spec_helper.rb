@@ -26,8 +26,8 @@ SimpleCov.start
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'yasuri'
 
-def compare_generated_vs_original(generated, original, page)
-  expected = original.inject(@agent, page)
-  actual   = generated.inject(@agent, page)
+def compare_generated_vs_original(generated, original, uri)
+  expected = original.scrape(uri)
+  actual   = generated.scrape(uri)
   expect(actual).to match expected
 end

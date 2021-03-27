@@ -11,6 +11,20 @@ module Yasuri
       @xpath, @name, @children = xpath, name, children
     end
 
+    def scrape(uri, opt = {})
+      retry_count = opt[:retry_count] || Yasuri::DefaultRetryCount
+      interval_ms = opt[:interval_ms] || Yasuri::DefaultInterval_ms
+
+      agent = Mechanize.new
+      page = Yasuri.with_retry(retry_count, interval_ms) { agent.get(uri) }
+      scrape_with_agent(uri, agent, opt)
+    end
+
+    def scrape_with_agent(uri, agent, opt = {})
+      page = agent.get(uri)
+      inject(agent, page, opt)
+    end
+
     def inject(agent, page, opt = {}, element = page)
       fail "#{Kernel.__method__} is not implemented in included class."
     end

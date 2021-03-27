@@ -11,16 +11,14 @@ describe 'Yasuri' do
 
   describe '::PaginateNode' do
     before do
-      @agent = Mechanize.new
       @uri = uri + "/pagination/page01.html"
-      @page = @agent.get(@uri)
     end
 
     it "scrape each paginated pages" do
       root_node = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
         Yasuri::TextNode.new('/html/body/p', "content"),
       ])
-      actual = root_node.inject(@agent, @page)
+      actual = root_node.scrape(@uri)
       expected = [
         {"content" => "PaginationTest01"},
         {"content" => "PaginationTest02"},
@@ -37,7 +35,7 @@ describe 'Yasuri' do
           Yasuri::TextNode.new('./a', "text"),
         ]),
       ], flatten: true)
-      actual = root_node.inject(@agent, @page)
+      actual = root_node.scrape(@uri)
       expected = [
         "PaginationTest01",
         {"text"=>""},
@@ -77,7 +75,7 @@ describe 'Yasuri' do
       root_node = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
         Yasuri::TextNode.new('/html/body/p', "content"),
       ], limit:3)
-      actual = root_node.inject(@agent, @page)
+      actual = root_node.scrape(@uri)
       expected = [
         {"content" => "PaginationTest01"},
         {"content" => "PaginationTest02"},
@@ -91,7 +89,7 @@ describe 'Yasuri' do
       root_node = Yasuri::PaginateNode.new(missing_xpath, "root", [
         Yasuri::TextNode.new('/html/body/p', "content"),
       ])
-      actual = root_node.inject(@agent, @page)
+      actual = root_node.scrape(@uri)
       expected = [ {"content" => "PaginationTest01"}, ]
       expect(actual).to match_array expected
     end
@@ -100,7 +98,7 @@ describe 'Yasuri' do
       root_node = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
         Yasuri::TextNode.new('/html/body/hoge', "content"),
       ])
-      actual = root_node.inject(@agent, @page)
+      actual = root_node.scrape(@uri)
       expected = [ {"content" => ""}, {"content" => ""}, {"content" => ""}, {"content" => ""},]
       expect(actual).to match_array expected
     end
@@ -112,7 +110,7 @@ describe 'Yasuri' do
       original = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
         Yasuri::TextNode.new('/html/body/p', "content"),
       ])
-      compare_generated_vs_original(generated, original, @page)
+      compare_generated_vs_original(generated, original, @uri)
     end
 
     it 'can be defined by DSL, return single PaginateNode content limited' do
@@ -122,14 +120,14 @@ describe 'Yasuri' do
       original = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
         Yasuri::TextNode.new('/html/body/p', "content"),
       ], limit: 2)
-      compare_generated_vs_original(generated, original, @page)
+      compare_generated_vs_original(generated, original, @uri)
     end
 
     it "return child node as symbol" do
       root_node = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
         Yasuri::TextNode.new('/html/body/p', "content"),
       ])
-      actual = root_node.inject(@agent, @page, symbolize_names:true)
+      actual = root_node.scrape(@uri, symbolize_names:true)
       expected = [
         {:content => "PaginationTest01"},
         {:content => "PaginationTest02"},
@@ -145,11 +143,10 @@ describe 'Yasuri' do
       root_node = Yasuri::PaginateNode.new("/html/body/nav/span/a[@class='next']", "root", [
         Yasuri::TextNode.new('/html/body/p', "content"),
       ])
-      actual = root_node.inject(@agent, @page, interval_ms: 1000)
+      actual = root_node.scrape(@uri, interval_ms: 1000)
       expect(actual.size).to match 4
 
-      # will be request 3(= 4-1) times because first page is given.
-      expect(Kernel).to have_received(:sleep).exactly(4-1).times do |interval_sec|
+      expect(Kernel).to have_received(:sleep).exactly(4).times do |interval_sec|
         expect(interval_sec).to match 1.0
       end
     end
