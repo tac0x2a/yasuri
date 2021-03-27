@@ -6,6 +6,7 @@ require_relative 'yasuri_node'
 module Yasuri
   class LinksNode
     include Node
+
     def inject(agent, page, opt = {}, element = page)
       retry_count = opt[:retry_count] || Yasuri::DefaultRetryCount
       interval_ms = opt[:interval_ms] || Yasuri::DefaultInterval_ms
