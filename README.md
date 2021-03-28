@@ -2,9 +2,11 @@
 [![Build Status](https://github.com/tac0x2a/yasuri/actions/workflows/ruby.yml/badge.svg)](https://github.com/tac0x2a/yasuri/actions/workflows/ruby.yml)
 [![Coverage Status](https://coveralls.io/repos/tac0x2a/yasuri/badge.svg?branch=master)](https://coveralls.io/r/tac0x2a/yasuri?branch=master) [![Maintainability](https://api.codeclimate.com/v1/badges/c29480fea1305afe999f/maintainability)](https://codeclimate.com/github/tac0x2a/yasuri/maintainability)
 
-Yasuri (鑢) is an easy web-scraping library for supporting "[Mechanize](https://github.com/sparklemotion/mechanize)", and CLI tool using it.
+Yasuri (鑢) is a library for declarative web scraping and a command line tool for scraping with it.
+It performs scraping by simply describing the expected result in a simple declarative notation.
 
-Yasuri can reduce frequently processes in Scraping.
+Yasuri makes it easy to write common scraping operations.
+For example, the following processes can be easily implemented.
 
 For example,
 
