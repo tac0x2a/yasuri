@@ -1,4 +1,5 @@
 
+
 require_relative 'spec_helper'
 
 describe 'Yasuri' do
@@ -25,30 +26,30 @@ describe 'Yasuri' do
 
     it "can be defined by DSL, return single TextNode title" do
       generated = Yasuri.text_title '/html/body/p[1]'
-      original  = Yasuri::TextNode.new('/html/body/p[1]', "title")
+      original = Yasuri::TextNode.new('/html/body/p[1]', "title")
       compare_generated_vs_original(generated, original, uri)
     end
 
-    it "can be truncated with regexp" do
-      node  = Yasuri.text_title '/html/body/p[1]', truncate:/^[^,]+/
+    it "can truncate head by regexp" do
+      node = Yasuri.text_title '/html/body/p[1]', truncate: /^[^,]+/
       actual = node.scrape(uri)
       expect(actual).to eq "Hello"
     end
 
-    it "return first captured if matched given capture pattern" do
-      node  = Yasuri.text_title '/html/body/p[1]', truncate:/H(.+)i/
-      actual = node.scrape(uri)
-      expect(actual).to eq "ello,Yasur"
-    end
-
-    it "can be truncated with regexp" do
-      node = Yasuri.text_title '/html/body/p[1]', truncate:/[^,]+$/
+    it "can truncate tail by regexp" do
+      node = Yasuri.text_title '/html/body/p[1]', truncate: /[^,]+$/
       actual = node.scrape(uri)
       expect(actual).to eq "Yasuri"
     end
 
+    it "return first captured if matched given capture pattern" do
+      node = Yasuri.text_title '/html/body/p[1]', truncate: /H(.+)i/
+      actual = node.scrape(uri)
+      expect(actual).to eq "ello,Yasur"
+    end
+
     it "return empty string if truncated with no match to regexp" do
-      node = Yasuri.text_title '/html/body/p[1]', truncate:/^hoge/
+      node = Yasuri.text_title '/html/body/p[1]', truncate: /^hoge/
       actual = node.scrape(uri)
       expect(actual).to be_empty
     end
@@ -60,7 +61,7 @@ describe 'Yasuri' do
     end
 
     it "return apply multi arguments" do
-      node = Yasuri.text_title '/html/body/p[1]', proc: :upcase, truncate:/H(.+)i/
+      node = Yasuri.text_title '/html/body/p[1]', { proc: :upcase, truncate: /H(.+)i/ }
       actual = node.scrape(uri)
       expect(actual).to eq "ELLO,YASUR"
     end
