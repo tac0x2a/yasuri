@@ -14,7 +14,7 @@ module Yasuri
         Hash[child_results_kv]
       end
       tree.size == 1 ? tree.first : tree
-    end # inject
+    end
 
     def node_type_str
       "struct".freeze

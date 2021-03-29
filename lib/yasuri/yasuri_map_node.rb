@@ -10,7 +10,7 @@ module Yasuri
       @opt = opt
     end
 
-    def inject(agent, page, opt = {}, element = page)
+    def inject(agent, page, opt = {}, _element = page)
       child_results_kv = @children.map do |node|
         [node.name, node.inject(agent, page, opt)]
       end
@@ -19,7 +19,7 @@ module Yasuri
 
     def to_h
       node_hash = {}
-      self.opts.each{|k, v| node_hash[k] = v if not v.nil?}
+      self.opts.each { |k, v| node_hash[k] = v unless v.nil? }
 
       children.each do |child|
         child_node_name = "#{child.node_type_str}_#{child.name}"

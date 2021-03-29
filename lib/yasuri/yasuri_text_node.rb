@@ -11,14 +11,14 @@ module Yasuri
       truncate = opt[:truncate]
       proc = opt[:proc]
 
-      truncate = Regexp.new(truncate) if not truncate.nil? # regexp or nil
+      truncate = Regexp.new(truncate) unless truncate.nil? # regexp or nil
       @truncate = truncate
-      @truncate = Regexp.new(@truncate.to_s) if not @truncate.nil?
+      @truncate = Regexp.new(@truncate.to_s) unless @truncate.nil?
 
       @proc = proc.nil? ? nil : proc.to_sym
     end
 
-    def inject(agent, page, opt = {}, element = page)
+    def inject(_agent, page, _opt = {}, element = page)
       node = element.search(@xpath)
       text = node.text.to_s
 
@@ -33,7 +33,7 @@ module Yasuri
     end
 
     def opts
-      {truncate:@truncate, proc:@proc}
+      { truncate: @truncate, proc: @proc }
     end
 
     def node_type_str

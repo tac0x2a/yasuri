@@ -27,7 +27,6 @@ Gemspec/RequiredRubyVersion:
 # SupportedStylesAlignWith: either, start_of_block, start_of_line
 Layout/BlockAlignment:
   Exclude:
-    - 'spec/yasuri_links_node_spec.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -48,7 +47,6 @@ Layout/EmptyLines:
   Exclude:
     - 'spec/spec_helper.rb'
     - 'spec/yasuri_cli_spec.rb'
-    - 'spec/yasuri_paginate_node_spec.rb'
     - 'spec/yasuri_spec.rb'
 
 # Offense count: 2
@@ -68,7 +66,6 @@ Layout/EmptyLinesAroundBlockBody:
     - 'spec/servers/httpserver.rb'
     - 'spec/yasuri_node_spec.rb'
     - 'spec/yasuri_spec.rb'
-    - 'spec/yasuri_struct_node_spec.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -92,7 +89,6 @@ Layout/EndAlignment:
 # Configuration parameters: AllowForAlignment, AllowBeforeTrailingComments, ForceEqualSignAlignment.
 Layout/ExtraSpacing:
   Exclude:
-    - 'spec/yasuri_map_spec.rb'
     - 'spec/yasuri_spec.rb'
 
 # Offense count: 92
@@ -101,10 +97,7 @@ Layout/ExtraSpacing:
 # SupportedStyles: special_inside_parentheses, consistent, align_brackets
 Layout/FirstArrayElementIndentation:
   Exclude:
-    - 'spec/yasuri_links_node_spec.rb'
-    - 'spec/yasuri_paginate_node_spec.rb'
     - 'spec/yasuri_spec.rb'
-    - 'spec/yasuri_struct_node_spec.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -123,9 +116,6 @@ Layout/HashAlignment:
   Exclude:
     - 'lib/yasuri/yasuri.rb'
     - 'spec/servers/httpserver.rb'
-    - 'spec/yasuri_links_node_spec.rb'
-    - 'spec/yasuri_map_spec.rb'
-    - 'spec/yasuri_struct_node_spec.rb'
 
 # Offense count: 3
 # Cop supports --auto-correct.
@@ -134,7 +124,6 @@ Layout/IndentationWidth:
   Exclude:
     - 'lib/yasuri/yasuri.rb'
     - 'lib/yasuri/yasuri_cli.rb'
-    - 'spec/yasuri_links_node_spec.rb'
 
 # Offense count: 16
 # Cop supports --auto-correct.
@@ -153,19 +142,13 @@ Layout/MultilineMethodDefinitionBraceLayout:
 # Cop supports --auto-correct.
 Layout/SpaceAfterColon:
   Exclude:
-    - 'lib/yasuri/yasuri_paginate_node.rb'
-    - 'lib/yasuri/yasuri_text_node.rb'
-    - 'spec/yasuri_paginate_node_spec.rb'
     - 'spec/yasuri_spec.rb'
-    - 'spec/yasuri_struct_node_spec.rb'
 
 # Offense count: 13
 # Cop supports --auto-correct.
 Layout/SpaceAfterComma:
   Exclude:
-    - 'spec/yasuri_links_node_spec.rb'
     - 'spec/yasuri_spec.rb'
-    - 'spec/yasuri_struct_node_spec.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -183,8 +166,6 @@ Layout/SpaceAroundEqualsInParameterDefault:
 Layout/SpaceAroundOperators:
   Exclude:
     - 'spec/yasuri_cli_spec.rb'
-    - 'spec/yasuri_links_node_spec.rb'
-    - 'spec/yasuri_paginate_node_spec.rb'
     - 'spec/yasuri_spec.rb'
 
 # Offense count: 12
@@ -194,18 +175,14 @@ Layout/SpaceAroundOperators:
 # SupportedStylesForEmptyBraces: space, no_space
 Layout/SpaceBeforeBlockBraces:
   Exclude:
-    - 'lib/yasuri/yasuri_map_node.rb'
     - 'lib/yasuri/yasuri_node.rb'
-    - 'lib/yasuri/yasuri_paginate_node.rb'
     - 'spec/yasuri_spec.rb'
-    - 'spec/yasuri_struct_node_spec.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: AllowForAlignment.
 Layout/SpaceBeforeFirstArg:
   Exclude:
-    - 'spec/yasuri_map_spec.rb'
 
 # Offense count: 3
 # Cop supports --auto-correct.
@@ -214,7 +191,6 @@ Layout/SpaceBeforeFirstArg:
 # SupportedStylesForEmptyBrackets: space, no_space
 Layout/SpaceInsideArrayLiteralBrackets:
   Exclude:
-    - 'spec/yasuri_paginate_node_spec.rb'
 
 # Offense count: 13
 # Cop supports --auto-correct.
@@ -223,12 +199,9 @@ Layout/SpaceInsideArrayLiteralBrackets:
 # SupportedStylesForEmptyBraces: space, no_space
 Layout/SpaceInsideBlockBraces:
   Exclude:
-    - 'lib/yasuri/yasuri_map_node.rb'
     - 'lib/yasuri/yasuri_node.rb'
-    - 'lib/yasuri/yasuri_paginate_node.rb'
     - 'spec/spec_helper.rb'
     - 'spec/yasuri_spec.rb'
-    - 'spec/yasuri_struct_node_spec.rb'
 
 # Offense count: 161
 # Cop supports --auto-correct.
@@ -239,13 +212,7 @@ Layout/SpaceInsideHashLiteralBraces:
   Exclude:
     - 'lib/yasuri/yasuri.rb'
     - 'lib/yasuri/yasuri_cli.rb'
-    - 'lib/yasuri/yasuri_paginate_node.rb'
-    - 'lib/yasuri/yasuri_text_node.rb'
     - 'spec/yasuri_cli_spec.rb'
-    - 'spec/yasuri_links_node_spec.rb'
-    - 'spec/yasuri_map_spec.rb'
-    - 'spec/yasuri_paginate_node_spec.rb'
-    - 'spec/yasuri_struct_node_spec.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -253,7 +220,6 @@ Layout/SpaceInsideHashLiteralBraces:
 # SupportedStyles: space, no_space
 Layout/SpaceInsideParens:
   Exclude:
-    - 'spec/yasuri_links_node_spec.rb'
 
 # Offense count: 4
 # Cop supports --auto-correct.
@@ -264,7 +230,6 @@ Layout/TrailingEmptyLines:
     - 'Rakefile'
     - 'lib/yasuri/yasuri_cli.rb'
     - 'spec/yasuri_cli_spec.rb'
-    - 'spec/yasuri_map_spec.rb'
 
 # Offense count: 5
 Lint/IneffectiveAccessModifier:
@@ -287,9 +252,7 @@ Lint/ShadowingOuterLocalVariable:
 # Configuration parameters: AllowUnusedKeywordArguments, IgnoreEmptyMethods, IgnoreNotImplementedMethods.
 Lint/UnusedMethodArgument:
   Exclude:
-    - 'lib/yasuri/yasuri_map_node.rb'
     - 'lib/yasuri/yasuri_node.rb'
-    - 'lib/yasuri/yasuri_text_node.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -348,7 +311,6 @@ Naming/HeredocDelimiterNaming:
 # AllowedIdentifiers: capture3, iso8601, rfc1123_date, rfc822, rfc2822, rfc3339
 Naming/VariableNumber:
   Exclude:
-    - 'spec/yasuri_struct_node_spec.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -404,11 +366,8 @@ Style/ColonMethodCall:
 # Cop supports --auto-correct.
 Style/CommentedKeyword:
   Exclude:
-    - 'lib/yasuri/yasuri_links_node.rb'
     - 'lib/yasuri/yasuri_node_generator.rb'
-    - 'lib/yasuri/yasuri_struct_node.rb'
     - 'spec/yasuri_spec.rb'
-    - 'spec/yasuri_struct_node_spec.rb'
 
 # Offense count: 11
 # Configuration parameters: AllowedConstants.
@@ -419,13 +378,8 @@ Style/Documentation:
     - 'lib/yasuri.rb'
     - 'lib/yasuri/yasuri.rb'
     - 'lib/yasuri/yasuri_cli.rb'
-    - 'lib/yasuri/yasuri_links_node.rb'
-    - 'lib/yasuri/yasuri_map_node.rb'
     - 'lib/yasuri/yasuri_node.rb'
     - 'lib/yasuri/yasuri_node_generator.rb'
-    - 'lib/yasuri/yasuri_paginate_node.rb'
-    - 'lib/yasuri/yasuri_struct_node.rb'
-    - 'lib/yasuri/yasuri_text_node.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -461,13 +415,11 @@ Style/HashSyntax:
 # Cop supports --auto-correct.
 Style/HashTransformKeys:
   Exclude:
-    - 'spec/yasuri_struct_node_spec.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
 Style/IfUnlessModifier:
   Exclude:
-    - 'lib/yasuri/yasuri_paginate_node.rb'
 
 # Offense count: 2
 Style/MissingRespondToMissing:
@@ -490,9 +442,7 @@ Style/MutableConstant:
 # SupportedStyles: both, prefix, postfix
 Style/NegatedIf:
   Exclude:
-    - 'lib/yasuri/yasuri_map_node.rb'
     - 'lib/yasuri/yasuri_node.rb'
-    - 'lib/yasuri/yasuri_text_node.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -501,15 +451,12 @@ Style/NegatedIf:
 Style/NilComparison:
   Exclude:
     - 'lib/yasuri/yasuri_node_generator.rb'
-    - 'lib/yasuri/yasuri_paginate_node.rb'
 
 # Offense count: 4
 # Cop supports --auto-correct.
 Style/Not:
   Exclude:
-    - 'lib/yasuri/yasuri_map_node.rb'
     - 'lib/yasuri/yasuri_node.rb'
-    - 'lib/yasuri/yasuri_text_node.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -585,7 +532,6 @@ Style/RedundantReturn:
 Style/RedundantSelf:
   Exclude:
     - 'lib/yasuri/yasuri.rb'
-    - 'lib/yasuri/yasuri_map_node.rb'
     - 'lib/yasuri/yasuri_node.rb'
 
 # Offense count: 4
@@ -617,9 +563,7 @@ Style/StderrPuts:
 Style/StringConcatenation:
   Exclude:
     - 'spec/yasuri_cli_spec.rb'
-    - 'spec/yasuri_paginate_node_spec.rb'
     - 'spec/yasuri_spec.rb'
-    - 'spec/yasuri_struct_node_spec.rb'
 
 # Offense count: 403
 # Cop supports --auto-correct.
@@ -634,7 +578,6 @@ Style/StringLiterals:
 # IgnoredMethods: respond_to, define_method
 Style/SymbolProc:
   Exclude:
-    - 'lib/yasuri/yasuri_paginate_node.rb'
 
 # Offense count: 51
 # Cop supports --auto-correct.
@@ -642,11 +585,7 @@ Style/SymbolProc:
 # SupportedStylesForMultiline: comma, consistent_comma, no_comma
 Style/TrailingCommaInArrayLiteral:
   Exclude:
-    - 'spec/yasuri_links_node_spec.rb'
-    - 'spec/yasuri_map_spec.rb'
-    - 'spec/yasuri_paginate_node_spec.rb'
     - 'spec/yasuri_spec.rb'
-    - 'spec/yasuri_struct_node_spec.rb'
 
 # Offense count: 3
 # Cop supports --auto-correct.
@@ -654,7 +593,7 @@ Style/TrailingCommaInArrayLiteral:
 # SupportedStylesForMultiline: comma, consistent_comma, no_comma
 Style/TrailingCommaInHashLiteral:
   Exclude:
-    - 'spec/yasuri_links_node_spec.rb'
+
 
 # Offense count: 6
 # Cop supports --auto-correct.

@@ -52,3 +52,9 @@ Metrics/LineLength:
 
 Metrics/MethodLength:
   Max: 20
+
+RSpec/ExampleLength:
+  Max: 30
+
+RSpec/MultipleExpectations:
+  Max: 5

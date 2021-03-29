@@ -61,7 +61,7 @@ describe 'Yasuri' do
     end
 
     it "return apply multi arguments" do
-      node = Yasuri.text_title '/html/body/p[1]', { proc: :upcase, truncate: /H(.+)i/ }
+      node = Yasuri.text_title '/html/body/p[1]', proc: :upcase, truncate: /H(.+)i/
       actual = node.scrape(uri)
       expect(actual).to eq "ELLO,YASUR"
     end
