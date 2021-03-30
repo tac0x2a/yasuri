@@ -1,60 +1,51 @@
+
 inherit_from: .rubocop_todo.yml
+
+inherit_mode:
+  merge:
+    - Exclude
 
 require:
   - rubocop-performance
   - rubocop-rspec
+  - rubocop-rubycw
 
 AllCops:
-  Exclude:
-    - "pkg/**/*"
-    - "coverage/**/*"
-    - "exe/**/*"
-
+  DisabledByDefault: true
   DisplayCopNames: true
-  TargetRubyVersion: 3.0.0
+  Exclude:
+    - 'gems/**/*'
+    - 'pkg/**/*'
+    - 'coverage/**/*'
+    - 'exe/**/*'
 
+  NewCops: enable
+
+Bundler:
+  Enabled: true
+
+Gemspec:
+  Enabled: true
+
+Lint:
+  Enabled: true
+
+Performance:
+  Enabled: true
+
+Rubycw:
+  Enabled: true
+
+Security:
+  Enabled: true
+
+Style/AsciiComments:
+  Enabled: true
+Style/HashSyntax:
+  EnforcedStyle: ruby19
 Style/HashEachMethods:
   Enabled: true
 Style/HashTransformKeys:
   Enabled: true
 Style/HashTransformValues:
   Enabled: true
-
-HashSyntax:
-  EnforcedStyle: ruby19
-
-Style/AsciiComments:
-  Enabled: true
-
-# Allow class without document
-Style/Documentation:
-  Enabled: false
-
-Style/DoubleNegation:
-  Enabled: true
-
-# String will be frozen by default since ruby 3.0.0.
-Style/FrozenStringLiteralComment:
-  Enabled: false
-
-# skip self receiver
-Style/RedundantSelf:
-  Enabled: false
-
-Metrics/AbcSize:
-  Max: 30
-
-Metrics/CyclomaticComplexity:
-  Max: 10
-
-Metrics/LineLength:
-  Max: 160
-
-Metrics/MethodLength:
-  Max: 20
-
-RSpec/ExampleLength:
-  Max: 30
-
-RSpec/MultipleExpectations:
-  Max: 5
