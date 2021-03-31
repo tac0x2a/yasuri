@@ -1,6 +1,4 @@
 
-# Author::    TAC (tac@tac42.net)
-
 require_relative 'yasuri_node'
 
 module Yasuri
@@ -22,11 +20,11 @@ module Yasuri
         end
 
         Hash[child_results_kv]
-      end # each named child node
+      end
     end
 
     def node_type_str
       "links".freeze
     end
-  end # class
-end # module
+  end
+end

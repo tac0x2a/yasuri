@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-# Author::    TAC (tac@tac42.net)
 
 require 'glint'
 

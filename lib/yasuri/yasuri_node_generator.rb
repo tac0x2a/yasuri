@@ -1,6 +1,4 @@
 
-# Author::    TAC (tac@tac42.net)
-
 require_relative 'yasuri_node'
 require_relative 'yasuri_text_node'
 require_relative 'yasuri_struct_node'
@@ -23,7 +21,7 @@ module Yasuri
     end
 
     def self.gen(method_name, xpath, **opt, &block)
-      children = Yasuri::NodeGenerator.new.gen_recursive(&block) if block_given?
+      children = Yasuri::NodeGenerator.new.gen_recursive(&block) if block
 
       case method_name
       when /^text_(.+)$/

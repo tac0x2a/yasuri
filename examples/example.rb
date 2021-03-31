@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# Author::    TAC (tac@tac42.net)
 
 require 'yasuri'
 uri = "https://github.com/tac0x2a?tab=repositories"

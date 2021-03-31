@@ -1,6 +1,4 @@
 
-# Author::    TAC (tac@tac42.net)
-
 require_relative 'yasuri_node'
 
 module Yasuri
@@ -14,13 +12,31 @@ module Yasuri
     end
 
     def inject(agent, page, opt = {}, element = page)
+      raise NotImplementedError.new("PagenateNode inside StructNode, Not Supported") if page != element
+
+      limit = @limit.nil? ? Float::MAX : @limit
+      child_results = inject_child(agent, page, limit, opt)
+
+      return child_results.map(&:values).flatten if @flatten == true
+
+      child_results
+    end
+
+    def opts
+      { limit: @limit, flatten: @flatten }
+    end
+
+    def node_type_str
+      "pages".freeze
+    end
+
+    private
+
+    def inject_child(agent, page, limit, opt)
       retry_count = opt[:retry_count] || Yasuri::DefaultRetryCount
       interval_ms = opt[:interval_ms] || Yasuri::DefaultInterval_ms
 
-      raise NotImplementedError.new("PagenateNode inside StructNode, Not Supported") if page != element
-
       child_results = []
-      limit = @limit.nil? ? Float::MAX : @limit
       while page
         child_results_kv = @children.map do |child_node|
           child_name = Yasuri.node_name(child_node.name, opt)
@@ -29,26 +45,14 @@ module Yasuri
         child_results << Hash[child_results_kv]
 
         link = page.search(@xpath).first # Todo raise:  link is not found
-        break if link == nil
+        break if link.nil?
 
         link_button = Mechanize::Page::Link.new(link, agent, page)
         page = Yasuri.with_retry(retry_count, interval_ms) { link_button.click }
         break if (limit -= 1) <= 0
       end
 
-      if @flatten == true
-        return child_results.map{|h| h.values}.flatten
-      end
-
       child_results
-    end
-
-    def opts
-      {limit:@limit, flatten:@flatten}
-    end
-
-    def node_type_str
-      "pages".freeze
     end
   end
 end
