@@ -1,5 +1,5 @@
 
-inherit_from: .rubocop_todo.yml
+# inherit_from: .rubocop_todo.yml
 
 inherit_mode:
   merge:
@@ -39,8 +39,6 @@ Rubycw:
 Security:
   Enabled: true
 
-Style/AsciiComments:
-  Enabled: true
 Style/HashSyntax:
   EnforcedStyle: ruby19
 Style/HashEachMethods:

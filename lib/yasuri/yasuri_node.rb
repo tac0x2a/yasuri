@@ -5,21 +5,20 @@ module Yasuri
   module Node
     attr_reader :url, :xpath, :name, :children
 
-    def initialize(xpath, name, children = [], **opt)
+    def initialize(xpath, name, children = [], **_opt)
       @xpath, @name, @children = xpath, name, children
     end
 
     def scrape(uri, opt = {})
-      retry_count = opt[:retry_count] || Yasuri::DefaultRetryCount
-      interval_ms = opt[:interval_ms] || Yasuri::DefaultInterval_ms
-
       agent = Mechanize.new
-      page = Yasuri.with_retry(retry_count, interval_ms) { agent.get(uri) }
       scrape_with_agent(uri, agent, opt)
     end
 
     def scrape_with_agent(uri, agent, opt = {})
-      page = agent.get(uri)
+      retry_count = opt[:retry_count] || Yasuri::DefaultRetryCount
+      interval_ms = opt[:interval_ms] || Yasuri::DefaultInterval_ms
+
+      page = Yasuri.with_retry(retry_count, interval_ms) { agent.get(uri) }
       inject(agent, page, opt)
     end
 

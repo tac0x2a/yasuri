@@ -26,7 +26,7 @@ module Yasuri
   def self.yaml2tree(yaml_string)
     raise RuntimeError if yaml_string.nil? or yaml_string.empty?
 
-    node_hash = YAML.load(yaml_string)
+    node_hash = YAML.safe_load(yaml_string, [Symbol], symbolize_names: true)
     self.hash2node(node_hash.deep_symbolize_keys)
   end
 
@@ -92,7 +92,7 @@ module Yasuri
     map:    Yasuri::MapNode
   }
 
-  NodeRegexps = Text2Node.keys.map { |node_type_sym| /^(#{node_type_sym.to_s})_(.+)$/ }
+  NodeRegexps = Text2Node.keys.map { |node_type_sym| /^(#{node_type_sym})_(.+)$/ }
 
   def self.hash2child_node(node_hash)
     child_nodes = []
@@ -102,7 +102,7 @@ module Yasuri
     node_hash.each do |key, value|
       # is node?
 
-      node_regexp = NodeRegexps.find { |node_regexp| key =~ node_regexp }
+      node_regexp = NodeRegexps.find { |r| key =~ r }
 
       case key
       when node_regexp

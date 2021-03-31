@@ -21,7 +21,7 @@ module Yasuri
     end
 
     def self.gen(method_name, xpath, **opt, &block)
-      children = Yasuri::NodeGenerator.new.gen_recursive(&block) if block_given?
+      children = Yasuri::NodeGenerator.new.gen_recursive(&block) if block
 
       case method_name
       when /^text_(.+)$/
