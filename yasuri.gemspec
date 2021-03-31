@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version               = Yasuri::VERSION
   spec.authors               = ['TAC']
   spec.email                 = ['tac@tac42.net']
-  spec.summary               = %q{Yasuri is easy scraping library.}
-  spec.description           = %q{Yasuri is an easy web-scraping library for supporting 'Mechanize'.}
+  spec.summary               = %q{Yasuri (鑢) is a library for declarative web scraping and cli.}
+  spec.description           = %q{Yasuri (鑢) is a library for declarative web scraping and a command line tool for scraping with it.}
   spec.homepage              = 'https://github.com/tac0x2a/yasuri'
   spec.license               = 'MIT'
 
