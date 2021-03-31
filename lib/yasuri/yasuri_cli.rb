@@ -41,6 +41,8 @@ module Yasuri
       return 0
     end
 
+    private
+
     def test_arguments(options)
       too_many_options = [options[:file], options[:json]].compact.count != 1
       raise "ERROR: Only one of `--file` or `--json` option should be specified." if too_many_options
