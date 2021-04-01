@@ -72,6 +72,20 @@ $ yasuri scrape "http://some.scraping.page.tac42.net/" -j '
 ]
 ```
 
+Also can be run on Docker
+
+```sh
+$ docker build . -t yasuri
+$ docker run yasuri yasuri scrape "https://www.ruby-lang.org/en/" -j '
+{
+  "text_title": "/html/head/title",
+  "text_desc": "//*[@id=\"intro\"]/p"
+}'
+
+{"title":"Ruby Programming Language","desc":"\n    A dynamic, open source programming language with a focus on\n    simplicity and productivity. It has an elegant syntax that is\n    natural to read and easy to write.\n    "}
+```
+
+
 The result can be obtained as a string in json format.
 
 ----------------------------
