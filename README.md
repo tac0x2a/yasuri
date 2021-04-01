@@ -120,6 +120,18 @@ $ yasuri scrape "https://www.ruby-lang.org/en/" -j '
 {"title":"Ruby Programming Language","desc":"\n    A dynamic, open source programming language with a focus on\n    simplicity and productivity. It has an elegant syntax that is\n    natural to read and easy to write.\n    "}
 ```
 
+##### Run on Docker
+```sh
+$ docker build . -t yasuri
+$ docker run yasuri yasuri scrape "https://www.ruby-lang.org/en/" -j '
+{
+  "text_title": "/html/head/title",
+  "text_desc": "//*[@id=\"intro\"]/p"
+}'
+
+{"title":"Ruby Programming Language","desc":"\n    A dynamic, open source programming language with a focus on\n    simplicity and productivity. It has an elegant syntax that is\n    natural to read and easy to write.\n    "}
+```
+
 ## Dev
 ```sh
 $ gem install bundler
