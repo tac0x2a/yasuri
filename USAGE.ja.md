@@ -75,8 +75,7 @@ $ yasuri scrape "http://some.scraping.page.tac42.net/" -j '
 Dockerでも実行できます。
 
 ```sh
-$ docker build . -t yasuri
-$ docker run yasuri yasuri scrape "https://www.ruby-lang.org/en/" -j '
+$ docker run tac0x2a/yasuri yasuri scrape "https://www.ruby-lang.org/en/" -j '
 {
   "text_title": "/html/head/title",
   "text_desc": "//*[@id=\"intro\"]/p"
